@@ -2,7 +2,8 @@ Shader "Custom/Sphere" {
     Properties {
         _EmissionColor("Color", Color) = (0, 0, 0)
         _DiffuseColor("Diffuse", Color) = (1, 1, 1)
-        _TessellationFactor("Tessellation Factor", Range(0, 64)) = 1
+        _TessellationFactor("Tessellation factor", Range(0, 64)) = 1
+        _TessellationTriangleSize("Tessellation triangle size", Float) = 100
     }
 
     SubShader {
@@ -12,8 +13,6 @@ Shader "Custom/Sphere" {
         }
 
         Pass {
-            Cull Off
-
             HLSLPROGRAM
 
             #pragma require geometry tessellation
@@ -28,11 +27,14 @@ Shader "Custom/Sphere" {
             #include "Packages/com.unity.render-pipelines.lightweight/ShaderLibrary/Input.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
             #include "Packages/com.unity.render-pipelines.lightweight/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/GeometricTools.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Tessellation.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 float3 _EmissionColor;
                 float3 _DiffuseColor;
                 float _TessellationFactor;
+                float _TessellationTriangleSize;
             CBUFFER_END
 
             struct InputAssemblerOutput {
@@ -69,11 +71,20 @@ Shader "Custom/Sphere" {
             }
 
             HullConstantOutput HullConstant(InputPatch<VertexOutput, 3> input) {
+                float3 p0 = input[0].positionOS.xyz;
+                float3 p1 = input[1].positionOS.xyz;
+                float3 p2 = input[2].positionOS.xyz;
+
+                float3 edgeFactors = GetScreenSpaceTessFactor(p0, p1, p2, GetWorldToHClipMatrix(), _ScreenParams, _TessellationTriangleSize);
+                edgeFactors *= _TessellationFactor;
+                edgeFactors = max(edgeFactors, float3(1, 1, 1));
+                float4 tessellationsFactors = CalcTriTessFactorsFromEdgeTessFactors(edgeFactors);
+
                 HullConstantOutput output;
-                output.edge[0] = _TessellationFactor;
-                output.edge[1] = _TessellationFactor;
-                output.edge[2] = _TessellationFactor;
-                output.inside = _TessellationFactor;
+                output.edge[0] = tessellationsFactors[0];
+                output.edge[1] = tessellationsFactors[1];
+                output.edge[2] = tessellationsFactors[2];
+                output.inside = tessellationsFactors[3];
                 return output;
             }
 
