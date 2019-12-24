@@ -1,6 +1,7 @@
 Shader "Custom/Sphere" {
     Properties {
         _EmissionColor("Color", Color) = (0, 0, 0)
+        _TessellationFactor("Tessellation Factor", Range(0, 64)) = 1
     }
 
     SubShader {
@@ -28,6 +29,7 @@ Shader "Custom/Sphere" {
 
             CBUFFER_START(UnityPerMaterial)
                 float3 _EmissionColor;
+                float _TessellationFactor;
             CBUFFER_END
 
             struct InputAssemblerOutput {
@@ -63,10 +65,10 @@ Shader "Custom/Sphere" {
 
             HullConstantOutput HullConstant(InputPatch<VertexOutput, 3> input) {
                 HullConstantOutput output;
-                output.edge[0] = 1.0;
-                output.edge[1] = 1.0;
-                output.edge[2] = 1.0;
-                output.inside = 1.0;
+                output.edge[0] = _TessellationFactor;
+                output.edge[1] = _TessellationFactor;
+                output.edge[2] = _TessellationFactor;
+                output.inside = _TessellationFactor;
                 return output;
             }
 
