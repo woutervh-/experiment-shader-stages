@@ -116,21 +116,34 @@ Shader "Custom/Sphere Extra Tessellation" {
                 return output;
             }
 
-            [maxvertexcount(3)]
+            [maxvertexcount(9)]
             void Geometry(triangle DomainOutput input[3], inout TriangleStream<GeometryOutput> outStream) {
-                // TODO: extra tessellation in the geometry shader.
-                
-                GeometryOutput output[3];
+                GeometryOutput output[4];
                 output[0].positionCS = input[0].positionCS;
                 output[1].positionCS = input[1].positionCS;
                 output[2].positionCS = input[2].positionCS;
+                output[3].positionCS = input[0].positionCS + input[1].positionCS + input[2].positionCS;
+                output[3].positionCS /= 3;
+
                 output[0].normalWS = input[0].normalWS;
                 output[1].normalWS = input[1].normalWS;
                 output[2].normalWS = input[2].normalWS;
+                output[3].normalWS = input[0].normalWS + input[1].normalWS + input[2].normalWS;
+                output[3].normalWS /= 3;
 
                 outStream.Append(output[0]);
                 outStream.Append(output[1]);
+                outStream.Append(output[3]);
+                outStream.RestartStrip();
+
+                outStream.Append(output[1]);
                 outStream.Append(output[2]);
+                outStream.Append(output[3]);
+                outStream.RestartStrip();
+
+                outStream.Append(output[2]);
+                outStream.Append(output[0]);
+                outStream.Append(output[3]);
                 outStream.RestartStrip();
             }
 
