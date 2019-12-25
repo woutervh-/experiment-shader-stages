@@ -80,7 +80,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _TessellationFactor: 1
+    - _TessellationFactor: 0
     - _TessellationTriangleSize: 100
     - _WorkflowMode: 1
     - _ZWrite: 1
