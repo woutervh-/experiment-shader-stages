@@ -681,6 +681,7 @@ GameObject:
   - component: {fileID: 857284000}
   - component: {fileID: 857284004}
   - component: {fileID: 857284003}
+  - component: {fileID: 857284005}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -837,6 +838,25 @@ MonoBehaviour:
       PublicKeyToken=null
   - assemblyQualifiedName: CameraBlending, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
+--- !u!114 &857284005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 857283999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b76b261b6e809e42990d1b9de334042, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraSensitivity: 10
+  rollSpeed: 40
+  normalMoveSpeed: 2
+  slowMoveFactor: 0.25
+  fastMoveFactor: 3
+  speedMultiplySpeed: 2
+  speedMultiply: 1
 --- !u!1 &903632177
 GameObject:
   m_ObjectHideFlags: 0
