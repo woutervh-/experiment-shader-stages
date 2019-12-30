@@ -1,28 +1,23 @@
+using UnityEngine;
+
 public class SQTRoot : SQTTaxomy
 {
-    const int resolution = -1;
-
     SQTConstants constants;
-    SQTNode[] children;
+    SQTNode child;
 
     public SQTRoot(SQTConstants constants)
     {
         this.constants = constants;
+        child = new SQTNode(this, constants, Vector2.zero, 0);
+    }
+
+    public SQTNode FindNode(GameObject player)
+    {
+        return child.FindNode(player);
     }
 
     public void Destroy()
     {
-        if (children != null)
-        {
-            foreach (SQTNode child in children)
-            {
-                child.Destroy();
-            }
-        }
-    }
-
-    public int GetResolution()
-    {
-        return resolution;
+        child.Destroy();
     }
 }

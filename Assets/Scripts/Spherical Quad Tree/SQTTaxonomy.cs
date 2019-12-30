@@ -1,4 +1,6 @@
+using UnityEngine;
+
 public interface SQTTaxomy
 {
-    int GetResolution();
+    SQTNode FindNode(GameObject player);
 }

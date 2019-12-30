@@ -16,9 +16,6 @@ MonoBehaviour:
   enabled:
     overrideState: 1
     value: 1
-  camera:
-    overrideState: 1
-    value: {fileID: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

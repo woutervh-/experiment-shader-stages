@@ -2,24 +2,54 @@ using UnityEngine;
 
 public class SQTManager : MonoBehaviour
 {
+    public GameObject player;
+    public Material material;
+
     SQTRoot root;
 
     void Start()
     {
-        SQTConstants constants = new SQTConstants
+        GameObject up = new GameObject("SQT Up");
+        up.transform.SetParent(transform, false);
+        SQTConstants constants = new SQTConstants(10)
         {
             global = new SQTConstants.SQTGlobal
             {
                 resolution = 16,
-                radius = 1e6f
+                radius = 1f,
+                // radius = 1e6f,
+                material = material
             },
             branch = new SQTConstants.SQTBranch(Vector3.up)
             {
-                gameObject = new GameObject("SQT Up")
+                gameObject = up
             }
         };
 
         root = new SQTRoot(constants);
+    }
+
+#if UNITY_EDITOR
+    void OnDrawGizmos()
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        SQTNode found = root.FindNode(player);
+        if (found != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireMesh(found.mesh);
+            Gizmos.DrawLine(transform.position, player.transform.position);
+        }
+    }
+#endif
+
+    void Update()
+    {
+
     }
 
     void OnDestroy()
