@@ -49,30 +49,49 @@ public class SQTNode : SQTTaxomy
         return constants.branch.up + offset.x * constants.branch.forward + offset.y * constants.branch.right;
     }
 
-    public SQTNode FindNode(Vector2 pointInPlane)
+    int GetChildIndex(SQTReconciliationSettings reconciliationSettings)
     {
-        Vector2 t = (pointInPlane - offset) / constants.depth[depth].scale;
+        Vector2 t = (reconciliationSettings.pointInPlane - offset) / constants.depth[depth].scale;
         if (t.x < -1f || 1f < t.x || t.y < -1f || 1f < t.y)
         {
-            // Point falls outside of plane.
-            return null;
-        }
-        if (children != null)
-        {
-            // Continue algorithm in the matching child.
-            int childIndex = (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
-            return children[childIndex].FindNode(pointInPlane);
+            return -1;
         }
         else
+        {
+            return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
+        }
+    }
+
+    public SQTNode FindNode(SQTReconciliationSettings reconciliationSettings)
+    {
+        int childIndex = GetChildIndex(reconciliationSettings);
+        if (childIndex == -1)
+        {
+            // Point falls outside of this section of the plane.
+            return null;
+        }
+        if (children == null)
         {
             // There are no children, this is as far as the search goes.
             return this;
         }
+        return children[childIndex].FindNode(reconciliationSettings);
+    }
+
+    bool ShouldSplit(SQTReconciliationSettings reconciliationSettings)
+    {
+        return depth < constants.global.maxDepth
+            && constants.depth[depth].approximateSize > reconciliationSettings.desiredLength;
     }
 
     public void Reconciliate(SQTReconciliationSettings reconciliationSettings)
     {
-        if (depth < constants.global.maxDepth && constants.depth[depth + 1].approximateSize > reconciliationSettings.desiredLength)
+        // TODO: follow a plan:
+        // 1. create deepest necessary subdivision.
+        // 2. bubble up: at each level ensure the minimal needed depth is used.
+        // 3. consider neighbors/siblings/...
+
+        if (ShouldSplit(reconciliationSettings))
         {
             // Add children.
             if (children == null)
@@ -86,7 +105,8 @@ public class SQTNode : SQTTaxomy
                 children[2] = new SQTNode(this, constants, offset + childRight - childForward, depth + 1);
                 children[3] = new SQTNode(this, constants, offset + childRight + childForward, depth + 1);
 
-                // TODO: reconciliate the child which is closest to the camera direction.
+                int childIndex = GetChildIndex(reconciliationSettings);
+                children[childIndex].Reconciliate(reconciliationSettings);
             }
         }
         else

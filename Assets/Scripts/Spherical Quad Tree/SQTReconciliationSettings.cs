@@ -5,13 +5,18 @@ public class SQTReconciliationSettings
     const float desiredScreenSpaceLength = 10f;
 
     public float desiredLength;
+    public Vector2 pointInPlane;
 
     public static SQTReconciliationSettings GetSettings(SQTConstants constants, Camera camera, Transform root)
     {
-        float distanceToSphere = Vector3.Distance(camera.transform.position, root.position) - constants.global.radius;
-        if (distanceToSphere < 0f)
+        Vector3 sphereToCamera = camera.transform.position - root.position;
+        float distanceToSphere = Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - constants.global.radius;
+        Vector3 direction = sphereToCamera.normalized;
+        float denominator = Vector3.Dot(constants.branch.up, direction);
+
+        if (distanceToSphere < 0f || denominator <= 0f)
         {
-            // Inside the sphere, don't do anything.
+            // Inside the sphere or on the wrong side of the plane, don't do anything.
             return null;
         }
 
@@ -21,9 +26,27 @@ public class SQTReconciliationSettings
         Vector3 bb = camera.ScreenToWorldPoint(b);
         float desiredLength = (aa - bb).magnitude;
 
+        Vector3 pointOnPlane = direction / denominator;
+        Vector2 pointInPlane = new Vector2(Vector3.Dot(constants.branch.forward, pointOnPlane), Vector3.Dot(constants.branch.right, pointOnPlane));
+
         return new SQTReconciliationSettings
         {
-            desiredLength = desiredLength
+            desiredLength = desiredLength,
+            pointInPlane = pointInPlane
         };
     }
 }
+
+
+// Vector3 direction = sphereToCamera.normalized;
+// float denominator = Vector3.Dot(constants.branch.up, direction);
+
+// if (denominator <= 0f)
+// {
+//     return null;
+// }
+
+// Vector3 pointOnPlane = direction / denominator;
+// Vector2 pointInPlane = new Vector2(Vector3.Dot(constants.branch.forward, pointOnPlane), Vector3.Dot(constants.branch.right, pointOnPlane));
+
+// return child.FindNode(pointInPlane);

@@ -44,13 +44,15 @@ public class SQTManager : MonoBehaviour
             return;
         }
 
+        SQTReconciliationSettings reconciliationSettings = SQTReconciliationSettings.GetSettings(constants, playerCamera, transform);
+        SQTNode found = root.FindNode(reconciliationSettings);
+
         Gizmos.color = Color.yellow;
-        SQTNode found = root.FindNode(playerCamera);
+        Gizmos.DrawLine(transform.position, playerCamera.transform.position);
         if (found != null)
         {
             Gizmos.DrawWireMesh(found.mesh, found.gameObject.transform.position);
         }
-        Gizmos.DrawLine(transform.position, playerCamera.transform.position);
     }
 #endif
 
@@ -61,9 +63,9 @@ public class SQTManager : MonoBehaviour
             playerCamera = player.GetComponent<Camera>();
         }
 
-        SQTNode found = root.FindNode(playerCamera);
         SQTReconciliationSettings reconciliationSettings = SQTReconciliationSettings.GetSettings(constants, playerCamera, transform);
-        if (found != null && reconciliationSettings != null)
+        SQTNode found = root.FindNode(reconciliationSettings);
+        if (found != null)
         {
             found.Reconciliate(reconciliationSettings);
         }
