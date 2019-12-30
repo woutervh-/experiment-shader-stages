@@ -9,13 +9,14 @@ public class FloatingOrigin : MonoBehaviour
     {
         if (transform.position.magnitude >= threshold)
         {
+            Vector3 position = transform.position;
             Object[] objects = FindObjectsOfType(typeof(Transform));
             foreach (Object o in objects)
             {
                 Transform t = (Transform)o;
                 if (t.parent == null)
                 {
-                    t.position -= transform.position;
+                    t.position -= position;
                 }
             }
         }
