@@ -44,13 +44,13 @@ public class SQTManager : MonoBehaviour
             return;
         }
 
+        Gizmos.color = Color.yellow;
         SQTNode found = root.FindNode(playerCamera);
         if (found != null)
         {
-            Gizmos.color = Color.yellow;
             Gizmos.DrawWireMesh(found.mesh, found.gameObject.transform.position);
-            Gizmos.DrawLine(found.gameObject.transform.position, playerCamera.transform.position);
         }
+        Gizmos.DrawLine(transform.position, playerCamera.transform.position);
     }
 #endif
 

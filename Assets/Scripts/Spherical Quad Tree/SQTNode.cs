@@ -49,37 +49,25 @@ public class SQTNode : SQTTaxomy
         return constants.branch.up + offset.x * constants.branch.forward + offset.y * constants.branch.right;
     }
 
-    public SQTNode FindNode(Camera camera)
+    public SQTNode FindNode(Vector2 pointInPlane)
     {
-        Vector3 direction = (camera.transform.position - gameObject.transform.position).normalized;
-        float denominator = Vector3.Dot(constants.branch.up, direction);
-
-        if (denominator <= 0f)
+        Vector2 t = (pointInPlane - offset) / constants.depth[depth].scale;
+        if (t.x < -1f || 1f < t.x || t.y < -1f || 1f < t.y)
         {
+            // Point falls outside of plane.
             return null;
         }
-
-        Vector3 pointOnPlane = direction / denominator;
-        float tx = (Vector3.Dot(constants.branch.forward, pointOnPlane) - offset.x) * constants.depth[depth].scale;
-        float ty = (Vector3.Dot(constants.branch.right, pointOnPlane) - offset.y) * constants.depth[depth].scale;
-        if (tx < -1f || 1f < tx || ty < -1f || 1f < ty)
-        {
-            return null;
-        }
-
         if (children != null)
         {
-            foreach (SQTNode child in children)
-            {
-                SQTNode found = child.FindNode(camera);
-                if (found != null)
-                {
-                    return found;
-                }
-            }
+            // Continue algorithm in the matching child.
+            int childIndex = (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
+            return children[childIndex].FindNode(pointInPlane);
         }
-
-        return this;
+        else
+        {
+            // There are no children, this is as far as the search goes.
+            return this;
+        }
     }
 
     public void Reconciliate(SQTReconciliationSettings reconciliationSettings)
@@ -91,8 +79,8 @@ public class SQTNode : SQTTaxomy
             {
                 meshRenderer.enabled = false;
                 children = new SQTNode[4];
-                Vector2 childForward = constants.branch.forward * constants.depth[depth + 1].scale;
-                Vector2 childRight = constants.branch.right * constants.depth[depth + 1].scale;
+                Vector2 childForward = Vector2.right * constants.depth[depth + 1].scale;
+                Vector2 childRight = Vector2.up * constants.depth[depth + 1].scale;
                 children[0] = new SQTNode(this, constants, offset - childRight - childForward, depth + 1);
                 children[1] = new SQTNode(this, constants, offset - childRight + childForward, depth + 1);
                 children[2] = new SQTNode(this, constants, offset + childRight - childForward, depth + 1);
