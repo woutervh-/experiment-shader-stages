@@ -41,8 +41,8 @@ public class SQTManager : MonoBehaviour
         if (found != null)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireMesh(found.mesh);
-            Gizmos.DrawLine(transform.position, player.transform.position);
+            Gizmos.DrawWireMesh(found.mesh, found.gameObject.transform.position);
+            Gizmos.DrawLine(found.gameObject.transform.position, player.transform.position);
         }
     }
 #endif
@@ -54,6 +54,9 @@ public class SQTManager : MonoBehaviour
 
     void OnDestroy()
     {
-        root.Destroy();
+        if (root != null)
+        {
+            root.Destroy();
+        }
     }
 }

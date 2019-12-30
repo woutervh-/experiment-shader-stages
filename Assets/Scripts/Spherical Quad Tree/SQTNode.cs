@@ -60,9 +60,9 @@ public class SQTNode : SQTTaxomy
         }
 
         Vector3 pointOnPlane = direction / denominator;
-        float tx = Vector3.Dot(constants.branch.forward, pointOnPlane);
-        float ty = Vector3.Dot(constants.branch.right, pointOnPlane);
-        if (tx < -constants.depth[depth].scale || constants.depth[depth].scale < tx || ty < -constants.depth[depth].scale || constants.depth[depth].scale < ty)
+        float tx = (Vector3.Dot(constants.branch.forward, pointOnPlane) - offset.x) * constants.depth[depth].scale;
+        float ty = (Vector3.Dot(constants.branch.right, pointOnPlane) - offset.y) * constants.depth[depth].scale;
+        if (tx < -1f || 1f < tx || ty < -1f || 1f < ty)
         {
             return null;
         }
