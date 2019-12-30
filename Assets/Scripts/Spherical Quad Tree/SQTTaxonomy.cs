@@ -2,5 +2,6 @@ using UnityEngine;
 
 public interface SQTTaxomy
 {
-    SQTNode FindNode(GameObject player);
+    SQTNode FindNode(Camera camera);
+    void Reconciliate(SQTReconciliationSettings reconciliationSettings);
 }

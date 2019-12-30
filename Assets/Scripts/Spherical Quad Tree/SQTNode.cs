@@ -49,9 +49,9 @@ public class SQTNode : SQTTaxomy
         return constants.branch.up + offset.x * constants.branch.forward + offset.y * constants.branch.right;
     }
 
-    public SQTNode FindNode(GameObject player)
+    public SQTNode FindNode(Camera camera)
     {
-        Vector3 direction = (player.transform.position - gameObject.transform.position).normalized;
+        Vector3 direction = (camera.transform.position - gameObject.transform.position).normalized;
         float denominator = Vector3.Dot(constants.branch.up, direction);
 
         if (denominator <= 0f)
@@ -71,7 +71,7 @@ public class SQTNode : SQTTaxomy
         {
             foreach (SQTNode child in children)
             {
-                SQTNode found = child.FindNode(player);
+                SQTNode found = child.FindNode(camera);
                 if (found != null)
                 {
                     return found;
@@ -80,6 +80,43 @@ public class SQTNode : SQTTaxomy
         }
 
         return this;
+    }
+
+    public void Reconciliate(SQTReconciliationSettings reconciliationSettings)
+    {
+        if (depth < constants.global.maxDepth && constants.depth[depth + 1].approximateSize > reconciliationSettings.desiredLength)
+        {
+            // Add children.
+            if (children == null)
+            {
+                meshRenderer.enabled = false;
+                children = new SQTNode[4];
+                Vector2 childForward = constants.branch.forward * constants.depth[depth + 1].scale;
+                Vector2 childRight = constants.branch.right * constants.depth[depth + 1].scale;
+                children[0] = new SQTNode(this, constants, offset - childRight - childForward, depth + 1);
+                children[1] = new SQTNode(this, constants, offset - childRight + childForward, depth + 1);
+                children[2] = new SQTNode(this, constants, offset + childRight - childForward, depth + 1);
+                children[3] = new SQTNode(this, constants, offset + childRight + childForward, depth + 1);
+
+                // TODO: reconciliate the child which is closest to the camera direction.
+            }
+        }
+        else
+        {
+            // Destroy children.
+            if (children != null)
+            {
+                foreach (SQTNode child in children)
+                {
+                    child.Destroy();
+                }
+                meshRenderer.enabled = true;
+                children = null;
+            }
+        }
+
+        // TODO: bubble up.
+        parent.Reconciliate(reconciliationSettings);
     }
 
     Mesh GenerateMesh()
