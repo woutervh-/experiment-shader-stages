@@ -62,6 +62,16 @@ public class SQTNode : SQTTaxomy
         }
     }
 
+    int[] GetClosestSiblingIndices(int childIndex)
+    {
+        return closestSiblingsLookupTable[childIndex];
+    }
+
+    int GetOppositeSiblingIndex(int childIndex)
+    {
+        return oppositeSiblingLookupTable[childIndex];
+    }
+
     public SQTNode FindNode(SQTReconciliationSettings reconciliationSettings)
     {
         int childIndex = GetChildIndex(reconciliationSettings);
@@ -98,12 +108,10 @@ public class SQTNode : SQTTaxomy
             {
                 meshRenderer.enabled = false;
                 children = new SQTNode[4];
-                Vector2 childForward = Vector2.right * constants.depth[depth + 1].scale;
-                Vector2 childRight = Vector2.up * constants.depth[depth + 1].scale;
-                children[0] = new SQTNode(this, constants, offset - childRight - childForward, depth + 1);
-                children[1] = new SQTNode(this, constants, offset - childRight + childForward, depth + 1);
-                children[2] = new SQTNode(this, constants, offset + childRight - childForward, depth + 1);
-                children[3] = new SQTNode(this, constants, offset + childRight + childForward, depth + 1);
+                children[0] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[0], depth + 1);
+                children[1] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[1], depth + 1);
+                children[2] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[2], depth + 1);
+                children[3] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[3], depth + 1);
 
                 int childIndex = GetChildIndex(reconciliationSettings);
                 children[childIndex].Reconciliate(reconciliationSettings);
@@ -122,9 +130,6 @@ public class SQTNode : SQTTaxomy
                 children = null;
             }
         }
-
-        // TODO: bubble up.
-        parent.Reconciliate(reconciliationSettings);
     }
 
     Mesh GenerateMesh()
@@ -169,4 +174,22 @@ public class SQTNode : SQTTaxomy
         mesh.RecalculateBounds();
         return mesh;
     }
+
+    static Vector2[] childOffsetVectors = new Vector2[] {
+        new Vector2(-1f, -1f),
+        new Vector2(1f, -1f),
+        new Vector2(-1f, 1f),
+        new Vector2(1f, 1f),
+     };
+
+    static int[][] closestSiblingsLookupTable = new int[][] {
+        new int[] { 1, 2 },
+        new int[] { 0, 3 },
+        new int[] { 0, 3 },
+        new int[] { 1, 2 }
+    };
+
+    static int[] oppositeSiblingLookupTable = new int[] {
+        3, 2, 1, 0
+     };
 }
