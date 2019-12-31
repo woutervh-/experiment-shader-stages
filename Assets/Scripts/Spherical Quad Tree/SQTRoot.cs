@@ -48,6 +48,7 @@ public class SQTRoot : SQTTaxomy
         {
             return;
         }
+        branches[reconciliationData.constants.branch.index].Reconciliate(reconciliationData);
     }
 
     SQTReconciliationData GetReconciliationData(Camera camera)
