@@ -4,6 +4,7 @@ public class SQTReconciliationData
 {
     const float desiredScreenSpaceLength = 10f;
 
+    public SQTConstants constants;
     public float desiredLength;
     public Vector2 pointInPlane;
 
@@ -41,8 +42,14 @@ public class SQTReconciliationData
         Vector3 pointOnPlane = direction / denominator;
         Vector2 pointInPlane = new Vector2(Vector3.Dot(constants.branch.forward, pointOnPlane), Vector3.Dot(constants.branch.right, pointOnPlane));
 
+        if (pointInPlane.x < -1f || 1f < pointInPlane.x || pointInPlane.y < -1f || 1f < pointInPlane.y)
+        {
+            return null;
+        }
+
         return new SQTReconciliationData
         {
+            constants = constants,
             desiredLength = desiredLength,
             pointInPlane = pointInPlane
         };

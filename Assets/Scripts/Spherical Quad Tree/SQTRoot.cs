@@ -17,7 +17,7 @@ public class SQTRoot : SQTTaxomy
         {
             GameObject branchGameObject = new GameObject("SQT (" + i + ")");
             branchGameObject.transform.SetParent(global.gameObject.transform, false);
-            SQTConstants.SQTBranch branch = new SQTConstants.SQTBranch(directions[i])
+            SQTConstants.SQTBranch branch = new SQTConstants.SQTBranch(i, directions[i])
             {
                 gameObject = branchGameObject
             };
@@ -33,26 +33,34 @@ public class SQTRoot : SQTTaxomy
 
     public SQTNode FindNode(Camera camera)
     {
-        for (int i = 0; i < directions.Length; i++)
+        SQTReconciliationData reconciliationData = GetReconciliationData(camera);
+        if (reconciliationData == null)
         {
-            SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(constants[i], camera);
-            if (reconciliationData == null)
-            {
-                continue;
-            }
-            if (reconciliationData.pointInPlane.x < -1f || 1f < reconciliationData.pointInPlane.x || reconciliationData.pointInPlane.y < -1f || 1f < reconciliationData.pointInPlane.y)
-            {
-                // Point is outside branch quad.
-                continue;
-            }
-            return branches[i].FindNode(reconciliationData.pointInPlane);
+            return null;
         }
-
-        return null;
+        return branches[reconciliationData.constants.branch.index].FindNode(reconciliationData.pointInPlane);
     }
 
     public void Reconciliate(Camera camera)
     {
+        SQTReconciliationData reconciliationData = GetReconciliationData(camera);
+        if (reconciliationData == null)
+        {
+            return;
+        }
+    }
+
+    SQTReconciliationData GetReconciliationData(Camera camera)
+    {
+        for (int i = 0; i < directions.Length; i++)
+        {
+            SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(constants[i], camera);
+            if (reconciliationData != null)
+            {
+                return reconciliationData;
+            }
+        }
+        return null;
     }
 
     public void Destroy()

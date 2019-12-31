@@ -34,13 +34,15 @@ public class SQTConstants
 
     public class SQTBranch
     {
+        public int index;
         public Vector3 up;
         public Vector3 forward;
         public Vector3 right;
         public GameObject gameObject;
 
-        public SQTBranch(Vector3 up)
+        public SQTBranch(int index, Vector3 up)
         {
+            this.index = index;
             this.up = up;
             forward = new Vector3(up.y, up.z, up.x);
             right = Vector3.Cross(up, forward);
