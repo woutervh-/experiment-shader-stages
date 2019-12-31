@@ -29,6 +29,7 @@ public class SQTConstants
         public int resolution;
         public float radius;
         public Material material;
+        public GameObject gameObject;
     }
 
     public class SQTBranch

@@ -49,17 +49,10 @@ public class SQTNode : SQTTaxomy
         return constants.branch.up + offset.x * constants.branch.forward + offset.y * constants.branch.right;
     }
 
-    int GetChildIndex(SQTReconciliationSettings reconciliationSettings)
+    int GetChildIndex(Vector2 pointInPlane)
     {
-        Vector2 t = (reconciliationSettings.pointInPlane - offset) / constants.depth[depth].scale;
-        if (t.x < -1f || 1f < t.x || t.y < -1f || 1f < t.y)
-        {
-            return -1;
-        }
-        else
-        {
-            return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
-        }
+        Vector2 t = (pointInPlane - offset) / constants.depth[depth].scale;
+        return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
     }
 
     int[] GetClosestSiblingIndices(int childIndex)
@@ -72,36 +65,31 @@ public class SQTNode : SQTTaxomy
         return oppositeSiblingLookupTable[childIndex];
     }
 
-    public SQTNode FindNode(SQTReconciliationSettings reconciliationSettings)
+    public SQTNode FindNode(Vector2 pointInPlane)
     {
-        int childIndex = GetChildIndex(reconciliationSettings);
-        if (childIndex == -1)
-        {
-            // Point falls outside of this section of the plane.
-            return null;
-        }
+        int childIndex = GetChildIndex(pointInPlane);
         if (children == null)
         {
             // There are no children, this is as far as the search goes.
             return this;
         }
-        return children[childIndex].FindNode(reconciliationSettings);
+        return children[childIndex].FindNode(pointInPlane);
     }
 
-    bool ShouldSplit(SQTReconciliationSettings reconciliationSettings)
+    bool ShouldSplit(SQTReconciliationData reconciliationData)
     {
         return depth < constants.global.maxDepth
-            && constants.depth[depth].approximateSize > reconciliationSettings.desiredLength;
+            && constants.depth[depth].approximateSize > reconciliationData.desiredLength;
     }
 
-    public void Reconciliate(SQTReconciliationSettings reconciliationSettings)
+    public void Reconciliate(SQTReconciliationData reconciliationData)
     {
         // TODO: follow a plan:
         // 1. create deepest necessary subdivision.
         // 2. bubble up: at each level ensure the minimal needed depth is used.
         // 3. consider neighbors/siblings/...
 
-        if (ShouldSplit(reconciliationSettings))
+        if (ShouldSplit(reconciliationData))
         {
             // Add children.
             if (children == null)
@@ -112,9 +100,12 @@ public class SQTNode : SQTTaxomy
                 children[1] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[1], depth + 1);
                 children[2] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[2], depth + 1);
                 children[3] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[3], depth + 1);
+            }
 
-                int childIndex = GetChildIndex(reconciliationSettings);
-                children[childIndex].Reconciliate(reconciliationSettings);
+            int childIndex = GetChildIndex(reconciliationData.pointInPlane);
+            if (childIndex != -1)
+            {
+                children[childIndex].Reconciliate(reconciliationData);
             }
         }
         else
@@ -175,21 +166,21 @@ public class SQTNode : SQTTaxomy
         return mesh;
     }
 
-    static Vector2[] childOffsetVectors = new Vector2[] {
+    static Vector2[] childOffsetVectors = {
         new Vector2(-1f, -1f),
         new Vector2(1f, -1f),
         new Vector2(-1f, 1f),
         new Vector2(1f, 1f),
      };
 
-    static int[][] closestSiblingsLookupTable = new int[][] {
+    static int[][] closestSiblingsLookupTable = {
         new int[] { 1, 2 },
         new int[] { 0, 3 },
         new int[] { 0, 3 },
         new int[] { 1, 2 }
     };
 
-    static int[] oppositeSiblingLookupTable = new int[] {
+    static int[] oppositeSiblingLookupTable = {
         3, 2, 1, 0
      };
 }

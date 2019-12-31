@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface SQTTaxomy
 {
-    void Reconciliate(SQTReconciliationSettings reconciliationSettings);
+    // void Reconciliate(SQTReconciliationData reconciliationData);
 }

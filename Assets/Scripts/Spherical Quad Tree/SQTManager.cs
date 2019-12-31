@@ -6,34 +6,21 @@ public class SQTManager : MonoBehaviour
     public Material material;
 
     SQTRoot root;
-    SQTConstants constants;
     Camera playerCamera;
 
     void Start()
     {
-        GameObject up = new GameObject("SQT Up");
-        up.transform.SetParent(transform, false);
-
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
             maxDepth = 10,
             resolution = 16,
             radius = 1f,
             // radius = 1e6f,
-            material = material
-        };
-        SQTConstants.SQTBranch branch = new SQTConstants.SQTBranch(Vector3.up)
-        {
-            gameObject = up
+            material = material,
+            gameObject = gameObject
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
-        constants = new SQTConstants
-        {
-            global = global,
-            branch = branch,
-            depth = depth
-        };
-        root = new SQTRoot(constants);
+        root = new SQTRoot(global, depth);
     }
 
 #if UNITY_EDITOR
@@ -44,8 +31,7 @@ public class SQTManager : MonoBehaviour
             return;
         }
 
-        SQTReconciliationSettings reconciliationSettings = SQTReconciliationSettings.GetSettings(constants, playerCamera, transform);
-        SQTNode found = root.FindNode(reconciliationSettings);
+        SQTNode found = root.FindNode(playerCamera);
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, playerCamera.transform.position);
@@ -63,12 +49,11 @@ public class SQTManager : MonoBehaviour
             playerCamera = player.GetComponent<Camera>();
         }
 
-        SQTReconciliationSettings reconciliationSettings = SQTReconciliationSettings.GetSettings(constants, playerCamera, transform);
-        SQTNode found = root.FindNode(reconciliationSettings);
-        if (found != null)
-        {
-            found.Reconciliate(reconciliationSettings);
-        }
+        // foreach (SQTRoot root in roots)
+        // {
+        //     SQTReconciliationData reconciliationData = SQTReconciliationData.GetSettings(root.constants, playerCamera, transform);
+        //     root.Reconciliate(reconciliationData);
+        // }
     }
 
     void OnDestroy()

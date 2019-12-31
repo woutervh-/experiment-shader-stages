@@ -1,22 +1,22 @@
 using UnityEngine;
 
-public class SQTReconciliationSettings
+public class SQTReconciliationData
 {
     const float desiredScreenSpaceLength = 10f;
 
     public float desiredLength;
     public Vector2 pointInPlane;
 
-    public static SQTReconciliationSettings GetSettings(SQTConstants constants, Camera camera, Transform root)
+    public static SQTReconciliationData GetData(SQTConstants constants, Camera camera, Transform root)
     {
         Vector3 sphereToCamera = camera.transform.position - root.position;
-        float distanceToSphere = Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - constants.global.radius;
+        float distanceToSphere = Mathf.Abs(Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - constants.global.radius);
         Vector3 direction = sphereToCamera.normalized;
         float denominator = Vector3.Dot(constants.branch.up, direction);
 
-        if (distanceToSphere < 0f || denominator <= 0f)
+        if (denominator == 0f)
         {
-            // Inside the sphere or on the wrong side of the plane, don't do anything.
+            // Inside the sphere surface, don't do anything.
             return null;
         }
 
@@ -29,7 +29,7 @@ public class SQTReconciliationSettings
         Vector3 pointOnPlane = direction / denominator;
         Vector2 pointInPlane = new Vector2(Vector3.Dot(constants.branch.forward, pointOnPlane), Vector3.Dot(constants.branch.right, pointOnPlane));
 
-        return new SQTReconciliationSettings
+        return new SQTReconciliationData
         {
             desiredLength = desiredLength,
             pointInPlane = pointInPlane
