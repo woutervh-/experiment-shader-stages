@@ -49,6 +49,8 @@ public class SQTManager : MonoBehaviour
             playerCamera = player.GetComponent<Camera>();
         }
 
+        root.Reconciliate(playerCamera);
+
         // foreach (SQTRoot root in roots)
         // {
         //     SQTReconciliationData reconciliationData = SQTReconciliationData.GetSettings(root.constants, playerCamera, transform);

@@ -7,19 +7,31 @@ public class SQTReconciliationData
     public float desiredLength;
     public Vector2 pointInPlane;
 
-    public static SQTReconciliationData GetData(SQTConstants constants, Camera camera, Transform root)
+    public static SQTReconciliationData GetData(SQTConstants constants, Camera camera)
     {
-        Vector3 sphereToCamera = camera.transform.position - root.position;
-        float distanceToSphere = Mathf.Abs(Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - constants.global.radius);
-        Vector3 direction = sphereToCamera.normalized;
-        float denominator = Vector3.Dot(constants.branch.up, direction);
+        Vector3 sphereToCamera = camera.transform.position - constants.global.gameObject.transform.position;
 
-        if (denominator == 0f)
+        Vector3 direction;
+        float denominator;
+        if (sphereToCamera.sqrMagnitude == 0f)
         {
-            // Inside the sphere surface, don't do anything.
-            return null;
+            // Camera is at the center of the sphere.
+            direction = constants.branch.up;
+            denominator = 1f;
+        }
+        else
+        {
+            direction = sphereToCamera.normalized;
+            denominator = Vector3.Dot(constants.branch.up, direction);
+
+            if (denominator <= 0f)
+            {
+                // Camera is in opposite hemisphere.
+                return null;
+            }
         }
 
+        float distanceToSphere = Mathf.Abs(Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - constants.global.radius);
         Vector3 aa = camera.transform.position + camera.transform.forward * distanceToSphere;
         Vector3 a = camera.WorldToScreenPoint(aa);
         Vector3 b = new Vector3(a.x, a.y + desiredScreenSpaceLength, a.z);

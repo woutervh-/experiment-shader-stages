@@ -33,47 +33,27 @@ public class SQTRoot : SQTTaxomy
 
     public SQTNode FindNode(Camera camera)
     {
-        Vector3 sphereToCameraVector = camera.transform.position - global.gameObject.transform.position;
-
-        if (sphereToCameraVector.sqrMagnitude == 0f)
-        {
-            return null;
-        }
-
-        Vector3 sphereToCameraDirection = sphereToCameraVector.normalized;
-
         for (int i = 0; i < directions.Length; i++)
         {
-            float denominator = Vector3.Dot(constants[i].branch.up, sphereToCameraDirection);
-            if (denominator <= 0f)
+            SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(constants[i], camera);
+            if (reconciliationData == null)
             {
-                // Camera is in opposite hemisphere.
                 continue;
             }
-
-            Vector3 pointOnPlane = sphereToCameraDirection / denominator;
-            Vector2 pointInPlane = new Vector2(Vector3.Dot(constants[i].branch.forward, pointOnPlane), Vector3.Dot(constants[i].branch.right, pointOnPlane));
-
-            if (pointInPlane.x < -1f || 1f < pointInPlane.x || pointInPlane.y < -1f || 1f < pointInPlane.y)
+            if (reconciliationData.pointInPlane.x < -1f || 1f < reconciliationData.pointInPlane.x || reconciliationData.pointInPlane.y < -1f || 1f < reconciliationData.pointInPlane.y)
             {
                 // Point is outside branch quad.
                 continue;
             }
-
-            return branches[i].FindNode(pointInPlane);
+            return branches[i].FindNode(reconciliationData.pointInPlane);
         }
 
         return null;
     }
 
-    // public void Reconciliate(SQTReconciliationData reconciliationData)
-    // {
-    //     if (reconciliationData == null)
-    //     {
-    //         return;
-    //     }
-    //     child.Reconciliate(reconciliationData);
-    // }
+    public void Reconciliate(Camera camera)
+    {
+    }
 
     public void Destroy()
     {
