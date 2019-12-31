@@ -82,44 +82,65 @@ public class SQTNode : SQTTaxomy
             && constants.depth[depth].approximateSize > reconciliationData.desiredLength;
     }
 
-    public void Reconciliate(SQTReconciliationData reconciliationData)
+    void Split()
     {
-        // TODO: follow a plan:
-        // 1. create deepest necessary subdivision.
-        // 2. bubble up: at each level ensure the minimal needed depth is used.
-        // 3. consider neighbors/siblings/...
+        if (children == null)
+        {
+            meshRenderer.enabled = false;
+            children = new SQTNode[4];
+            children[0] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[0], depth + 1);
+            children[1] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[1], depth + 1);
+            children[2] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[2], depth + 1);
+            children[3] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[3], depth + 1);
+        }
+    }
 
+    void Merge()
+    {
+        if (children != null)
+        {
+            foreach (SQTNode child in children)
+            {
+                child.Destroy();
+            }
+            meshRenderer.enabled = true;
+            children = null;
+        }
+    }
+
+    public int[] DeepSplit(SQTReconciliationData reconciliationData)
+    {
         if (ShouldSplit(reconciliationData))
         {
-            // Add children.
-            if (children == null)
-            {
-                meshRenderer.enabled = false;
-                children = new SQTNode[4];
-                children[0] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[0], depth + 1);
-                children[1] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[1], depth + 1);
-                children[2] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[2], depth + 1);
-                children[3] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[3], depth + 1);
-            }
-
+            Split();
             int childIndex = GetChildIndex(reconciliationData.pointInPlane);
-            if (childIndex != -1)
-            {
-                children[childIndex].Reconciliate(reconciliationData);
-            }
+            int[] path = children[childIndex].DeepSplit(reconciliationData);
+            path[depth] = childIndex;
+            return path;
         }
         else
         {
-            // Destroy children.
+            return new int[depth];
+        }
+    }
+
+    public void Reconciliate(int[] path)
+    {
+        if (depth >= path.Length)
+        {
+            Merge();
+        }
+        else
+        {
             if (children != null)
             {
                 foreach (SQTNode child in children)
                 {
-                    child.Destroy();
+                    child.Reconciliate(path);
                 }
-                meshRenderer.enabled = true;
-                children = null;
             }
+
+            // TODO:
         }
     }
 
@@ -182,5 +203,12 @@ public class SQTNode : SQTTaxomy
 
     static int[] oppositeSiblingLookupTable = {
         3, 2, 1, 0
+     };
+
+    static int[][] childVisitOrder = {
+        new int[] { 0, 1, 2, 3 },
+        new int[] { 1, 0, 3, 2 },
+        new int[] { 2, 0, 3, 1 },
+        new int[] { 3, 1, 2, 0 }
      };
 }

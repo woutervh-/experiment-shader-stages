@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class SQTRoot : SQTTaxomy
 {
-    static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+    // static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+    static Vector3[] directions = { Vector3.up };
 
     SQTConstants.SQTGlobal global;
     SQTConstants[] constants;
@@ -48,7 +49,8 @@ public class SQTRoot : SQTTaxomy
         {
             return;
         }
-        branches[reconciliationData.constants.branch.index].Reconciliate(reconciliationData);
+        int[] path = branches[reconciliationData.constants.branch.index].DeepSplit(reconciliationData);
+        branches[reconciliationData.constants.branch.index].Reconciliate(path);
     }
 
     SQTReconciliationData GetReconciliationData(Camera camera)
