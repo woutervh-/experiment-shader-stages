@@ -5,7 +5,7 @@ public class SQTNode : SQTTaxomy
 {
     public Mesh mesh;
     public GameObject gameObject;
-    public int[] path;
+    public SQTDirection.Ordinal[] path;
 
     SQTTaxomy parent;
     SQTConstants constants;
@@ -14,7 +14,7 @@ public class SQTNode : SQTTaxomy
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
 
-    public SQTNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, int[] path)
+    public SQTNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, SQTDirection.Ordinal[] path)
     {
         this.parent = parent;
         this.constants = constants;
@@ -91,9 +91,9 @@ public class SQTNode : SQTTaxomy
             children = new SQTNode[4];
             for (int i = 0; i < 4; i++)
             {
-                int[] childPath = new int[path.Length + 1];
+                SQTDirection.Ordinal[] childPath = new SQTDirection.Ordinal[path.Length + 1];
                 Array.Copy(path, childPath, path.Length);
-                childPath[path.Length] = i;
+                childPath[path.Length] = (SQTDirection.Ordinal)i;
                 children[i] = new SQTNode(this, constants, offset + constants.depth[path.Length + 1].scale * childOffsetVectors[i], childPath);
             }
         }
@@ -126,7 +126,7 @@ public class SQTNode : SQTTaxomy
         }
     }
 
-    public void Reconciliate(int[] targetPath)
+    public void Reconciliate(SQTDirection.Ordinal[] targetPath)
     {
         if (path.Length >= targetPath.Length)
         {
@@ -143,6 +143,14 @@ public class SQTNode : SQTTaxomy
             }
 
             // TODO:
+        }
+    }
+
+    public void EnsureNeighbor(SQTDirection.Cardinal direction)
+    {
+        if (path[path.Length - 1] == SQTDirection.Ordinal.SouthWest)
+        {
+            //
         }
     }
 

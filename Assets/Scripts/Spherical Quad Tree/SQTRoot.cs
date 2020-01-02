@@ -14,7 +14,7 @@ public class SQTRoot : SQTTaxomy
         this.global = global;
         branches = new SQTNode[directions.Length];
         constants = new SQTConstants[directions.Length];
-        int[] branchRootPath = new int[] { };
+        SQTDirection.Ordinal[] branchRootPath = new SQTDirection.Ordinal[0];
         for (int i = 0; i < directions.Length; i++)
         {
             GameObject branchGameObject = new GameObject("SQT (" + i + ")");
