@@ -6,6 +6,7 @@ public class SQTNode : SQTTaxomy
     public Mesh mesh;
     public GameObject gameObject;
     public int[] path;
+    public int[][] neighborPaths;
 
     SQTTaxomy parent;
     SQTConstants constants;
@@ -20,6 +21,12 @@ public class SQTNode : SQTTaxomy
         this.constants = constants;
         this.offset = offset;
         this.path = path;
+        neighborPaths = new int[][] {
+            GetNeighborPath(path, 0),
+            GetNeighborPath(path, 1),
+            GetNeighborPath(path, 2),
+            GetNeighborPath(path, 3)
+        };
 
         gameObject = new GameObject("Chunk " + string.Join("", path));
         gameObject.transform.SetParent(constants.branch.gameObject.transform, false);
@@ -71,6 +78,11 @@ public class SQTNode : SQTTaxomy
     {
         return path.Length < constants.global.maxDepth
             && constants.depth[path.Length].approximateSize > reconciliationData.desiredLength;
+    }
+
+    bool ShouldSplit(int[] targetPath)
+    {
+        for (int i=0;i<)
     }
 
     void Split()
@@ -126,10 +138,9 @@ public class SQTNode : SQTTaxomy
         {
             if (children != null)
             {
-                int[] childIndices = childVisitOrder[targetPath[path.Length]];
-                foreach (int childIndex in childIndices)
+                foreach (SQTNode child in children)
                 {
-                    children[childIndex].Reconciliate(path);
+                    child.Reconciliate(path);
                 }
             }
 
@@ -140,33 +151,6 @@ public class SQTNode : SQTTaxomy
             // parent.GetNeighbor(2).EnsureMaximumDepth(...?)
             // parent.GetNeighbor(3).EnsureMaximumDepth(...?)
         }
-    }
-
-    public static int[] GetNeighborPath(int[] path, int direction)
-    {
-        // direction: west=0, east=1, south=2, north=3
-
-        int[] neighborPath = new int[path.Length];
-        Array.Copy(path, neighborPath, path.Length);
-        for (int i = neighborPath.Length - 1; i >= 0; i--)
-        {
-            bool carry;
-            if (direction == 0 || direction == 1)
-            {
-                carry = ((path[i] ^ (direction << 0)) & 1) == 0;
-                neighborPath[i] = path[i] ^ 1;
-            }
-            else
-            {
-                carry = ((path[i] ^ (direction << 1)) & 2) == 0;
-                neighborPath[i] = path[i] ^ 2;
-            }
-            if (!carry)
-            {
-                break;
-            }
-        }
-        return neighborPath;
     }
 
     public void EnsureMaximumDepth(int depth)
@@ -230,6 +214,33 @@ public class SQTNode : SQTTaxomy
         return mesh;
     }
 
+    static int[] GetNeighborPath(int[] path, int direction)
+    {
+        // direction: west=0, east=1, south=2, north=3
+
+        int[] neighborPath = new int[path.Length];
+        Array.Copy(path, neighborPath, path.Length);
+        for (int i = neighborPath.Length - 1; i >= 0; i--)
+        {
+            bool carry;
+            if (direction == 0 || direction == 1)
+            {
+                carry = ((path[i] ^ (direction << 0)) & 1) == 0;
+                neighborPath[i] = path[i] ^ 1;
+            }
+            else
+            {
+                carry = ((path[i] ^ (direction << 1)) & 2) == 0;
+                neighborPath[i] = path[i] ^ 2;
+            }
+            if (!carry)
+            {
+                break;
+            }
+        }
+        return neighborPath;
+    }
+
     static Vector2[] childOffsetVectors = {
         new Vector2(-1f, -1f),
         new Vector2(1f, -1f),
@@ -237,10 +248,10 @@ public class SQTNode : SQTTaxomy
         new Vector2(1f, 1f),
      };
 
-    static int[][] childVisitOrder = {
-        new int[] { 0, 1, 2, 3 },
-        new int[] { 1, 0, 3, 2 },
-        new int[] { 2, 0, 3, 1 },
-        new int[] { 3, 1, 2, 0 }
-     };
+    // static int[][] childVisitOrder = {
+    //     new int[] { 0, 1, 2, 3 },
+    //     new int[] { 1, 0, 3, 2 },
+    //     new int[] { 2, 0, 3, 1 },
+    //     new int[] { 3, 1, 2, 0 }
+    //  };
 }
