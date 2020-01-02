@@ -134,6 +134,11 @@ public class SQTNode : SQTTaxomy
             }
 
             // TODO:
+            // parent.EnsureMaximumDepth(...?);
+            // parent.GetNeighbor(0).EnsureMaximumDepth(...?)
+            // parent.GetNeighbor(1).EnsureMaximumDepth(...?)
+            // parent.GetNeighbor(2).EnsureMaximumDepth(...?)
+            // parent.GetNeighbor(3).EnsureMaximumDepth(...?)
         }
     }
 
