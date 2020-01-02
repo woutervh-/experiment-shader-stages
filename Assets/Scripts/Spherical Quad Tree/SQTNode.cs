@@ -5,7 +5,7 @@ public class SQTNode : SQTTaxomy
 {
     public Mesh mesh;
     public GameObject gameObject;
-    public SQTDirection.Ordinal[] path;
+    public int[] path;
 
     SQTTaxomy parent;
     SQTConstants constants;
@@ -14,7 +14,7 @@ public class SQTNode : SQTTaxomy
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
 
-    public SQTNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, SQTDirection.Ordinal[] path)
+    public SQTNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, int[] path)
     {
         this.parent = parent;
         this.constants = constants;
@@ -56,24 +56,14 @@ public class SQTNode : SQTTaxomy
         return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
     }
 
-    int[] GetClosestSiblingIndices(int childIndex)
-    {
-        return closestSiblingsLookupTable[childIndex];
-    }
-
-    int GetOppositeSiblingIndex(int childIndex)
-    {
-        return oppositeSiblingLookupTable[childIndex];
-    }
-
     public SQTNode FindNode(Vector2 pointInPlane)
     {
-        int childIndex = GetChildIndex(pointInPlane);
         if (children == null)
         {
             // There are no children, this is as far as the search goes.
             return this;
         }
+        int childIndex = GetChildIndex(pointInPlane);
         return children[childIndex].FindNode(pointInPlane);
     }
 
@@ -91,9 +81,9 @@ public class SQTNode : SQTTaxomy
             children = new SQTNode[4];
             for (int i = 0; i < 4; i++)
             {
-                SQTDirection.Ordinal[] childPath = new SQTDirection.Ordinal[path.Length + 1];
+                int[] childPath = new int[path.Length + 1];
                 Array.Copy(path, childPath, path.Length);
-                childPath[path.Length] = (SQTDirection.Ordinal)i;
+                childPath[path.Length] = i;
                 children[i] = new SQTNode(this, constants, offset + constants.depth[path.Length + 1].scale * childOffsetVectors[i], childPath);
             }
         }
@@ -126,7 +116,7 @@ public class SQTNode : SQTTaxomy
         }
     }
 
-    public void Reconciliate(SQTDirection.Ordinal[] targetPath)
+    public void Reconciliate(int[] targetPath)
     {
         if (path.Length >= targetPath.Length)
         {
@@ -136,9 +126,10 @@ public class SQTNode : SQTTaxomy
         {
             if (children != null)
             {
-                foreach (SQTNode child in children)
+                int[] childIndices = childVisitOrder[targetPath[path.Length]];
+                foreach (int childIndex in childIndices)
                 {
-                    child.Reconciliate(path);
+                    children[childIndex].Reconciliate(path);
                 }
             }
 
@@ -146,11 +137,48 @@ public class SQTNode : SQTTaxomy
         }
     }
 
-    public void EnsureNeighbor(SQTDirection.Cardinal direction)
+    public static int[] GetNeighborPath(int[] path, int direction)
     {
-        if (path[path.Length - 1] == SQTDirection.Ordinal.SouthWest)
+        // direction: west=0, east=1, south=2, north=3
+
+        int[] neighborPath = new int[path.Length];
+        Array.Copy(path, neighborPath, path.Length);
+        for (int i = neighborPath.Length - 1; i >= 0; i--)
         {
-            //
+            bool carry;
+            if (direction == 0 || direction == 1)
+            {
+                carry = ((path[i] ^ (direction << 0)) & 1) == 0;
+                neighborPath[i] = path[i] ^ 1;
+            }
+            else
+            {
+                carry = ((path[i] ^ (direction << 1)) & 2) == 0;
+                neighborPath[i] = path[i] ^ 2;
+            }
+            if (!carry)
+            {
+                break;
+            }
+        }
+        return neighborPath;
+    }
+
+    public void EnsureMaximumDepth(int depth)
+    {
+        if (depth == 0)
+        {
+            Merge();
+        }
+        else
+        {
+            if (children != null)
+            {
+                foreach (SQTNode child in children)
+                {
+                    child.EnsureMaximumDepth(depth - 1);
+                }
+            }
         }
     }
 
@@ -202,17 +230,6 @@ public class SQTNode : SQTTaxomy
         new Vector2(1f, -1f),
         new Vector2(-1f, 1f),
         new Vector2(1f, 1f),
-     };
-
-    static int[][] closestSiblingsLookupTable = {
-        new int[] { 1, 2 },
-        new int[] { 0, 3 },
-        new int[] { 0, 3 },
-        new int[] { 1, 2 }
-    };
-
-    static int[] oppositeSiblingLookupTable = {
-        3, 2, 1, 0
      };
 
     static int[][] childVisitOrder = {
