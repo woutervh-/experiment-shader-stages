@@ -1,26 +1,27 @@
+using System;
 using UnityEngine;
 
 public class SQTNode : SQTTaxomy
 {
     public Mesh mesh;
     public GameObject gameObject;
+    public int[] path;
 
     SQTTaxomy parent;
     SQTConstants constants;
     SQTNode[] children;
-    int depth;
     Vector2 offset;
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
 
-    public SQTNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, int depth)
+    public SQTNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, int[] path)
     {
         this.parent = parent;
         this.constants = constants;
         this.offset = offset;
-        this.depth = depth;
+        this.path = path;
 
-        gameObject = new GameObject("Chunk " + depth);
+        gameObject = new GameObject("Chunk " + string.Join("", path));
         gameObject.transform.SetParent(constants.branch.gameObject.transform, false);
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
@@ -38,10 +39,10 @@ public class SQTNode : SQTTaxomy
                 child.Destroy();
             }
         }
-        Object.Destroy(meshRenderer);
-        Object.Destroy(meshFilter);
-        Object.Destroy(gameObject);
-        Object.Destroy(mesh);
+        UnityEngine.Object.Destroy(meshRenderer);
+        UnityEngine.Object.Destroy(meshFilter);
+        UnityEngine.Object.Destroy(gameObject);
+        UnityEngine.Object.Destroy(mesh);
     }
 
     public Vector3 GetOrigin()
@@ -51,7 +52,7 @@ public class SQTNode : SQTTaxomy
 
     int GetChildIndex(Vector2 pointInPlane)
     {
-        Vector2 t = (pointInPlane - offset) / constants.depth[depth].scale;
+        Vector2 t = (pointInPlane - offset) / constants.depth[path.Length].scale;
         return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
     }
 
@@ -78,8 +79,8 @@ public class SQTNode : SQTTaxomy
 
     bool ShouldSplit(SQTReconciliationData reconciliationData)
     {
-        return depth < constants.global.maxDepth
-            && constants.depth[depth].approximateSize > reconciliationData.desiredLength;
+        return path.Length < constants.global.maxDepth
+            && constants.depth[path.Length].approximateSize > reconciliationData.desiredLength;
     }
 
     void Split()
@@ -88,10 +89,13 @@ public class SQTNode : SQTTaxomy
         {
             meshRenderer.enabled = false;
             children = new SQTNode[4];
-            children[0] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[0], depth + 1);
-            children[1] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[1], depth + 1);
-            children[2] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[2], depth + 1);
-            children[3] = new SQTNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[3], depth + 1);
+            for (int i = 0; i < 4; i++)
+            {
+                int[] childPath = new int[path.Length + 1];
+                Array.Copy(path, childPath, path.Length);
+                childPath[path.Length] = i;
+                children[i] = new SQTNode(this, constants, offset + constants.depth[path.Length + 1].scale * childOffsetVectors[i], childPath);
+            }
         }
     }
 
@@ -108,25 +112,23 @@ public class SQTNode : SQTTaxomy
         }
     }
 
-    public int[] DeepSplit(SQTReconciliationData reconciliationData)
+    public SQTNode DeepSplit(SQTReconciliationData reconciliationData)
     {
         if (ShouldSplit(reconciliationData))
         {
             Split();
             int childIndex = GetChildIndex(reconciliationData.pointInPlane);
-            int[] path = children[childIndex].DeepSplit(reconciliationData);
-            path[depth] = childIndex;
-            return path;
+            return children[childIndex].DeepSplit(reconciliationData);
         }
         else
         {
-            return new int[depth];
+            return this;
         }
     }
 
-    public void Reconciliate(int[] path)
+    public void Reconciliate(int[] targetPath)
     {
-        if (depth >= path.Length)
+        if (path.Length >= targetPath.Length)
         {
             Merge();
         }
@@ -159,8 +161,8 @@ public class SQTNode : SQTTaxomy
                 int vertexIndex = x + constants.global.resolution * y;
                 Vector2 percent = new Vector2(x, y) / (constants.global.resolution - 1);
                 Vector3 pointOnUnitCube = origin
-                    + Mathf.Lerp(-1f, 1f, percent.x) * constants.depth[depth].scale * constants.branch.forward
-                    + Mathf.Lerp(-1f, 1f, percent.y) * constants.depth[depth].scale * constants.branch.right;
+                    + Mathf.Lerp(-1f, 1f, percent.x) * constants.depth[path.Length].scale * constants.branch.forward
+                    + Mathf.Lerp(-1f, 1f, percent.y) * constants.depth[path.Length].scale * constants.branch.right;
 
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                 vertices[vertexIndex] = pointOnUnitSphere * constants.global.radius;

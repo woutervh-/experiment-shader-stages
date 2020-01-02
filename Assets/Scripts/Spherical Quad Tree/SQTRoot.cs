@@ -14,6 +14,7 @@ public class SQTRoot : SQTTaxomy
         this.global = global;
         branches = new SQTNode[directions.Length];
         constants = new SQTConstants[directions.Length];
+        int[] branchRootPath = new int[] { };
         for (int i = 0; i < directions.Length; i++)
         {
             GameObject branchGameObject = new GameObject("SQT (" + i + ")");
@@ -28,7 +29,7 @@ public class SQTRoot : SQTTaxomy
                 branch = branch,
                 depth = depth
             };
-            branches[i] = new SQTNode(this, constants[i], Vector2.zero, 0);
+            branches[i] = new SQTNode(this, constants[i], Vector2.zero, branchRootPath);
         }
     }
 
@@ -49,8 +50,8 @@ public class SQTRoot : SQTTaxomy
         {
             return;
         }
-        int[] path = branches[reconciliationData.constants.branch.index].DeepSplit(reconciliationData);
-        branches[reconciliationData.constants.branch.index].Reconciliate(path);
+        SQTNode leaf = branches[reconciliationData.constants.branch.index].DeepSplit(reconciliationData);
+        branches[reconciliationData.constants.branch.index].Reconciliate(leaf.path);
     }
 
     SQTReconciliationData GetReconciliationData(Camera camera)
