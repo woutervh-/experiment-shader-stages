@@ -1,6 +1,13 @@
 using System;
 using UnityEngine;
 
+// IDEA: virtual quad tree.
+// Every update:
+// 1. Start with empty virtual quad tree.
+// 2. Ensure required quads are present.
+// 3. Compare old virtual quad tree with new one.
+// 4. Prune and grow actual (non-virtual) quad tree nodes.
+
 public class SQTNode : SQTTaxomy
 {
     public Mesh mesh;
@@ -82,7 +89,10 @@ public class SQTNode : SQTTaxomy
 
     bool ShouldSplit(int[] targetPath)
     {
-        for (int i=0;i<)
+        for (int i = 0; i < 4; i++)
+        {
+            neighborPaths[i]
+        }
     }
 
     void Split()
