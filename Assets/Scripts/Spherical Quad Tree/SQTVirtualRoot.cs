@@ -6,7 +6,7 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
 
     SQTConstants.SQTGlobal global;
     SQTConstants[] constants;
-    SQTVirtualNode[] branches;
+    public SQTVirtualNode[] branches;
 
     public SQTVirtualRoot(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth)
     {
@@ -46,7 +46,7 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
         }
 
         SQTVirtualNode leaf = branches[reconciliationData.constants.branch.index].DeepSplit(reconciliationData);
-        leaf.parent.EnsureChildNeighbor(leaf.ordinal, );
+        leaf.EnsureBalanced();
     }
 
     public SQTVirtualNode EnsureChild(int childOrdinal)
@@ -57,6 +57,16 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
     public SQTVirtualNode EnsureChildNeighbor(int childOrdinal, int direction)
     {
         return EnsureChild(neighborOrdinal[childOrdinal][direction]);
+    }
+
+    public void EnsureNeighbor(int direction)
+    {
+        // Root does not have a neighbor.
+    }
+
+    public void EnsureBalanced()
+    {
+        // Root does not need to be balanced.
     }
 
     SQTReconciliationData GetReconciliationData(Camera camera)

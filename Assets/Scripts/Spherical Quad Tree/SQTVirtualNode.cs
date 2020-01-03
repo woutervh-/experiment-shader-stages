@@ -51,11 +51,16 @@ public class SQTVirtualNode : SQTVirtualTaxonomy
         }
     }
 
+    public void EnsureNeighbor(int direction)
+    {
+        parent.EnsureChildNeighbor(ordinal, direction);
+    }
+
     public void EnsureBalanced()
     {
         for (int i = 0; i < 4; i++)
         {
-            parent.EnsureChildNeighbor(ordinal, i);
+            parent.EnsureNeighbor(i);
         }
         parent.EnsureBalanced();
     }
