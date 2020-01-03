@@ -1,17 +1,16 @@
-using System;
 using UnityEngine;
 
-public class SQTVirtualNode : SQTTaxomy
+public class SQTVirtualNode : SQTVirtualTaxonomy
 {
     public SQTVirtualNode[] children;
+    public SQTVirtualTaxonomy parent;
 
-    SQTTaxomy parent;
     SQTConstants constants;
     Vector2 offset;
     int depth;
     int ordinal;
 
-    public SQTVirtualNode(SQTTaxomy parent, SQTConstants constants, Vector2 offset, int depth, int ordinal)
+    public SQTVirtualNode(SQTVirtualTaxonomy parent, SQTConstants constants, Vector2 offset, int depth, int ordinal)
     {
         this.parent = parent;
         this.constants = constants;
@@ -25,7 +24,7 @@ public class SQTVirtualNode : SQTTaxomy
         if (ShouldSplit(reconciliationData))
         {
             Split();
-            int childIndex = GetChildIndex(reconciliationData.pointInPlane);
+            int childIndex = GetChildIndex(reconciliationData);
             return children[childIndex].DeepSplit(reconciliationData);
         }
         else
@@ -34,100 +33,46 @@ public class SQTVirtualNode : SQTTaxomy
         }
     }
 
-    public SQTVirtualNode GetChild(int ordinal)
+    public SQTVirtualNode EnsureChild(int childOrdinal)
     {
-        return children[ordinal];
+        Split();
+        return children[childOrdinal];
     }
 
-    public SQTVirtualNode EnsureNeighbor(int direction)
+    public SQTVirtualNode EnsureChildNeighbor(int childOrdinal, int direction)
     {
-        // direction: west=0, east=1, south=2, north=3
-        // ordinal: south west=0, south east=1, north west=2, north east=3
-
-        SQTTaxomy neighborParent;
-        if (direction == (ordinal & 1) || direction == ((ordinal >> 1) | 2))
+        if (neighborSameParent[childOrdinal][direction])
         {
-            neighborParent = parent.EnsureNeighbor(direction);
+            return EnsureChild(neighborOrdinal[childOrdinal][direction]);
         }
         else
         {
-            neighborParent = parent;
+            return parent.EnsureChildNeighbor(ordinal, direction).EnsureChild(neighborOrdinal[childOrdinal][direction]);
         }
-        return neighborParent.GetChild(((direction ^ (ordinal & 2)) & 2) | ((direction ^ (((ordinal << 1) ^ 2) & 2)) >> 1));
-
-        // if (
-        //     ordinal == 0 && (direction == 0 || direction == 2)
-        //     || ordinal == 1 && (direction == 1 || direction == 2)
-        //     || ordinal == 2 && (direction == 0 || direction == 3)
-        //     || ordinal == 3 && (direction == 1 || direction == 3)
-        // )
-        // {
-        //     neighborParent = parent.EnsureNeighbor(direction);
-        // }
-        // else
-        // {
-        //     neighborParent = parent;
-        // }
-
-        // if (ordinal == 0)
-        // {
-        //     if (direction == 0 || direction == 1)
-        //     {
-        //         return neighborParent.GetChild(1);
-        //     }
-        //     else
-        //     {
-        //         return neighborParent.GetChild(2);
-        //     }
-        // }
-        // else if (ordinal == 1)
-        // {
-        //     if (direction == 0 || direction == 1)
-        //     {
-        //         return neighborParent.GetChild(0);
-        //     }
-        //     else
-        //     {
-        //         return neighborParent.GetChild(3);
-        //     }
-        // }
-        // else if (ordinal == 2)
-        // {
-        //     if (direction == 0 || direction == 1)
-        //     {
-        //         return neighborParent.GetChild(3);
-        //     }
-        //     else
-        //     {
-        //         return neighborParent.GetChild(0);
-        //     }
-        // }
-        // else
-        // {
-        //     if (direction == 1 || direction == 3)
-        //     {
-        //         if (direction == 1)
-        //         {
-        //             return neighborParent.GetChild(2);
-        //         }
-        //         else
-        //         {
-        //             return neighborParent.GetChild(1);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         if (direction == 0)
-        //         {
-        //             return neighborParent.GetChild(2);
-        //         }
-        //         else
-        //         {
-        //             return neighborParent.GetChild(1);
-        //         }
-        //     }
-        // }
     }
+
+    public void EnsureBalanced()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            parent.EnsureChildNeighbor(ordinal, i);
+        }
+        parent.EnsureBalanced();
+    }
+
+    // public SQTVirtualNode EnsureNeighbor(int direction)
+    // {
+    //     SQTTaxomy neighborParent;
+    //     if (neighborSameParent[ordinal][direction])
+    //     {
+    //         neighborParent = parent;
+    //     }
+    //     else
+    //     {
+    //         neighborParent = parent.EnsureNeighbor(direction);
+    //     }
+    //     return neighborParent.EnsureChild(neighborOrdinal[ordinal][direction]);
+    // }
 
     void Split()
     {
@@ -147,9 +92,9 @@ public class SQTVirtualNode : SQTTaxomy
             && constants.depth[depth].approximateSize > reconciliationData.desiredLength;
     }
 
-    int GetChildIndex(Vector2 pointInPlane)
+    int GetChildIndex(SQTReconciliationData reconciliationData)
     {
-        Vector2 t = (pointInPlane - offset) / constants.depth[depth].scale;
+        Vector2 t = (reconciliationData.pointInPlane - offset) / constants.depth[depth].scale;
         return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
     }
 
@@ -159,4 +104,18 @@ public class SQTVirtualNode : SQTTaxomy
         new Vector2(-1f, 1f),
         new Vector2(1f, 1f),
      };
+
+    static bool[][] neighborSameParent = new bool[][] {
+        new bool[] { false, true, false, true },
+        new bool[] { true, false, false, true },
+        new bool[] { false, true, true, false },
+        new bool[] { true, false, true, false }
+    };
+
+    static int[][] neighborOrdinal = new int[][] {
+        new int[] { 1, 1, 2, 2 },
+        new int[] { 0, 0, 3, 3 },
+        new int[] { 3, 3, 0, 0 },
+        new int[] { 2, 2, 1, 1 }
+    };
 }
