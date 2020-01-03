@@ -13,7 +13,6 @@ public class SQTNode : SQTTaxomy
     public Mesh mesh;
     public GameObject gameObject;
     public int[] path;
-    public int[][] neighborPaths;
 
     SQTTaxomy parent;
     SQTConstants constants;
@@ -28,12 +27,6 @@ public class SQTNode : SQTTaxomy
         this.constants = constants;
         this.offset = offset;
         this.path = path;
-        neighborPaths = new int[][] {
-            GetNeighborPath(path, 0),
-            GetNeighborPath(path, 1),
-            GetNeighborPath(path, 2),
-            GetNeighborPath(path, 3)
-        };
 
         gameObject = new GameObject("Chunk " + string.Join("", path));
         gameObject.transform.SetParent(constants.branch.gameObject.transform, false);
@@ -85,14 +78,6 @@ public class SQTNode : SQTTaxomy
     {
         return path.Length < constants.global.maxDepth
             && constants.depth[path.Length].approximateSize > reconciliationData.desiredLength;
-    }
-
-    bool ShouldSplit(int[] targetPath)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            neighborPaths[i]
-        }
     }
 
     void Split()
