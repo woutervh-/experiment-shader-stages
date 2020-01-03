@@ -40,7 +40,7 @@ public class SQTVirtualRootTester
         while (nodes.Count != 0)
         {
             SQTVirtualNode node = nodes.Pop();
-            RenderQuad(up, forward, right, node.offset, 1f / Mathf.Pow(2f, node.depth));
+            RenderQuad(up, forward, right, node.offset, 1f / Mathf.Pow(2f, node.GetDepth()));
             if (node.children != null)
             {
                 nodes.Push(node.children[0]);

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SQTVirtualNode : SQTVirtualTaxonomy
@@ -5,18 +6,16 @@ public class SQTVirtualNode : SQTVirtualTaxonomy
     public SQTVirtualNode[] children;
     public SQTVirtualTaxonomy parent;
     public Vector2 offset;
-    public int depth;
+    public int[] path;
 
     SQTConstants constants;
-    int ordinal;
 
-    public SQTVirtualNode(SQTVirtualTaxonomy parent, SQTConstants constants, Vector2 offset, int depth, int ordinal)
+    public SQTVirtualNode(SQTVirtualTaxonomy parent, SQTConstants constants, Vector2 offset, int[] path)
     {
         this.parent = parent;
         this.constants = constants;
         this.offset = offset;
-        this.depth = depth;
-        this.ordinal = ordinal;
+        this.path = path;
     }
 
     public SQTVirtualNode DeepSplit(SQTReconciliationData reconciliationData)
@@ -47,13 +46,13 @@ public class SQTVirtualNode : SQTVirtualTaxonomy
         }
         else
         {
-            return parent.EnsureChildNeighbor(ordinal, direction).EnsureChild(neighborOrdinal[childOrdinal][direction]);
+            return parent.EnsureChildNeighbor(GetOrdinal(), direction).EnsureChild(neighborOrdinal[childOrdinal][direction]);
         }
     }
 
     public void EnsureNeighbor(int direction)
     {
-        parent.EnsureChildNeighbor(ordinal, direction);
+        parent.EnsureChildNeighbor(GetOrdinal(), direction);
     }
 
     public void EnsureBalanced()
@@ -72,20 +71,33 @@ public class SQTVirtualNode : SQTVirtualTaxonomy
             children = new SQTVirtualNode[4];
             for (int i = 0; i < 4; i++)
             {
-                children[i] = new SQTVirtualNode(this, constants, offset + constants.depth[depth + 1].scale * childOffsetVectors[i], depth + 1, i);
+                int[] childPath = new int[path.Length + 1];
+                Array.Copy(path, childPath, path.Length);
+                childPath[path.Length] = i;
+                children[i] = new SQTVirtualNode(this, constants, offset + constants.depth[GetDepth() + 1].scale * childOffsetVectors[i], childPath);
             }
         }
     }
 
+    public int GetDepth()
+    {
+        return path.Length - 1;
+    }
+
+    public int GetOrdinal()
+    {
+        return path[path.Length - 1];
+    }
+
     bool ShouldSplit(SQTReconciliationData reconciliationData)
     {
-        return depth < constants.global.maxDepth
-            && constants.depth[depth].approximateSize > reconciliationData.desiredLength;
+        return GetDepth() < constants.global.maxDepth
+            && constants.depth[GetDepth()].approximateSize > reconciliationData.desiredLength;
     }
 
     int GetChildIndex(SQTReconciliationData reconciliationData)
     {
-        Vector2 t = (reconciliationData.pointInPlane - offset) / constants.depth[depth].scale;
+        Vector2 t = (reconciliationData.pointInPlane - offset) / constants.depth[GetDepth()].scale;
         return (t.x < 0f ? 0 : 1) + (t.y < 0f ? 0 : 2);
     }
 

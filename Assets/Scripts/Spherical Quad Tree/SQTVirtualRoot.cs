@@ -37,7 +37,7 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
                 branch = branch,
                 depth = depth
             };
-            branches[i] = new SQTVirtualNode(this, constants[i], Vector2.zero, 0, i);
+            branches[i] = new SQTVirtualNode(this, constants[i], Vector2.zero, new int[] { i });
         }
     }
 
@@ -45,7 +45,7 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
     {
         for (int i = 0; i < directions.Length; i++)
         {
-            branches[i] = new SQTVirtualNode(this, constants[i], Vector2.zero, 0, i);
+            branches[i] = new SQTVirtualNode(this, constants[i], Vector2.zero, new int[] { i });
         }
 
         SQTReconciliationData reconciliationData = GetReconciliationData(camera);
