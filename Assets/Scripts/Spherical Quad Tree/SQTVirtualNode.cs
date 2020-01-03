@@ -65,20 +65,6 @@ public class SQTVirtualNode : SQTVirtualTaxonomy
         parent.EnsureBalanced();
     }
 
-    // public SQTVirtualNode EnsureNeighbor(int direction)
-    // {
-    //     SQTTaxomy neighborParent;
-    //     if (neighborSameParent[ordinal][direction])
-    //     {
-    //         neighborParent = parent;
-    //     }
-    //     else
-    //     {
-    //         neighborParent = parent.EnsureNeighbor(direction);
-    //     }
-    //     return neighborParent.EnsureChild(neighborOrdinal[ordinal][direction]);
-    // }
-
     void Split()
     {
         if (children == null)

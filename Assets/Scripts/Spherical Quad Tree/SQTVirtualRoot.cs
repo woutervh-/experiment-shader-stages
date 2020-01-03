@@ -4,6 +4,15 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
 {
     static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
+    static int[][] neighborOrdinal = new int[][] {
+        new int[] { 2, 3, 4, 5 },
+        new int[] { 3, 2, 4, 5 },
+        new int[] { 4, 5, 0, 1 },
+        new int[] { 5, 4, 0, 1 },
+        new int[] { 1, 0, 3, 2 },
+        new int[] { 0, 1, 3, 2 }
+    };
+
     SQTConstants.SQTGlobal global;
     SQTConstants[] constants;
     public SQTVirtualNode[] branches;
@@ -81,13 +90,4 @@ public class SQTVirtualRoot : SQTVirtualTaxonomy
         }
         return null;
     }
-
-    static int[][] neighborOrdinal = new int[][] {
-        new int[] { 2, 3, 4, 5 },
-        new int[] { 3, 2, 5, 4 },
-        new int[] { 4, 5, 1, 0 },
-        new int[] { 5, 4, 0, 1 },
-        new int[] { 2, 3, 1, 0 },
-        new int[] { 3, 2, 0, 1 }
-    };
 }
