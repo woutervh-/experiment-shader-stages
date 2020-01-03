@@ -4,10 +4,10 @@ public class SQTVirtualNode : SQTVirtualTaxonomy
 {
     public SQTVirtualNode[] children;
     public SQTVirtualTaxonomy parent;
+    public Vector2 offset;
+    public int depth;
 
     SQTConstants constants;
-    Vector2 offset;
-    int depth;
     int ordinal;
 
     public SQTVirtualNode(SQTVirtualTaxonomy parent, SQTConstants constants, Vector2 offset, int depth, int ordinal)

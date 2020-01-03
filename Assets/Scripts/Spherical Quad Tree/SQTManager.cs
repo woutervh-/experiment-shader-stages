@@ -21,25 +21,34 @@ public class SQTManager : MonoBehaviour
             gameObject = gameObject
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
-        root = new SQTRoot(global, depth);
+        // root = new SQTRoot(global, depth);
         virtualRoot = new SQTVirtualRoot(global, depth);
     }
 
 #if UNITY_EDITOR
     void OnDrawGizmos()
     {
-        if (root == null || playerCamera == null)
+        if (playerCamera == null)
         {
             return;
         }
 
-        SQTNode found = root.FindNode(playerCamera);
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, playerCamera.transform.position);
-        if (found != null)
+        if (virtualRoot != null)
         {
-            Gizmos.DrawWireMesh(found.mesh, found.gameObject.transform.position);
+            virtualRoot.Reconciliate(playerCamera);
+            new SQTVirtualRootTester(virtualRoot).Render();
+        }
+
+        if (root != null)
+        {
+            SQTNode found = root.FindNode(playerCamera);
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, playerCamera.transform.position);
+            if (found != null)
+            {
+                Gizmos.DrawWireMesh(found.mesh, found.gameObject.transform.position);
+            }
         }
     }
 #endif
@@ -51,9 +60,10 @@ public class SQTManager : MonoBehaviour
             playerCamera = player.GetComponent<Camera>();
         }
 
-        root.Reconciliate(playerCamera);
-        virtualRoot.Reconciliate(playerCamera);
-        new SQTVirtualRootTester(virtualRoot).Render();
+        if (root != null)
+        {
+            root.Reconciliate(playerCamera);
+        }
 
         // foreach (SQTRoot root in roots)
         // {
