@@ -1,4 +1,4 @@
-const MAX_PATH_LENGTH = 5;
+const MAX_PATH_LENGTH = 10;
 
 class CanvasContainer {
   constructor(id, ordinal) {
@@ -242,7 +242,11 @@ const getNeighborPath = (path, direction) => {
   return neighborPath;
 };
 
-const getNeighborPathOrdinal = (path, direction) => {
+const getNeighborPathOrdinalV2 = (path, direction) => {
+  
+};
+
+const getNeighborPathOrdinalV1 = (path, direction) => {
   let commonAncestorDistance = 0;
   for (let i = path.length - 1; i >= 1; i--) {
     if (neighborSameParent[path[i]][direction]) {
@@ -286,10 +290,10 @@ const getBalancedPathsOrdinal = (path) => {
     }
     const parentPath = getParentPath(path);
     const parentNeighbors = [
-      getNeighborPathOrdinal(parentPath, 0),
-      getNeighborPathOrdinal(parentPath, 1),
-      getNeighborPathOrdinal(parentPath, 2),
-      getNeighborPathOrdinal(parentPath, 3)
+      getNeighborPathOrdinalV1(parentPath, 0),
+      getNeighborPathOrdinalV1(parentPath, 1),
+      getNeighborPathOrdinalV1(parentPath, 2),
+      getNeighborPathOrdinalV1(parentPath, 3)
     ];
     for (const neighbor of parentNeighbors) {
       if (done.every(p => !pathEquals(p, neighbor)) && remaining.every(p => !pathEquals(p, neighbor))) {
@@ -404,9 +408,10 @@ const updateOrdinal = (pointInClient) => {
     container.drawAxes();
   }
 
-  const pointInCanvas = containers[5].clientToCanvas(pointInClient);
-  const pointInPlane = containers[5].canvasToPlane(pointInCanvas);
-  const path = [5, ...getDeepPath(pointInPlane)];
+  const selectedOrdinal = 5;
+  const pointInCanvas = containers[selectedOrdinal].clientToCanvas(pointInClient);
+  const pointInPlane = containers[selectedOrdinal].canvasToPlane(pointInCanvas);
+  const path = [selectedOrdinal, ...getDeepPath(pointInPlane)];
   const balancedPaths = getBalancedPathsOrdinal(path);
 
   containers[path[0]].context.fillStyle = 'white';
