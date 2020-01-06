@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class MeshedNode
@@ -51,10 +52,8 @@ public class MeshedNode
     {
         Vector3[] vertices = new Vector3[constants.global.resolution * constants.global.resolution];
         Vector3[] normals = new Vector3[constants.global.resolution * constants.global.resolution];
-        int[] triangles = new int[(constants.global.resolution - 1) * (constants.global.resolution - 1) * 6];
 
         Vector3 origin = GetOrigin();
-        int triangleIndex = 0;
         for (int y = 0; y < constants.global.resolution; y++)
         {
             for (int x = 0; x < constants.global.resolution; x++)
@@ -70,23 +69,12 @@ public class MeshedNode
                 // normals[vertexIndex] = pointOnUnitSphere;
                 vertices[vertexIndex] = pointOnUnitCube;
                 normals[vertexIndex] = constants.branch.up;
-
-                if (x != constants.global.resolution - 1 && y != constants.global.resolution - 1)
-                {
-                    triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + constants.global.resolution + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + constants.global.resolution;
-                    triangles[triangleIndex + 3] = vertexIndex;
-                    triangles[triangleIndex + 4] = vertexIndex + 1;
-                    triangles[triangleIndex + 5] = vertexIndex + constants.global.resolution + 1;
-                    triangleIndex += 6;
-                }
             }
         }
 
         Mesh mesh = new Mesh();
         mesh.vertices = vertices;
-        mesh.triangles = triangles;
+        mesh.triangles = constants.meshes.triangles;
         mesh.normals = normals;
         mesh.RecalculateBounds();
         return mesh;

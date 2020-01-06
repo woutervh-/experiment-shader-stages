@@ -49,7 +49,40 @@ public class SQTConstants
         }
     }
 
+    public class SQTMeshes
+    {
+        public int[] triangles;
+
+        public static SQTMeshes GetFromGlobal(SQTGlobal global)
+        {
+            int[] triangles = new int[(global.resolution - 1) * (global.resolution - 1) * 6];
+            int triangleIndex = 0;
+            for (int y = 0; y < global.resolution; y++)
+            {
+                for (int x = 0; x < global.resolution; x++)
+                {
+                    int vertexIndex = x + global.resolution * y;
+                    if (x != global.resolution - 1 && y != global.resolution - 1)
+                    {
+                        triangles[triangleIndex] = vertexIndex;
+                        triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 3] = vertexIndex;
+                        triangles[triangleIndex + 4] = vertexIndex + 1;
+                        triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
+                        triangleIndex += 6;
+                    }
+                }
+            }
+            return new SQTMeshes
+            {
+                triangles = triangles
+            };
+        }
+    }
+
     public SQTGlobal global;
     public SQTBranch branch;
     public SQTDepth[] depth;
+    public SQTMeshes meshes;
 }

@@ -7,7 +7,7 @@ public partial class SQTBranches
     SQTConstants[] constants;
     SQTReconciler reconciler;
 
-    public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth)
+    public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMeshes meshes)
     {
         constants = new SQTConstants[directions.Length];
         int[] branchRootPath = new int[0];
@@ -23,7 +23,8 @@ public partial class SQTBranches
             {
                 global = global,
                 branch = branch,
-                depth = depth
+                depth = depth,
+                meshes = meshes
             };
         }
 

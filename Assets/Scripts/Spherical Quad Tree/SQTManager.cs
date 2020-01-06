@@ -4,6 +4,10 @@ public class SQTManager : MonoBehaviour
 {
     public GameObject player;
     public Material material;
+    
+#if UNITY_EDITOR
+    public bool debug;
+#endif
 
     SQTBranches branches;
     Camera playerCamera;
@@ -21,12 +25,18 @@ public class SQTManager : MonoBehaviour
             gameObject = gameObject
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
-        branches = new SQTBranches(global, depth);
+        SQTConstants.SQTMeshes meshes = SQTConstants.SQTMeshes.GetFromGlobal(global);
+        branches = new SQTBranches(global, depth, meshes);
     }
 
 #if UNITY_EDITOR
     void OnDrawGizmos()
     {
+        if (!debug)
+        {
+            return;
+        }
+
         if (playerCamera == null)
         {
             return;
