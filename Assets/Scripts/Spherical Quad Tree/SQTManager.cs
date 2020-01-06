@@ -15,7 +15,8 @@ public class SQTManager : MonoBehaviour
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
             maxDepth = 10,
-            resolution = 16,
+            // resolution = 16,
+            resolution = 4,
             radius = 1f,
             // radius = 1e6f,
             material = material,
