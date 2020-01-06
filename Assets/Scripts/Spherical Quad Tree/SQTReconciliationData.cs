@@ -10,7 +10,7 @@ public class SQTReconciliationData
 
     public static SQTReconciliationData GetData(SQTConstants constants, Camera camera)
     {
-        Vector3 sphereToCamera = camera.transform.position - constants.global.gameObject.transform.position;
+        Vector3 sphereToCamera = constants.global.gameObject.transform.InverseTransformPoint(camera.transform.position);
 
         Vector3 direction;
         float denominator;

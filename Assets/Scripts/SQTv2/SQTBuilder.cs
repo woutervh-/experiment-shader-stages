@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SQTBuilder
 {
-    const int MAX_PATH_LENGTH = 10;
+    const int MAX_PATH_LENGTH = 5;
 
     static Vector2[] childOffsetVectors = new Vector2[] {
         new Vector2(-1f, -1f),
