@@ -3,6 +3,7 @@ using UnityEngine;
 public partial class SQTBranches
 {
     static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+
     SQTConstants[] constants;
 
     public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth)
