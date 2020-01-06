@@ -1,4 +1,4 @@
-const MAX_PATH_LENGTH = 10;
+const MAX_PATH_LENGTH = 5;
 
 class CanvasContainer {
   constructor(id, ordinal) {
@@ -89,15 +89,17 @@ class CanvasContainer {
     this.renderQuad(p1, p2);
   }
 
-  renderPath(path) {
+  drawPath(path) {
     let offset = { x: 0, y: 0 };
     let scale = 1;
     this.renderNode(offset, scale);
+    this.context.stroke();
     for (const childIndex of path) {
       const childOffset = childOffsetVectors[childIndex];
       scale /= 2;
       offset = vadd(offset, vmultiply(childOffset, scale));
       this.renderNode(offset, scale);
+      this.context.stroke();
     }
   }
 }
@@ -426,6 +428,7 @@ const updateOrdinal = (pointInClient) => {
     containers[path[0]].renderLeaf(path.slice(1));
     containers[path[0]].context.stroke();
   }
+  // containers[path[0]].drawPath(path.slice(1));
 };
 
 document.addEventListener('mousemove', (event) => {
