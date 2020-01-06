@@ -5,8 +5,6 @@ public class SQTManager : MonoBehaviour
     public GameObject player;
     public Material material;
 
-    SQTRoot root;
-    SQTVirtualRoot virtualRoot;
     SQTBranches branches;
     Camera playerCamera;
 
@@ -23,8 +21,6 @@ public class SQTManager : MonoBehaviour
             gameObject = gameObject
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
-        // root = new SQTRoot(global, depth);
-        // virtualRoot = new SQTVirtualRoot(global, depth);
         branches = new SQTBranches(global, depth);
     }
 
@@ -36,27 +32,9 @@ public class SQTManager : MonoBehaviour
             return;
         }
 
-        if (virtualRoot != null)
-        {
-            virtualRoot.Reconciliate(playerCamera);
-            new SQTVirtualRootTester(virtualRoot).Render();
-        }
-
         if (branches != null)
         {
-            branches.Reconciliate(playerCamera);
-        }
-
-        if (root != null)
-        {
-            SQTNode found = root.FindNode(playerCamera);
-
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, playerCamera.transform.position);
-            if (found != null)
-            {
-                Gizmos.DrawWireMesh(found.mesh, found.gameObject.transform.position);
-            }
+            branches.DrawBranches(playerCamera);
         }
     }
 #endif
@@ -68,17 +46,14 @@ public class SQTManager : MonoBehaviour
             playerCamera = player.GetComponent<Camera>();
         }
 
-        if (root != null)
+        if (branches != null)
         {
-            root.Reconciliate(playerCamera);
+            branches.Reconciliate(playerCamera);
         }
     }
 
     void OnDestroy()
     {
-        if (root != null)
-        {
-            root.Destroy();
-        }
+        branches.Destroy();
     }
 }
