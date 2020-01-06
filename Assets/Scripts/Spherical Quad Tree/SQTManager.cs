@@ -7,6 +7,7 @@ public class SQTManager : MonoBehaviour
 
     SQTRoot root;
     SQTVirtualRoot virtualRoot;
+    SQTBranches branches;
     Camera playerCamera;
 
     void Start()
@@ -22,7 +23,8 @@ public class SQTManager : MonoBehaviour
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
         // root = new SQTRoot(global, depth);
-        virtualRoot = new SQTVirtualRoot(global, depth);
+        // virtualRoot = new SQTVirtualRoot(global, depth);
+        branches = new SQTBranches(global, depth);
     }
 
 #if UNITY_EDITOR
@@ -37,6 +39,11 @@ public class SQTManager : MonoBehaviour
         {
             virtualRoot.Reconciliate(playerCamera);
             new SQTVirtualRootTester(virtualRoot).Render();
+        }
+
+        if (branches != null)
+        {
+            branches.Reconciliate(playerCamera);
         }
 
         if (root != null)
@@ -64,12 +71,6 @@ public class SQTManager : MonoBehaviour
         {
             root.Reconciliate(playerCamera);
         }
-
-        // foreach (SQTRoot root in roots)
-        // {
-        //     SQTReconciliationData reconciliationData = SQTReconciliationData.GetSettings(root.constants, playerCamera, transform);
-        //     root.Reconciliate(reconciliationData);
-        // }
     }
 
     void OnDestroy()

@@ -36,7 +36,58 @@ public class SQTBuilder
         new int[] { 0, 1, 3, 2 }
     };
 
-    Node[] branches;
+    static int[][][] neighborOrdinalRotation = new int[][][] {
+        new int[][] {
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 3, 1, 2, 0 }
+        },
+        new int[][] {
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 0, 2, 1, 3 }
+        },
+        new int[][] {
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 2, 1, 3 }
+        },
+        new int[][] {
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 2, 1, 3 }
+        },
+        new int[][] {
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 1, 2, 3 }
+        },
+        new int[][] {
+            new int[] { 3, 1, 2, 0 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 0, 2, 1, 3 },
+            new int[] { 0, 1, 2, 3 },
+            new int[] { 0, 1, 2, 3 }
+        }
+    };
+
+    public Node[] branches;
 
     public void CalculatePaths(SQTReconciliationData reconciliationData)
     {
@@ -55,20 +106,18 @@ public class SQTBuilder
         }
 
         Node leaf = DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData.pointInPlane);
+        BuildBalancedNodes(leaf);
     }
 
-    Node[] BuildBalancedNodes(Node node)
+    void BuildBalancedNodes(Node node)
     {
-        HashSet<Node> remainingSet = new HashSet<Node>();
-        List<Node> remaining = new List<Node>();
-        HashSet<Node> done = new HashSet<Node>();
-        remaining.Add(node);
-        remainingSet.Add(node);
+        HashSet<Node> seen = new HashSet<Node>();
+        Stack<Node> remaining = new Stack<Node>();
+        seen.Add(node);
+        remaining.Push(node);
         while (remaining.Count >= 1)
         {
-            Node current = remaining[remaining.Count - 1];
-            remaining.RemoveAt(remaining.Count - 1);
-            remainingSet.Remove(current);
+            Node current = remaining.Pop();
 
             if (current.path.Length <= 1)
             {
@@ -81,121 +130,81 @@ public class SQTBuilder
                 GetNeighbor(node.parent, 2),
                 GetNeighbor(node.parent, 3)
             };
-            // TODO:
 
-            done.Add(current);
+            for (int i = 0; i < 4; i++)
+            {
+                if (!seen.Contains(parentNeighbors[i]))
+                {
+                    seen.Add(parentNeighbors[i]);
+                    remaining.Push(parentNeighbors[i]);
+                }
+            }
         }
-        Node[] result = new Node[done.Count];
-        done.CopyTo(result);
-        return result;
     }
 
     Node GetNeighbor(Node node, int direction)
     {
-        if (node.path.Length <= 0)
-        {
-            return branches[rootOrdinalRotation[node.branch][direction]];
-        }
+        int[] neighborPath = new int[node.path.Length];
+        Array.Copy(node.path, neighborPath, node.path.Length);
 
-        int commonAncestorDistance = 0;
         for (int i = node.path.Length - 1; i >= 0; i--)
         {
+            neighborPath[i] = neighborOrdinal[node.path[i]][direction];
             if (neighborSameParent[node.path[i]][direction])
             {
                 break;
             }
-            commonAncestorDistance += 1;
         }
 
-        if (commonAncestorDistance < node.path.Length)
-        {
-            int[]
-            for (int i = commonAncestorDistance; i >= 0; i++)
-            {
+        return GetRelativePath(branches[node.branch], neighborPath);
 
-            }
-        }
-        else
-        {
+        // int commonAncestorDistance = 1;
+        // for (int i = node.path.Length - 1; i >= 0; i--)
+        // {
+        //     if (neighborSameParent[node.path[i]][direction])
+        //     {
+        //         break;
+        //     }
+        //     commonAncestorDistance += 1;
+        // }
 
-        }
-
+        // int[] neighborPath = new int[node.path.Length];
+        // // if (commonAncestorDistance <= node.path.Length)
+        // {
+        //     for (int i = 0; i < node.path.Length; i++)
+        //     {
+        //         if (i < commonAncestorDistance)
+        //         {
+        //             neighborPath[node.path.Length - i - 1] = neighborOrdinal[node.path[node.path.Length - i - 1]][direction];
+        //         }
+        //         else
+        //         {
+        //             neighborPath[node.path.Length - i - 1] = node.path[node.path.Length - i - 1];
+        //         }
+        //     }
+        //     return GetRelativePath(branches[node.branch], neighborPath);
+        // }
+        // // else
+        // // {
+        // //     int fromOrdinal = node.branch;
+        // //     int toOrdinal = rootOrdinalRotation[fromOrdinal][direction];
+        // //     for (int i = 0; i < node.path.Length; i++)
+        // //     {
+        // //         neighborPath[i] = neighborOrdinalRotation[fromOrdinal][toOrdinal][node.path[i]];
+        // //     }
+        // //     return GetRelativePath(branches[toOrdinal], neighborPath);
+        // // }
     }
 
-    // start with node, direction, path=node.path, offset=path.Length-1
-    Node GetNeighborRelativePath(Node node, int direction, int[] path, int offset)
-    {
-        if (offset <= 0)
-        {
-            // TODO: rotate entire path.
-            return GetRelativePath(branches[rootOrdinalRotation[node.branch][direction]], path, offset);
-        }
-        else
-        {
-            if (neighborSameParent[node.path[node.path.Length - 1]][direction])
-            {
-                // TODO: use neighborOrdinal on all ordinals in path from offset to end.
-                return GetRelativePath(node.parent, path, offset);
-            }
-            else
-            {
-                return GetNeighborRelativePath(node.parent, direction, path, offset - 1);
-            }
-        }
-    }
-
-    Node GetRelativePath(Node node, int[] path, int offset)
+    static Node GetRelativePath(Node node, int[] path)
     {
         Node current = node;
-        for (int i = offset; i < path.Length; i++)
+        for (int i = 0; i < path.Length; i++)
         {
             current = GetChild(current, path[i]);
         }
         return current;
     }
-
-    // static Node GetNeighbor(Node node, int direction)
-    // {
-    //     int commonAncestorDistance = 0;
-    //     for (int i = node.path.Length - 1; i >= 0; i--)
-    //     {
-    //         if (neighborSameParent[node.path[i]][direction])
-    //         {
-    //             break;
-    //         }
-    //         commonAncestorDistance += 1;
-    //     }
-
-    //     if (commonAncestorDistance < node.path.Length)
-    //     {
-    //         int[] 
-    //         for (int i = commonAncestorDistance; i >= 0; i++)
-    //         {
-
-    //         }
-    //     }
-    //     else
-    //     {
-
-    //     }
-    // }
-
-    // static Node GetParent(Node node)
-    // {
-    //     if (node.parent == null)
-    //     {
-    //         node.parent = new Node
-    //         {
-    //             branch = node.branch,
-    //             children = new Node[] { null, null, null, null },
-    //             parent = null,
-    //             path = GetParentPath(node.path),
-    //             offset = 
-    //         };
-    //         node.parent.children[node.path[node.path.Length - 1]] = node;
-    //     }
-    //     return node.parent;
-    // }
 
     static Node GetChild(Node node, int ordinal)
     {
@@ -233,31 +242,8 @@ public class SQTBuilder
         else
         {
             int ordinal = GetChildOrdinal(pointInPlane, node.offset, node.scale);
-            return GetChild(node, ordinal);
+            return DeepSplit(GetChild(node, ordinal), pointInPlane);
         }
-    }
-
-    // static int[] DeepSplit(Vector2 pointInPlane)
-    // {
-    //     List<int> path = new List<int>(MAX_PATH_LENGTH);
-    //     Vector2 offset = Vector2.zero;
-    //     float scale = 1f;
-    //     while (path.Count < MAX_PATH_LENGTH)
-    //     {
-    //         int childIndex = GetChildIndex(pointInPlane, offset, scale);
-    //         Vector2 childOffset = childOffsetVectors[childIndex];
-    //         scale /= 2;
-    //         offset = offset + childOffset * scale;
-    //         path.Add(childIndex);
-    //     }
-    //     return path.ToArray();
-    // }
-
-    static int[] GetParentPath(int[] path)
-    {
-        int[] parentPath = new int[path.Length - 1];
-        Array.Copy(path, parentPath, path.Length - 1);
-        return parentPath;
     }
 
     static int[] GetChildPath(int[] path, int ordinal)
@@ -268,7 +254,7 @@ public class SQTBuilder
         return childPath;
     }
 
-    class Node
+    public class Node
     {
         public Node parent;
         public Node[] children;
@@ -277,42 +263,42 @@ public class SQTBuilder
         public Vector2 offset;
         public float scale;
 
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-            {
-                return true;
-            }
-            if (obj is Node node)
-            {
-                if (path == node.path)
-                {
-                    return true;
-                }
-                if (path.Length != node.path.Length)
-                {
-                    return false;
-                }
-                for (int i = 0; i < path.Length; i++)
-                {
-                    if (path[i] != node.path[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
+        // public override bool Equals(object obj)
+        // {
+        //     if (obj == this)
+        //     {
+        //         return true;
+        //     }
+        //     if (obj is Node node)
+        //     {
+        //         if (path == node.path)
+        //         {
+        //             return true;
+        //         }
+        //         if (path.Length != node.path.Length)
+        //         {
+        //             return false;
+        //         }
+        //         for (int i = 0; i < path.Length; i++)
+        //         {
+        //             if (path[i] != node.path[i])
+        //             {
+        //                 return false;
+        //             }
+        //         }
+        //         return true;
+        //     }
+        //     return false;
+        // }
 
-        public override int GetHashCode()
-        {
-            int hash = 7 * 31 + path.Length;
-            for (int i = 0; i < path.Length; i++)
-            {
-                hash = hash * 31 + path[i];
-            }
-            return hash;
-        }
+        // public override int GetHashCode()
+        // {
+        //     int hash = 7 * 31 + path.Length;
+        //     for (int i = 0; i < path.Length; i++)
+        //     {
+        //         hash = hash * 31 + path[i];
+        //     }
+        //     return hash;
+        // }
     }
 }
