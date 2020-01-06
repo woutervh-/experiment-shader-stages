@@ -3,44 +3,103 @@ using UnityEngine;
 public class SQTReconciler
 {
     SQTConstants[] constants;
-    MeshedNode[] branches;
+    MeshedNode[] meshedBranches;
 
     public SQTReconciler(SQTConstants[] constants)
     {
         this.constants = constants;
-        branches = new MeshedNode[constants.Length];
+        meshedBranches = new MeshedNode[constants.Length];
     }
 
     public void Destroy()
     {
-        for (int i = 0; i < branches.Length; i++)
+        for (int i = 0; i < meshedBranches.Length; i++)
         {
-            if (branches[i] != null)
+            if (meshedBranches[i] != null)
             {
-                branches[i].Destroy();
+                meshedBranches[i].Destroy();
             }
         }
     }
 
-    public void Reconcile(SQTBuilder.Node[] oldBranches, SQTBuilder.Node[] newBranches)
+    public void Reconcile(SQTBuilder.Node[] newBranches)
     {
-        for (int i = 0; i < branches.Length; i++)
+        for (int i = 0; i < meshedBranches.Length; i++)
         {
-            branches = new MeshedNode(null, constants[i], );
+            if (meshedBranches[i] == null)
+            {
+                meshedBranches[i] = new MeshedNode(null, constants[i], newBranches[i]);
+            }
+            if (newBranches[i].children != null && meshedBranches[i].children != null)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    ReconcileNode(constants[i], newBranches[i].children[j], meshedBranches[i].children[j]);
+                }
+            }
+            else if (newBranches[i].children != null && meshedBranches[i].children == null)
+            {
+                meshedBranches[i].meshRenderer.enabled = false;
+                meshedBranches[i].children = new MeshedNode[4];
+                for (int j = 0; j < 4; j++)
+                {
+                    meshedBranches[i].children[j] = new MeshedNode(meshedBranches[i], constants[i], newBranches[i].children[j]);
+                    ReconcileNode(constants[i], newBranches[i].children[j], meshedBranches[i].children[j]);
+                }
+            }
+            else if (newBranches[i].children == null && meshedBranches[i].children != null)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    meshedBranches[i].children[j].Destroy();
+                }
+                meshedBranches[i].children = null;
+                meshedBranches[i].meshRenderer.enabled = true;
+            }
+        }
+    }
+
+    void ReconcileNode(SQTConstants constants, SQTBuilder.Node newNode, MeshedNode meshedNode)
+    {
+        if (newNode.children != null && meshedNode.children != null)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                ReconcileNode(constants, newNode.children[i], meshedNode.children[i]);
+            }
+        }
+        else if (newNode.children != null && meshedNode.children == null)
+        {
+            meshedNode.meshRenderer.enabled = false;
+            meshedNode.children = new MeshedNode[4];
+            for (int i = 0; i < 4; i++)
+            {
+                meshedNode.children[i] = new MeshedNode(meshedNode, constants, newNode.children[i]);
+                ReconcileNode(constants, newNode.children[i], meshedNode.children[i]);
+            }
+        }
+        else if (newNode.children == null && meshedNode.children != null)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                meshedNode.children[i].Destroy();
+            }
+            meshedNode.children = null;
+            meshedNode.meshRenderer.enabled = true;
         }
     }
 
     public class MeshedNode
     {
+        public MeshedNode[] children;
+        public MeshRenderer meshRenderer;
+
         MeshedNode parent;
         SQTConstants constants;
         SQTBuilder.Node node;
-
-        MeshedNode[] children;
         Mesh mesh;
         GameObject gameObject;
         MeshFilter meshFilter;
-        MeshRenderer meshRenderer;
 
         public MeshedNode(MeshedNode parent, SQTConstants constants, SQTBuilder.Node node)
         {
@@ -96,8 +155,10 @@ public class SQTReconciler
                         + Mathf.Lerp(-1f, 1f, percent.y) * constants.depth[node.path.Length].scale * constants.branch.right;
 
                     Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                    vertices[vertexIndex] = pointOnUnitSphere * constants.global.radius;
-                    normals[vertexIndex] = pointOnUnitSphere;
+                    // vertices[vertexIndex] = pointOnUnitSphere * constants.global.radius;
+                    // normals[vertexIndex] = pointOnUnitSphere;
+                    vertices[vertexIndex] = pointOnUnitCube;
+                    normals[vertexIndex] = constants.branch.up;
 
                     if (x != constants.global.resolution - 1 && y != constants.global.resolution - 1)
                     {

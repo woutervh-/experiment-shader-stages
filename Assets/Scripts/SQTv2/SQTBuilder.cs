@@ -105,7 +105,27 @@ public class SQTBuilder
 
         Node leaf = DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData.pointInPlane);
         BuildBalancedNodes(branches, leaf);
+        FillMissingSiblings(branches);
         return branches;
+    }
+
+    static void FillMissingSiblings(Node[] branches)
+    {
+        foreach (Node branch in branches)
+        {
+            FillMissingSiblings(branch);
+        }
+    }
+
+    static void FillMissingSiblings(Node node)
+    {
+        if (node.children != null)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                FillMissingSiblings(GetChild(node, i));
+            }
+        }
     }
 
     static void BuildBalancedNodes(Node[] branches, Node node)

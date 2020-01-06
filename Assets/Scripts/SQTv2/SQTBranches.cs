@@ -5,6 +5,7 @@ public partial class SQTBranches
     static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
     SQTConstants[] constants;
+    SQTReconciler reconciler;
 
     public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth)
     {
@@ -25,16 +26,21 @@ public partial class SQTBranches
                 depth = depth
             };
         }
+
+        reconciler = new SQTReconciler(constants);
     }
 
     public void Reconciliate(Camera camera)
     {
         SQTReconciliationData reconciliationData = GetReconciliationData(camera);
         SQTBuilder.Node[] branches = SQTBuilder.CalculatePaths(reconciliationData);
-        foreach (SQTBuilder.Node branch in branches)
-        {
-            DrawBranch(branch);
-        }
+
+        reconciler.Reconcile(branches);
+
+        // foreach (SQTBuilder.Node branch in branches)
+        // {
+        //     DrawBranch(branch);
+        // }
     }
 
     SQTReconciliationData GetReconciliationData(Camera camera)
