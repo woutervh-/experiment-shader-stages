@@ -608,6 +608,8 @@ MonoBehaviour:
   maxDepth: 10
   resolution: 7
   radius: 1
+  sphere: 0
+  heightSettings: {fileID: 11400000, guid: 7dc065180e5d7c846940ba6191adac44, type: 2}
   debug: 0
 --- !u!1 &609552741
 GameObject:

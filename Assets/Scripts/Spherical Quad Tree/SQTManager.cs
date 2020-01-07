@@ -11,6 +11,7 @@ public class SQTManager : MonoBehaviour
     [Range(0f, 1e6f)]
     public float radius = 1f;
     public bool sphere = false;
+    public SQTHeightSettings heightSettings;
 
 #if UNITY_EDITOR
     public bool debug;
