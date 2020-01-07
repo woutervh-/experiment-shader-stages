@@ -65,8 +65,13 @@ public class SQTConstants
 
         public static SQTMesh GetFromGlobal(SQTGlobal global, int neighborMask)
         {
-            int innerTrianglesCount = (global.resolution - 3) * (global.resolution - 3) * 2;
-            int outerTrianglesCount = (global.resolution / 2 + 2 * (global.resolution / 2 - 1)) * 4;
+            int lerpWest = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[0]) == 0 ? 0 : 1;
+            int lerpEast = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[1]) == 0 ? 0 : 1;
+            int lerpSouth = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[2]) == 0 ? 0 : 1;
+            int lerpNorth = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[3]) == 0 ? 0 : 1;
+
+            int innerTrianglesCount = (global.resolution - lerpWest - lerpEast - 1) * (global.resolution - lerpSouth - lerpNorth - 1) * 2;
+            int outerTrianglesCount = (global.resolution / 2 + 2 * (global.resolution / 2 - 1)) * (lerpWest + lerpEast + lerpSouth + lerpNorth);
             int[] triangles = new int[(innerTrianglesCount + outerTrianglesCount) * 3];
             int triangleIndex = 0;
 
@@ -76,7 +81,7 @@ public class SQTConstants
                 for (int x = 0; x < global.resolution; x++)
                 {
                     int vertexIndex = x + global.resolution * y;
-                    if (1 <= x && x < global.resolution - 2 && 1 <= y && y < global.resolution - 2)
+                    if (lerpWest <= x && x < global.resolution - lerpEast - 1 && lerpSouth <= y && y < global.resolution - lerpNorth - 1)
                     {
                         triangles[triangleIndex] = vertexIndex;
                         triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
@@ -89,95 +94,103 @@ public class SQTConstants
                 }
             }
 
-            // South.
-            for (int x = 0; x < global.resolution - 2; x++)
+            if (lerpWest == 1)
             {
-                int vertexIndex = x;
-                if (x % 2 == 0)
+                for (int y = 0; y < global.resolution - 2; y++)
                 {
-                    triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + 2;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
-                    triangleIndex += 3;
-                }
-                else
-                {
-                    triangles[triangleIndex] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 1] = vertexIndex + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 3] = vertexIndex + 1;
-                    triangles[triangleIndex + 4] = vertexIndex + global.resolution + 2;
-                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
-                    triangleIndex += 6;
+                    int vertexIndex = y * global.resolution;
+                    if (y % 2 == 0)
+                    {
+                        triangles[triangleIndex] = vertexIndex;
+                        triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution + global.resolution;
+                        triangleIndex += 3;
+                    }
+                    else
+                    {
+                        triangles[triangleIndex] = vertexIndex + 1;
+                        triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 3] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 4] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution + 1;
+                        triangleIndex += 6;
+                    }
                 }
             }
 
-            // East.
-            for (int y = 0; y < global.resolution - 2; y++)
+            if (lerpEast == 1)
             {
-                int vertexIndex = y * global.resolution + global.resolution - 2;
-                if (y % 2 == 0)
+                for (int y = 0; y < global.resolution - 2; y++)
                 {
-                    triangles[triangleIndex] = vertexIndex + 1;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + global.resolution + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
-                    triangleIndex += 3;
-                }
-                else
-                {
-                    triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 3] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 4] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution;
-                    triangleIndex += 6;
+                    int vertexIndex = y * global.resolution + global.resolution - 2;
+                    if (y % 2 == 0)
+                    {
+                        triangles[triangleIndex] = vertexIndex + 1;
+                        triangles[triangleIndex + 1] = vertexIndex + global.resolution + global.resolution + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                        triangleIndex += 3;
+                    }
+                    else
+                    {
+                        triangles[triangleIndex] = vertexIndex;
+                        triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 3] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 4] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution;
+                        triangleIndex += 6;
+                    }
                 }
             }
 
-            // North.
-            for (int x = 0; x < global.resolution - 2; x++)
+            if (lerpSouth == 1)
             {
-                int vertexIndex = x + global.resolution * (global.resolution - 2);
-                if (x % 2 == 0)
+                for (int x = 0; x < global.resolution - 2; x++)
                 {
-                    triangles[triangleIndex] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 1] = vertexIndex + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 2;
-                    triangleIndex += 3;
-                }
-                else
-                {
-                    triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 3] = vertexIndex + 1;
-                    triangles[triangleIndex + 4] = vertexIndex + 2;
-                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
-                    triangleIndex += 6;
+                    int vertexIndex = x;
+                    if (x % 2 == 0)
+                    {
+                        triangles[triangleIndex] = vertexIndex;
+                        triangles[triangleIndex + 1] = vertexIndex + 2;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                        triangleIndex += 3;
+                    }
+                    else
+                    {
+                        triangles[triangleIndex] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 1] = vertexIndex + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 3] = vertexIndex + 1;
+                        triangles[triangleIndex + 4] = vertexIndex + global.resolution + 2;
+                        triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
+                        triangleIndex += 6;
+                    }
                 }
             }
 
-            // West.
-            for (int y = 0; y < global.resolution - 2; y++)
+            if (lerpNorth == 1)
             {
-                int vertexIndex = y * global.resolution;
-                if (y % 2 == 0)
+                for (int x = 0; x < global.resolution - 2; x++)
                 {
-                    triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + global.resolution;
-                    triangleIndex += 3;
-                }
-                else
-                {
-                    triangles[triangleIndex] = vertexIndex + 1;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 3] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 4] = vertexIndex + global.resolution + 1;
-                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution + 1;
-                    triangleIndex += 6;
+                    int vertexIndex = x + global.resolution * (global.resolution - 2);
+                    if (x % 2 == 0)
+                    {
+                        triangles[triangleIndex] = vertexIndex + global.resolution;
+                        triangles[triangleIndex + 1] = vertexIndex + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution + 2;
+                        triangleIndex += 3;
+                    }
+                    else
+                    {
+                        triangles[triangleIndex] = vertexIndex;
+                        triangles[triangleIndex + 1] = vertexIndex + 1;
+                        triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                        triangles[triangleIndex + 3] = vertexIndex + 1;
+                        triangles[triangleIndex + 4] = vertexIndex + 2;
+                        triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
+                        triangleIndex += 6;
+                    }
                 }
             }
 
