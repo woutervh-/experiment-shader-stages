@@ -44,14 +44,14 @@ public class MeshedNode
         UnityEngine.Object.Destroy(mesh);
     }
 
-    public void ReconcileMeshTriangles(int neighborMask)
+    public void ReconcileMeshTriangles(int newNeighborMask)
     {
-        if (this.neighborMask == neighborMask)
+        if (neighborMask == newNeighborMask)
         {
             return;
         }
-        this.neighborMask = neighborMask;
-        mesh.triangles = constants.meshes[neighborMask].triangles;
+        neighborMask = newNeighborMask;
+        mesh.triangles = constants.meshes[newNeighborMask].triangles;
         mesh.RecalculateBounds();
     }
 
