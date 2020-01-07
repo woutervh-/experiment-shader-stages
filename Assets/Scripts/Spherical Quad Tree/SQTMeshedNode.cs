@@ -24,7 +24,7 @@ public class MeshedNode
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
         mesh = GenerateMesh();
-        meshFilter.mesh = mesh;
+        meshFilter.sharedMesh = mesh;
         meshRenderer.sharedMaterial = constants.global.material;
     }
 

@@ -34,7 +34,7 @@ public partial class SQTBranches
     public void Reconciliate(Camera camera)
     {
         SQTReconciliationData reconciliationData = GetReconciliationData(camera);
-        SQTBuilder.Node[] branches = SQTBuilder.CalculatePaths(reconciliationData);
+        SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);
         reconciler.Reconcile(branches);
     }
 

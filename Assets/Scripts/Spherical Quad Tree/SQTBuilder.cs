@@ -87,7 +87,7 @@ public class SQTBuilder
         }
     };
 
-    public static Node[] CalculatePaths(SQTReconciliationData reconciliationData)
+    public static Node[] BuildBranches(SQTReconciliationData reconciliationData)
     {
         Node[] branches = new Node[6];
         for (int i = 0; i < 6; i++)
@@ -106,7 +106,34 @@ public class SQTBuilder
         Node leaf = DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData.pointInPlane);
         BuildBalancedNodes(branches, leaf);
         FillMissingSiblings(branches);
+        DetermineNeighborMasks(branches);
         return branches;
+    }
+
+    static void DetermineNeighborMasks(Node[] branches)
+    {
+        foreach (Node branch in branches)
+        {
+            DetermineNeighborMasks(branches, branch);
+        }
+    }
+
+    static void DetermineNeighborMasks(Node[] branches, Node node)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (HasNeighbor(branches, node, i))
+            {
+                node.neighborMask |= Node.NEIGHBOR_MASKS[i];
+            }
+        }
+        if (node.children != null)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                DetermineNeighborMasks(branches, node.children[i]);
+            }
+        }
     }
 
     static void FillMissingSiblings(Node[] branches)
@@ -123,7 +150,7 @@ public class SQTBuilder
         {
             for (int i = 0; i < 4; i++)
             {
-                FillMissingSiblings(GetChild(node, i));
+                FillMissingSiblings(EnsureChild(node, i));
             }
         }
     }
@@ -161,7 +188,7 @@ public class SQTBuilder
         }
     }
 
-    static Node GetNeighbor(Node[] branches, Node node, int direction)
+    static int GetCommonAncestorDistance(Node node, int direction)
     {
         int commonAncestorDistance = 1;
         for (int i = node.path.Length - 1; i >= 0; i--)
@@ -172,7 +199,11 @@ public class SQTBuilder
             }
             commonAncestorDistance += 1;
         }
+        return commonAncestorDistance;
+    }
 
+    static int[] GetNeighborPath(Node node, int direction, int commonAncestorDistance)
+    {
         int[] neighborPath = new int[node.path.Length];
         if (commonAncestorDistance <= node.path.Length)
         {
@@ -187,7 +218,6 @@ public class SQTBuilder
                     neighborPath[node.path.Length - i - 1] = node.path[node.path.Length - i - 1];
                 }
             }
-            return GetRelativePath(branches[node.branch], neighborPath);
         }
         else
         {
@@ -197,21 +227,72 @@ public class SQTBuilder
             {
                 neighborPath[i] = neighborOrdinalRotation[fromOrdinal][toOrdinal][node.path[i]];
             }
-            return GetRelativePath(branches[toOrdinal], neighborPath);
         }
+        return neighborPath;
+    }
+
+    static int GetNeighborBranch(Node node, int direction, int commonAncestorDistance)
+    {
+        if (commonAncestorDistance <= node.path.Length)
+        {
+            return node.branch;
+        }
+        else
+        {
+            return rootOrdinalRotation[node.branch][direction];
+        }
+    }
+
+    static bool HasNeighbor(Node[] branches, Node node, int direction)
+    {
+        int commonAncestorDistance = GetCommonAncestorDistance(node, direction);
+        int[] neighborPath = GetNeighborPath(node, direction, commonAncestorDistance);
+        int neighborBranch = GetNeighborBranch(node, direction, commonAncestorDistance);
+        return GetRelativePath(branches[neighborBranch], neighborPath) != null;
+    }
+
+    static Node GetNeighbor(Node[] branches, Node node, int direction)
+    {
+        int commonAncestorDistance = GetCommonAncestorDistance(node, direction);
+        int[] neighborPath = GetNeighborPath(node, direction, commonAncestorDistance);
+        int neighborBranch = GetNeighborBranch(node, direction, commonAncestorDistance);
+        return EnsureRelativePath(branches[neighborBranch], neighborPath);
     }
 
     static Node GetRelativePath(Node node, int[] path)
     {
         Node current = node;
-        for (int i = 0; i < path.Length; i++)
+        for (int i = 0; i < path.Length && current != null; i++)
         {
             current = GetChild(current, path[i]);
         }
         return current;
     }
 
+    static Node EnsureRelativePath(Node node, int[] path)
+    {
+        Node current = node;
+        for (int i = 0; i < path.Length; i++)
+        {
+            current = EnsureChild(current, path[i]);
+        }
+        return current;
+    }
+
     static Node GetChild(Node node, int ordinal)
+    {
+        if (node.children == null)
+        {
+            return null;
+        }
+        if (node.children[ordinal] == null)
+        {
+            return null;
+        }
+        return node.children[ordinal];
+    }
+
+    static Node EnsureChild(Node node, int ordinal)
     {
         if (node.children == null)
         {
@@ -247,7 +328,7 @@ public class SQTBuilder
         else
         {
             int ordinal = GetChildOrdinal(pointInPlane, node.offset, node.scale);
-            return DeepSplit(GetChild(node, ordinal), pointInPlane);
+            return DeepSplit(EnsureChild(node, ordinal), pointInPlane);
         }
     }
 
@@ -261,11 +342,14 @@ public class SQTBuilder
 
     public class Node
     {
+        public static int[] NEIGHBOR_MASKS = new int[] { 1, 2, 4, 8 };
+
         public Node parent;
         public Node[] children;
         public int branch;
         public int[] path;
         public Vector2 offset;
         public float scale;
+        public int neighborMask;
     }
 }

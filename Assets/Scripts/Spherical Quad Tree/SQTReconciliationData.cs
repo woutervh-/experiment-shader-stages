@@ -55,17 +55,3 @@ public class SQTReconciliationData
         };
     }
 }
-
-
-// Vector3 direction = sphereToCamera.normalized;
-// float denominator = Vector3.Dot(constants.branch.up, direction);
-
-// if (denominator <= 0f)
-// {
-//     return null;
-// }
-
-// Vector3 pointOnPlane = direction / denominator;
-// Vector2 pointInPlane = new Vector2(Vector3.Dot(constants.branch.forward, pointOnPlane), Vector3.Dot(constants.branch.right, pointOnPlane));
-
-// return child.FindNode(pointInPlane);
