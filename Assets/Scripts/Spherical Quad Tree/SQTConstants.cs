@@ -83,7 +83,7 @@ public class SQTConstants
         public static SQTMeshes GetEdgeFansFromGlobal(SQTGlobal global)
         {
             int innerTrianglesCount = (global.resolution - 3) * (global.resolution - 3) * 2;
-            int outerTrianglesCount = (global.resolution - 2) * 4;
+            int outerTrianglesCount = (global.resolution / 2 + 2 * (global.resolution / 2 - 1)) * 4;
             int[] triangles = new int[(innerTrianglesCount + outerTrianglesCount) * 3];
             int triangleIndex = 0;
 
@@ -115,33 +115,41 @@ public class SQTConstants
                     triangles[triangleIndex] = vertexIndex;
                     triangles[triangleIndex + 1] = vertexIndex + 2;
                     triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangleIndex += 3;
                 }
                 else
                 {
                     triangles[triangleIndex] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 2;
-                    triangles[triangleIndex + 2] = vertexIndex + 1;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 3] = vertexIndex + 1;
+                    triangles[triangleIndex + 4] = vertexIndex + global.resolution + 2;
+                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
+                    triangleIndex += 6;
                 }
-                triangleIndex += 3;
             }
 
             // Right.
             for (int y = 0; y < global.resolution - 2; y++)
             {
-                int vertexIndex = y * global.resolution + global.resolution - 1;
+                int vertexIndex = y * global.resolution + global.resolution - 2;
                 if (y % 2 == 0)
                 {
-                    triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + global.resolution;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution - 1;
+                    triangles[triangleIndex] = vertexIndex + 1;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + global.resolution + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangleIndex += 3;
                 }
                 else
                 {
-                    triangles[triangleIndex] = vertexIndex - 1;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + global.resolution - 1;
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangles[triangleIndex + 3] = vertexIndex + global.resolution;
+                    triangles[triangleIndex + 4] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution;
+                    triangleIndex += 6;
                 }
-                triangleIndex += 3;
             }
 
             // Top.
@@ -153,14 +161,18 @@ public class SQTConstants
                     triangles[triangleIndex] = vertexIndex + global.resolution;
                     triangles[triangleIndex + 1] = vertexIndex + 1;
                     triangles[triangleIndex + 2] = vertexIndex + global.resolution + 2;
+                    triangleIndex += 3;
                 }
                 else
                 {
                     triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + 2;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
                     triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 3] = vertexIndex + 1;
+                    triangles[triangleIndex + 4] = vertexIndex + 2;
+                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
+                    triangleIndex += 6;
                 }
-                triangleIndex += 3;
             }
 
             // Left.
@@ -172,14 +184,18 @@ public class SQTConstants
                     triangles[triangleIndex] = vertexIndex;
                     triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
                     triangles[triangleIndex + 2] = vertexIndex + global.resolution + global.resolution;
+                    triangleIndex += 3;
                 }
                 else
                 {
                     triangles[triangleIndex] = vertexIndex + 1;
-                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + global.resolution + 1;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
                     triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangles[triangleIndex + 3] = vertexIndex + global.resolution;
+                    triangles[triangleIndex + 4] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution + 1;
+                    triangleIndex += 6;
                 }
-                triangleIndex += 3;
             }
 
             return new SQTMeshes
