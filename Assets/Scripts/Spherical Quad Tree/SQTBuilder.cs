@@ -103,7 +103,7 @@ public class SQTBuilder
             };
         }
 
-        Node leaf = DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData.pointInPlane);
+        Node leaf = DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData);
         BuildBalancedNodes(branches, leaf);
         FillMissingSiblings(branches);
         DetermineNeighborMasks(branches);
@@ -319,16 +319,22 @@ public class SQTBuilder
         return (t.x < 0 ? 0 : 1) + (t.y < 0 ? 0 : 2);
     }
 
-    static Node DeepSplit(Node node, Vector2 pointInPlane)
+    static bool ShouldSplit(Node node, SQTReconciliationData reconciliationData)
     {
-        if (node.path.Length >= MAX_PATH_LENGTH)
+        return node.path.Length < reconciliationData.constants.global.maxDepth
+            && reconciliationData.constants.depth[node.path.Length].approximateSize > reconciliationData.desiredLength;
+    }
+
+    static Node DeepSplit(Node node, SQTReconciliationData reconciliationData)
+    {
+        if (ShouldSplit(node, reconciliationData))
         {
-            return node;
+            int ordinal = GetChildOrdinal(reconciliationData.pointInPlane, node.offset, node.scale);
+            return DeepSplit(EnsureChild(node, ordinal), reconciliationData);
         }
         else
         {
-            int ordinal = GetChildOrdinal(pointInPlane, node.offset, node.scale);
-            return DeepSplit(EnsureChild(node, ordinal), pointInPlane);
+            return node;
         }
     }
 

@@ -79,7 +79,7 @@ public class MeshedNode
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                 // vertices[vertexIndex] = pointOnUnitSphere * constants.global.radius;
                 // normals[vertexIndex] = pointOnUnitSphere;
-                vertices[vertexIndex] = pointOnUnitCube;
+                vertices[vertexIndex] = pointOnUnitCube * constants.global.radius;
                 normals[vertexIndex] = constants.branch.up;
             }
         }

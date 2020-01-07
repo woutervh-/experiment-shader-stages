@@ -41,6 +41,10 @@ public partial class SQTBranches
 
     public void Destroy()
     {
+        for (int i = 0; i < directions.Length; i++)
+        {
+            UnityEngine.Object.Destroy(constants[i].branch.gameObject);
+        }
         reconciler.Destroy();
     }
 

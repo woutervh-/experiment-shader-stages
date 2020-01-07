@@ -605,6 +605,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 857283999}
   material: {fileID: 2100000, guid: c484359c25eb65041946997b707e8c18, type: 2}
+  maxDepth: 10
+  resolution: 7
+  radius: 1
   debug: 0
 --- !u!1 &609552741
 GameObject:
