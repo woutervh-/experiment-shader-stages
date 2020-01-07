@@ -10,6 +10,7 @@ public class SQTManager : MonoBehaviour
     public int resolution = 7;
     [Range(0f, 1e6f)]
     public float radius = 1f;
+    public bool sphere = false;
 
 #if UNITY_EDITOR
     public bool debug;
@@ -18,6 +19,7 @@ public class SQTManager : MonoBehaviour
     int currentMaxDepth;
     int currentResolution;
     float currentRadius;
+    bool currentSphere;
     SQTBranches branches;
     Camera playerCamera;
 
@@ -28,7 +30,7 @@ public class SQTManager : MonoBehaviour
 
     bool ShouldUpdateSettings()
     {
-        return currentMaxDepth != maxDepth || currentResolution != resolution || currentRadius != radius;
+        return currentMaxDepth != maxDepth || currentResolution != resolution || currentRadius != radius || currentSphere != sphere;
     }
 
     void DoUpdateSettings()
@@ -41,6 +43,7 @@ public class SQTManager : MonoBehaviour
         currentMaxDepth = maxDepth;
         currentResolution = resolution;
         currentRadius = radius;
+        currentSphere = sphere;
 
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
@@ -48,7 +51,8 @@ public class SQTManager : MonoBehaviour
             resolution = resolution * 2 - 1,
             radius = radius,
             material = material,
-            gameObject = gameObject
+            gameObject = gameObject,
+            sphere = sphere
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
         SQTConstants.SQTMesh[] meshes = SQTConstants.SQTMesh.GetFromGlobal(global);
