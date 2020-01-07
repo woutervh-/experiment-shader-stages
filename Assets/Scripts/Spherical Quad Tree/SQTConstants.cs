@@ -70,8 +70,38 @@ public class SQTConstants
             int lerpSouth = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[2]) == 0 ? 0 : 1;
             int lerpNorth = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[3]) == 0 ? 0 : 1;
 
+            int westTriangles = lerpWest == 0 ? 0 : (global.resolution / 2 + 2 * (global.resolution / 2 - 1));
+            int eastTriangles = lerpEast == 0 ? 0 : (global.resolution / 2 + 2 * (global.resolution / 2 - 1));
+            int southTriangles = lerpSouth == 0 ? 0 : (global.resolution / 2 + 2 * (global.resolution / 2 - 1));
+            int northTriangles = lerpNorth == 0 ? 0 : (global.resolution / 2 + 2 * (global.resolution / 2 - 1));
+
+            if (lerpWest == 1)
+            {
+                westTriangles += 2;
+                westTriangles -= lerpSouth;
+                westTriangles -= lerpNorth;
+            }
+            if (lerpEast == 1)
+            {
+                westTriangles += 2;
+                westTriangles -= lerpSouth;
+                westTriangles -= lerpNorth;
+            }
+            if (lerpSouth == 1)
+            {
+                westTriangles += 2;
+                westTriangles -= lerpEast;
+                westTriangles -= lerpWest;
+            }
+            if (lerpNorth == 1)
+            {
+                westTriangles += 2;
+                westTriangles -= lerpEast;
+                westTriangles -= lerpWest;
+            }
+
             int innerTrianglesCount = (global.resolution - lerpWest - lerpEast - 1) * (global.resolution - lerpSouth - lerpNorth - 1) * 2;
-            int outerTrianglesCount = (global.resolution / 2 + 2 * (global.resolution / 2 - 1)) * (lerpWest + lerpEast + lerpSouth + lerpNorth);
+            int outerTrianglesCount = westTriangles + eastTriangles + southTriangles + northTriangles;
             int[] triangles = new int[(innerTrianglesCount + outerTrianglesCount) * 3];
             int triangleIndex = 0;
 
@@ -117,6 +147,22 @@ public class SQTConstants
                         triangleIndex += 6;
                     }
                 }
+                if (lerpSouth == 0)
+                {
+                    int vertexIndex = 0;
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangleIndex += 3;
+                }
+                if (lerpNorth == 0)
+                {
+                    int vertexIndex = global.resolution * (global.resolution - 2);
+                    triangles[triangleIndex] = vertexIndex + 1;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangleIndex += 3;
+                }
             }
 
             if (lerpEast == 1)
@@ -141,6 +187,22 @@ public class SQTConstants
                         triangles[triangleIndex + 5] = vertexIndex + global.resolution + global.resolution;
                         triangleIndex += 6;
                     }
+                }
+                if (lerpSouth == 0)
+                {
+                    int vertexIndex = global.resolution - 2;
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangleIndex += 3;
+                }
+                if (lerpNorth == 0)
+                {
+                    int vertexIndex = global.resolution * (global.resolution - 2) + global.resolution - 2;
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangleIndex += 3;
                 }
             }
 
@@ -167,6 +229,22 @@ public class SQTConstants
                         triangleIndex += 6;
                     }
                 }
+                if (lerpWest == 0)
+                {
+                    int vertexIndex = 0;
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangleIndex += 3;
+                }
+                if (lerpEast == 0)
+                {
+                    int vertexIndex = global.resolution - 2;
+                    triangles[triangleIndex] = vertexIndex + 1;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangleIndex += 3;
+                }
             }
 
             if (lerpNorth == 1)
@@ -191,6 +269,22 @@ public class SQTConstants
                         triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
                         triangleIndex += 6;
                     }
+                }
+                if (lerpWest == 0)
+                {
+                    int vertexIndex = global.resolution * (global.resolution - 2);
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
+                    triangleIndex += 3;
+                }
+                if (lerpEast == 0)
+                {
+                    int vertexIndex = global.resolution * (global.resolution - 2) + global.resolution - 2;
+                    triangles[triangleIndex] = vertexIndex;
+                    triangles[triangleIndex + 1] = vertexIndex + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangleIndex += 3;
                 }
             }
 
