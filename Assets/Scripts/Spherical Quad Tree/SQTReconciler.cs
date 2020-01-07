@@ -28,62 +28,37 @@ public class SQTReconciler
             {
                 meshedBranches[i] = new MeshedNode(null, constants[i], newBranches[i]);
             }
-            if (newBranches[i].children != null && meshedBranches[i].children != null)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    ReconcileNode(constants[i], newBranches[i].children[j], meshedBranches[i].children[j]);
-                }
-            }
-            else if (newBranches[i].children != null && meshedBranches[i].children == null)
-            {
-                meshedBranches[i].meshRenderer.enabled = false;
-                meshedBranches[i].children = new MeshedNode[4];
-                for (int j = 0; j < 4; j++)
-                {
-                    meshedBranches[i].children[j] = new MeshedNode(meshedBranches[i], constants[i], newBranches[i].children[j]);
-                    ReconcileNode(constants[i], newBranches[i].children[j], meshedBranches[i].children[j]);
-                }
-            }
-            else if (newBranches[i].children == null && meshedBranches[i].children != null)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    meshedBranches[i].children[j].Destroy();
-                }
-                meshedBranches[i].children = null;
-                meshedBranches[i].meshRenderer.enabled = true;
-            }
+            Reconcile(constants[i], newBranches[i], meshedBranches, i);
         }
     }
 
-    void ReconcileNode(SQTConstants constants, SQTBuilder.Node newNode, MeshedNode meshedNode)
+    void Reconcile(SQTConstants constants, SQTBuilder.Node newNode, MeshedNode[] siblings, int index)
     {
-        if (newNode.children != null && meshedNode.children != null)
+        if (newNode.children != null && siblings[index].children != null)
         {
             for (int i = 0; i < 4; i++)
             {
-                ReconcileNode(constants, newNode.children[i], meshedNode.children[i]);
+                Reconcile(constants, newNode.children[i], siblings[index].children, i);
             }
         }
-        else if (newNode.children != null && meshedNode.children == null)
+        else if (newNode.children != null && siblings[index].children == null)
         {
-            meshedNode.meshRenderer.enabled = false;
-            meshedNode.children = new MeshedNode[4];
+            siblings[index].meshRenderer.enabled = false;
+            siblings[index].children = new MeshedNode[4];
             for (int i = 0; i < 4; i++)
             {
-                meshedNode.children[i] = new MeshedNode(meshedNode, constants, newNode.children[i]);
-                ReconcileNode(constants, newNode.children[i], meshedNode.children[i]);
+                siblings[index].children[i] = new MeshedNode(siblings[index], constants, newNode.children[i]);
+                Reconcile(constants, newNode.children[i], siblings[index].children, i);
             }
         }
-        else if (newNode.children == null && meshedNode.children != null)
+        else if (newNode.children == null && siblings[index].children != null)
         {
             for (int i = 0; i < 4; i++)
             {
-                meshedNode.children[i].Destroy();
+                siblings[index].children[i].Destroy();
             }
-            meshedNode.children = null;
-            meshedNode.meshRenderer.enabled = true;
+            siblings[index].children = null;
+            siblings[index].meshRenderer.enabled = true;
         }
     }
 }
