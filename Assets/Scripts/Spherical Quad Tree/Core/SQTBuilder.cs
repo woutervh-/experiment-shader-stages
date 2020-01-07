@@ -321,8 +321,10 @@ public class SQTBuilder
 
     static bool ShouldSplit(Node node, SQTReconciliationData reconciliationData)
     {
-        return node.path.Length < reconciliationData.constants.global.maxDepth
-            && reconciliationData.constants.depth[node.path.Length].approximateSize > reconciliationData.desiredLength;
+        // TODO: investigate
+        // return node.path.Length < reconciliationData.constants.global.maxDepth
+        //     && reconciliationData.constants.depth[node.path.Length].approximateSize > reconciliationData.desiredLength;
+        return node.path.Length < reconciliationData.constants.global.maxDepth;
     }
 
     static Node DeepSplit(Node node, SQTReconciliationData reconciliationData)
