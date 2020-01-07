@@ -83,21 +83,21 @@ public class SQTConstants
             }
             if (lerpEast == 1)
             {
-                westTriangles += 2;
-                westTriangles -= lerpSouth;
-                westTriangles -= lerpNorth;
+                eastTriangles += 2;
+                eastTriangles -= lerpSouth;
+                eastTriangles -= lerpNorth;
             }
             if (lerpSouth == 1)
             {
-                westTriangles += 2;
-                westTriangles -= lerpEast;
-                westTriangles -= lerpWest;
+                southTriangles += 2;
+                southTriangles -= lerpEast;
+                southTriangles -= lerpWest;
             }
             if (lerpNorth == 1)
             {
-                westTriangles += 2;
-                westTriangles -= lerpEast;
-                westTriangles -= lerpWest;
+                northTriangles += 2;
+                northTriangles -= lerpEast;
+                northTriangles -= lerpWest;
             }
 
             int innerTrianglesCount = (global.resolution - lerpWest - lerpEast - 1) * (global.resolution - lerpSouth - lerpNorth - 1) * 2;
@@ -200,8 +200,8 @@ public class SQTConstants
                 {
                     int vertexIndex = global.resolution * (global.resolution - 2) + global.resolution - 2;
                     triangles[triangleIndex] = vertexIndex;
-                    triangles[triangleIndex + 1] = vertexIndex + 1;
-                    triangles[triangleIndex + 2] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
+                    triangles[triangleIndex + 2] = vertexIndex + global.resolution;
                     triangleIndex += 3;
                 }
             }
