@@ -17,15 +17,16 @@ public class SQTManager : MonoBehaviour
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
             maxDepth = 10,
-            // resolution = 16,
-            resolution = 4,
+            // resolution = 17,
+            resolution = 5,
             radius = 1f,
             // radius = 1e6f,
             material = material,
             gameObject = gameObject
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
-        SQTConstants.SQTMeshes meshes = SQTConstants.SQTMeshes.GetFromGlobal(global);
+        // SQTConstants.SQTMeshes meshes = SQTConstants.SQTMeshes.GetFromGlobal(global);
+        SQTConstants.SQTMeshes meshes = SQTConstants.SQTMeshes.GetEdgeFansFromGlobal(global);
         branches = new SQTBranches(global, depth, meshes);
     }
 
