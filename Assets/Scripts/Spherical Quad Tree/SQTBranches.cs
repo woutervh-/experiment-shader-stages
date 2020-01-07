@@ -7,7 +7,7 @@ public partial class SQTBranches
     SQTConstants[] constants;
     SQTReconciler reconciler;
 
-    public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMeshes meshes)
+    public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMesh[] meshes)
     {
         constants = new SQTConstants[directions.Length];
         int[] branchRootPath = new int[0];
@@ -31,7 +31,7 @@ public partial class SQTBranches
         reconciler = new SQTReconciler(constants);
     }
 
-    public void Reconciliate(Camera camera)
+    public void Reconcile(Camera camera)
     {
         SQTReconciliationData reconciliationData = GetReconciliationData(camera);
         SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);

@@ -122,7 +122,7 @@ public class SQTBuilder
     {
         for (int i = 0; i < 4; i++)
         {
-            if (HasNeighbor(branches, node, i))
+            if (!HasNeighbor(branches, node, i))
             {
                 node.neighborMask |= Node.NEIGHBOR_MASKS[i];
             }

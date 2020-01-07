@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class MeshedNode
@@ -9,6 +8,7 @@ public class MeshedNode
     MeshedNode parent;
     SQTConstants constants;
     SQTBuilder.Node node;
+    int neighborMask;
     Mesh mesh;
     GameObject gameObject;
     MeshFilter meshFilter;
@@ -19,6 +19,7 @@ public class MeshedNode
         this.constants = constants;
         this.node = node;
 
+        neighborMask = -1;
         gameObject = new GameObject("Chunk " + string.Join("", node.path));
         gameObject.transform.SetParent(constants.branch.gameObject.transform, false);
         meshFilter = gameObject.AddComponent<MeshFilter>();
@@ -41,6 +42,17 @@ public class MeshedNode
         UnityEngine.Object.Destroy(meshFilter);
         UnityEngine.Object.Destroy(gameObject);
         UnityEngine.Object.Destroy(mesh);
+    }
+
+    public void ReconcileMeshTriangles(int neighborMask)
+    {
+        if (this.neighborMask == neighborMask)
+        {
+            return;
+        }
+        this.neighborMask = neighborMask;
+        mesh.triangles = constants.meshes[neighborMask].triangles;
+        mesh.RecalculateBounds();
     }
 
     Vector3 GetOrigin()
@@ -74,9 +86,7 @@ public class MeshedNode
 
         Mesh mesh = new Mesh();
         mesh.vertices = vertices;
-        mesh.triangles = constants.meshes.triangles;
         mesh.normals = normals;
-        mesh.RecalculateBounds();
         return mesh;
     }
 }

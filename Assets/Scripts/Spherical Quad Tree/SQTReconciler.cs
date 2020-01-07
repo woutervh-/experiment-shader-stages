@@ -34,6 +34,8 @@ public class SQTReconciler
 
     void Reconcile(SQTConstants constants, SQTBuilder.Node newNode, MeshedNode[] siblings, int index)
     {
+        siblings[index].ReconcileMeshTriangles(newNode.neighborMask);
+
         if (newNode.children != null && siblings[index].children != null)
         {
             for (int i = 0; i < 4; i++)

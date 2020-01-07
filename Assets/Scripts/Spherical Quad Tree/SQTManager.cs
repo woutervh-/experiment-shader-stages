@@ -26,7 +26,7 @@ public class SQTManager : MonoBehaviour
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
         // SQTConstants.SQTMeshes meshes = SQTConstants.SQTMeshes.GetFromGlobal(global);
-        SQTConstants.SQTMeshes meshes = SQTConstants.SQTMeshes.GetEdgeFansFromGlobal(global);
+        SQTConstants.SQTMesh[] meshes = SQTConstants.SQTMesh.GetFromGlobal(global);
         branches = new SQTBranches(global, depth, meshes);
     }
 
@@ -59,7 +59,7 @@ public class SQTManager : MonoBehaviour
 
         if (branches != null)
         {
-            branches.Reconciliate(playerCamera);
+            branches.Reconcile(playerCamera);
         }
     }
 

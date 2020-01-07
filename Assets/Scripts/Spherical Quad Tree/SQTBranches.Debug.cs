@@ -52,7 +52,8 @@ public partial class SQTBranches
     {
         if (node.children == null)
         {
-            return "[" + string.Join(", ", node.path) + "]";
+            // return "[" + string.Join(", ", node.path) + "]";
+            return "[" + node.neighborMask + "]";
         }
         else
         {
@@ -68,7 +69,7 @@ public partial class SQTBranches
                     strings[i] = StringifyNode(node.children[i]);
                 }
             }
-            return "[" + string.Join(", ", strings) + "]";
+            return "[" + node.neighborMask + ", " + string.Join(", ", strings) + "]";
         }
     }
 #endif

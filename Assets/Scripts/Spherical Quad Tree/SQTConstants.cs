@@ -49,38 +49,21 @@ public class SQTConstants
         }
     }
 
-    public class SQTMeshes
+    public class SQTMesh
     {
         public int[] triangles;
 
-        public static SQTMeshes GetFromGlobal(SQTGlobal global)
+        public static SQTMesh[] GetFromGlobal(SQTGlobal global)
         {
-            int[] triangles = new int[(global.resolution - 1) * (global.resolution - 1) * 6];
-            int triangleIndex = 0;
-            for (int y = 0; y < global.resolution; y++)
+            SQTMesh[] meshes = new SQTMesh[17];
+            for (int i = 0; i < 17; i++)
             {
-                for (int x = 0; x < global.resolution; x++)
-                {
-                    int vertexIndex = x + global.resolution * y;
-                    if (x < global.resolution - 1 && y < global.resolution - 1)
-                    {
-                        triangles[triangleIndex] = vertexIndex;
-                        triangles[triangleIndex + 1] = vertexIndex + global.resolution + 1;
-                        triangles[triangleIndex + 2] = vertexIndex + global.resolution;
-                        triangles[triangleIndex + 3] = vertexIndex;
-                        triangles[triangleIndex + 4] = vertexIndex + 1;
-                        triangles[triangleIndex + 5] = vertexIndex + global.resolution + 1;
-                        triangleIndex += 6;
-                    }
-                }
+                meshes[i] = GetFromGlobal(global, i);
             }
-            return new SQTMeshes
-            {
-                triangles = triangles
-            };
+            return meshes;
         }
 
-        public static SQTMeshes GetEdgeFansFromGlobal(SQTGlobal global)
+        public static SQTMesh GetFromGlobal(SQTGlobal global, int neighborMask)
         {
             int innerTrianglesCount = (global.resolution - 3) * (global.resolution - 3) * 2;
             int outerTrianglesCount = (global.resolution / 2 + 2 * (global.resolution / 2 - 1)) * 4;
@@ -106,7 +89,7 @@ public class SQTConstants
                 }
             }
 
-            // Bottom;
+            // South.
             for (int x = 0; x < global.resolution - 2; x++)
             {
                 int vertexIndex = x;
@@ -129,7 +112,7 @@ public class SQTConstants
                 }
             }
 
-            // Right.
+            // East.
             for (int y = 0; y < global.resolution - 2; y++)
             {
                 int vertexIndex = y * global.resolution + global.resolution - 2;
@@ -152,7 +135,7 @@ public class SQTConstants
                 }
             }
 
-            // Top.
+            // North.
             for (int x = 0; x < global.resolution - 2; x++)
             {
                 int vertexIndex = x + global.resolution * (global.resolution - 2);
@@ -175,7 +158,7 @@ public class SQTConstants
                 }
             }
 
-            // Left.
+            // West.
             for (int y = 0; y < global.resolution - 2; y++)
             {
                 int vertexIndex = y * global.resolution;
@@ -198,7 +181,7 @@ public class SQTConstants
                 }
             }
 
-            return new SQTMeshes
+            return new SQTMesh
             {
                 triangles = triangles
             };
@@ -208,5 +191,5 @@ public class SQTConstants
     public SQTGlobal global;
     public SQTBranch branch;
     public SQTDepth[] depth;
-    public SQTMeshes meshes;
+    public SQTMesh[] meshes;
 }
