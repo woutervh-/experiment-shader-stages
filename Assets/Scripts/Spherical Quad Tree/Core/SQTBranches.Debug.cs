@@ -40,7 +40,7 @@ public partial class SQTBranches
 
     public void DrawBranches(Camera camera)
     {
-        SQTReconciliationData reconciliationData = GetReconciliationData(camera);
+        SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(global, constants, camera);
         SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);
         foreach (SQTBuilder.Node branch in branches)
         {

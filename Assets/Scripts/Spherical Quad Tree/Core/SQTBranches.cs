@@ -4,11 +4,13 @@ public partial class SQTBranches
 {
     static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
+    SQTConstants.SQTGlobal global;
     SQTConstants[] constants;
     SQTReconciler reconciler;
 
     public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMesh[] meshes)
     {
+        this.global = global;
         constants = new SQTConstants[directions.Length];
         int[] branchRootPath = new int[0];
         for (int i = 0; i < directions.Length; i++)
@@ -33,7 +35,7 @@ public partial class SQTBranches
 
     public void Reconcile(Camera camera)
     {
-        SQTReconciliationData reconciliationData = GetReconciliationData(camera);
+        SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(global, constants, camera);
         SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);
         reconciler.Reconcile(branches);
         // Debug.Log(StringifyNode(branches[0]));
@@ -46,18 +48,5 @@ public partial class SQTBranches
             UnityEngine.Object.Destroy(constants[i].branch.gameObject);
         }
         reconciler.Destroy();
-    }
-
-    SQTReconciliationData GetReconciliationData(Camera camera)
-    {
-        for (int i = 0; i < directions.Length; i++)
-        {
-            SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(constants[i], camera);
-            if (reconciliationData != null)
-            {
-                return reconciliationData;
-            }
-        }
-        return null;
     }
 }
