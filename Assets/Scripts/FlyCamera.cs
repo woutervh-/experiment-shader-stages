@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(Camera))]
 public class FlyCamera : MonoBehaviour
 {
     public float cameraSensitivity = 10f;
