@@ -6,8 +6,6 @@ public class SQTPerlinDisplacement : MonoBehaviour, SQTPlugin, SQTApproximateEdg
     public int seed = 0;
     [Range(1f, 1e6f)]
     public float radius = 1f;
-    [Range(0f, 1000f)]
-    public float maxHeight = 1f;
 
     public event EventHandler OnChange;
 
@@ -30,7 +28,7 @@ public class SQTPerlinDisplacement : MonoBehaviour, SQTPlugin, SQTApproximateEdg
 
     Perlin.PerlinSample GetSample(Vector3 position, float frequency)
     {
-        Perlin.PerlinSample sample = this.perlin.Sample(position * frequency);
+        Perlin.PerlinSample sample = perlin.Sample(position * frequency);
         sample.derivative *= frequency;
         return sample;
     }
@@ -51,16 +49,16 @@ public class SQTPerlinDisplacement : MonoBehaviour, SQTPlugin, SQTApproximateEdg
             Perlin.PerlinSample sample = GetSample(position, frequency) * strength;
             sum += sample;
         }
-        return sum;
+        return sum + 1f;
     }
 
     public void ModifyMesh(Vector3[] vertices, Vector3[] normals)
     {
         for (int i = 0; i < vertices.Length; i++)
         {
-            Perlin.PerlinSample sample = GetSample(vertices[i]) * (maxHeight / 2f) + 0.5f;
             normals[i] = vertices[i].normalized;
-            vertices[i] = normals[i] * (radius + sample.value);
+            Perlin.PerlinSample sample = GetSample(normals[i]);
+            vertices[i] = normals[i] * radius * sample.value;
             normals[i] = (normals[i] - sample.derivative).normalized;
         }
     }

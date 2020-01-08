@@ -57,11 +57,11 @@ public class FlyCamera : MonoBehaviour
 
             if (Input.GetKey(KeyCode.Q))
             {
-                transform.localRotation *= Quaternion.AngleAxis(rollSpeed * Time.deltaTime, Vector3.back);
+                transform.localRotation *= Quaternion.AngleAxis(rollSpeed * Time.deltaTime, Vector3.forward);
             }
             if (Input.GetKey(KeyCode.E))
             {
-                transform.localRotation *= Quaternion.AngleAxis(rollSpeed * Time.deltaTime, Vector3.forward);
+                transform.localRotation *= Quaternion.AngleAxis(rollSpeed * Time.deltaTime, Vector3.back);
             }
         }
 
