@@ -12,7 +12,7 @@ public class SQTConstants
             SQTDepth[] depth = new SQTDepth[global.maxDepth + 1];
             for (int i = 0; i <= global.maxDepth; i++)
             {
-                float scale = 1f / Mathf.Pow(2f, i);
+                float scale = GetScale(i);
                 float approximateSize = scale / global.resolution;
                 global.plugins.ModifyApproximateEdgeLength(ref approximateSize);
 
@@ -23,6 +23,11 @@ public class SQTConstants
                 };
             }
             return depth;
+        }
+
+        public static float GetScale(int depth)
+        {
+            return 1f / Mathf.Pow(2f, depth);
         }
     }
 
@@ -48,8 +53,18 @@ public class SQTConstants
         {
             this.index = index;
             this.up = up;
-            forward = new Vector3(up.y, up.z, up.x);
-            right = Vector3.Cross(up, forward);
+            forward = GetForward(up);
+            right = GetRight(up);
+        }
+
+        public static Vector3 GetForward(Vector3 up)
+        {
+            return new Vector3(up.y, up.z, up.x);
+        }
+
+        public static Vector3 GetRight(Vector3 up)
+        {
+            return Vector3.Cross(up, GetForward(up));
         }
     }
 

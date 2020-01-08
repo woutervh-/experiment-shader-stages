@@ -6,7 +6,8 @@ public partial class SQTBranches
 
     SQTConstants.SQTGlobal global;
     SQTConstants[] constants;
-    SQTReconciler reconciler;
+    // SQTReconciler reconciler;
+    SQTInstancedReconciler reconciler;
 
     public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMesh[] meshes)
     {
@@ -30,7 +31,7 @@ public partial class SQTBranches
             };
         }
 
-        reconciler = new SQTReconciler(constants);
+        reconciler = new SQTInstancedReconciler(constants);
     }
 
     public void Reconcile(Camera camera)

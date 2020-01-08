@@ -1,38 +1,40 @@
-public class SQTReconciler
+public class SQTInstancedReconciler
 {
     SQTConstants[] constants;
-    SQTMeshedNode[] meshedBranches;
+    SQTInstancedMesh instancedMesh;
+    SQTInstancedNode[] instancedBranches;
 
-    public SQTReconciler(SQTConstants[] constants)
+    public SQTInstancedReconciler(SQTConstants[] constants)
     {
         this.constants = constants;
-        meshedBranches = new SQTMeshedNode[constants.Length];
+        instancedMesh = new SQTInstancedMesh(constants[0].global, constants[0].meshes); // TODO: make proper fix for meshes location.
+        instancedBranches = new SQTInstancedNode[constants.Length];
     }
 
     public void Destroy()
     {
-        for (int i = 0; i < meshedBranches.Length; i++)
+        for (int i = 0; i < instancedBranches.Length; i++)
         {
-            if (meshedBranches[i] != null)
+            if (instancedBranches[i] != null)
             {
-                meshedBranches[i].Destroy();
+                instancedBranches[i].Destroy();
             }
         }
     }
 
     public void Reconcile(SQTBuilder.Node[] newBranches)
     {
-        for (int i = 0; i < meshedBranches.Length; i++)
+        for (int i = 0; i < instancedBranches.Length; i++)
         {
-            if (meshedBranches[i] == null)
+            if (instancedBranches[i] == null)
             {
-                meshedBranches[i] = new SQTMeshedNode(null, constants[i], newBranches[i]);
+                instancedBranches[i] = new SQTInstancedNode(null, constants[i], instancedMesh, newBranches[i]);
             }
-            Reconcile(constants[i], newBranches[i], meshedBranches, i);
+            Reconcile(constants[i], newBranches[i], instancedBranches, i);
         }
     }
 
-    void Reconcile(SQTConstants constants, SQTBuilder.Node newNode, SQTMeshedNode[] siblings, int index)
+    void Reconcile(SQTConstants constants, SQTBuilder.Node newNode, SQTInstancedNode[] siblings, int index)
     {
         if (siblings[index].neighborMask != newNode.neighborMask)
         {
@@ -50,10 +52,10 @@ public class SQTReconciler
         else if (newNode.children != null && siblings[index].children == null)
         {
             siblings[index].meshRenderer.enabled = false;
-            siblings[index].children = new SQTMeshedNode[4];
+            siblings[index].children = new SQTInstancedNode[4];
             for (int i = 0; i < 4; i++)
             {
-                siblings[index].children[i] = new SQTMeshedNode(siblings[index], constants, newNode.children[i]);
+                siblings[index].children[i] = new SQTInstancedNode(siblings[index], constants, instancedMesh, newNode.children[i]);
                 Reconcile(constants, newNode.children[i], siblings[index].children, i);
             }
         }

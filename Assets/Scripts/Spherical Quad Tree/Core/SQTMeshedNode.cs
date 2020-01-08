@@ -1,19 +1,19 @@
 using UnityEngine;
 
-public class MeshedNode
+public class SQTMeshedNode
 {
-    public MeshedNode[] children;
+    public SQTMeshedNode[] children;
     public MeshRenderer meshRenderer;
     public int neighborMask;
 
-    MeshedNode parent;
+    SQTMeshedNode parent;
     SQTConstants constants;
     SQTBuilder.Node node;
     Mesh mesh;
     GameObject gameObject;
     MeshFilter meshFilter;
 
-    public MeshedNode(MeshedNode parent, SQTConstants constants, SQTBuilder.Node node)
+    public SQTMeshedNode(SQTMeshedNode parent, SQTConstants constants, SQTBuilder.Node node)
     {
         this.parent = parent;
         this.constants = constants;
@@ -33,7 +33,7 @@ public class MeshedNode
     {
         if (children != null)
         {
-            foreach (MeshedNode child in children)
+            foreach (SQTMeshedNode child in children)
             {
                 child.Destroy();
             }
