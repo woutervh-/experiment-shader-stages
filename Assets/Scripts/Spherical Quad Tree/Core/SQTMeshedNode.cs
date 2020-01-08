@@ -71,19 +71,12 @@ public class MeshedNode
                     + Mathf.Lerp(-1f, 1f, percent.x) * constants.depth[node.path.Length].scale * constants.branch.forward
                     + Mathf.Lerp(-1f, 1f, percent.y) * constants.depth[node.path.Length].scale * constants.branch.right;
 
-                if (constants.global.sphere)
-                {
-                    Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                    vertices[vertexIndex] = pointOnUnitSphere * constants.global.radius;
-                    normals[vertexIndex] = pointOnUnitSphere;
-                }
-                else
-                {
-                    vertices[vertexIndex] = pointOnUnitCube * constants.global.radius;
-                    normals[vertexIndex] = constants.branch.up;
-                }
+                vertices[vertexIndex] = pointOnUnitCube;
+                normals[vertexIndex] = constants.branch.up;
             }
         }
+
+        constants.global.plugins.ModifyMesh(vertices, normals);
 
         Mesh mesh = new Mesh();
         mesh.vertices = vertices;

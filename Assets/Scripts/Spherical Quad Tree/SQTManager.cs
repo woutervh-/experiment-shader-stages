@@ -28,6 +28,7 @@ public class SQTManager : MonoBehaviour
 
     void Start()
     {
+        DoUpdatePlugins();
         DoUpdateSettings();
     }
 
@@ -36,27 +37,26 @@ public class SQTManager : MonoBehaviour
         dirty = true;
     }
 
-    void OnEnable()
+    void HandleChange(object sender, EventArgs e)
     {
+        dirty = true;
+    }
+
+    void DoUpdatePlugins()
+    {
+        if (plugins != null)
+        {
+            foreach (SQTPlugin plugin in plugins)
+            {
+                plugin.OnChange -= HandleChange;
+            }
+        }
         plugins = GetComponents<SQTPlugin>();
         pluginsChain = new PluginsChain(plugins);
         foreach (SQTPlugin plugin in plugins)
         {
             plugin.OnChange += HandleChange;
         }
-    }
-
-    void OnDisable()
-    {
-        foreach (SQTPlugin plugin in plugins)
-        {
-            plugin.OnChange -= HandleChange;
-        }
-    }
-
-    void HandleChange(object sender, EventArgs e)
-    {
-        dirty = true;
     }
 
     void DoUpdateSettings()
@@ -106,6 +106,7 @@ public class SQTManager : MonoBehaviour
     {
         if (dirty)
         {
+            DoUpdatePlugins();
             DoUpdateSettings();
         }
 
@@ -125,45 +126,60 @@ public class SQTManager : MonoBehaviour
         branches.Destroy();
     }
 
-    class PluginsChain : SQTPlugin.ChainedPlugins
+    class PluginsChain : SQTChainedPlugins
     {
-        SQTPlugin.ApproximateEdgeLengthModifier[] approximateEdgeLengthModifiers;
-        SQTPlugin.MeshModifier[] meshModifiers;
+        SQTApproximateEdgeLengthPlugin[] approximateEdgeLengthModifiers;
+        SQTMeshPlugin[] meshModifiers;
+        SQTDistanceToObjectPlugin[] distanceToObjectModifiers;
 
         public PluginsChain(SQTPlugin[] plugins)
         {
-            List<SQTPlugin.ApproximateEdgeLengthModifier> approximateEdgeLengthModifiers = new List<SQTPlugin.ApproximateEdgeLengthModifier>();
-            List<SQTPlugin.MeshModifier> meshModifiers = new List<SQTPlugin.MeshModifier>();
+            List<SQTApproximateEdgeLengthPlugin> approximateEdgeLengthModifiers = new List<SQTApproximateEdgeLengthPlugin>();
+            List<SQTMeshPlugin> meshModifiers = new List<SQTMeshPlugin>();
+            List<SQTDistanceToObjectPlugin> distanceToObjectModifiers = new List<SQTDistanceToObjectPlugin>();
 
             foreach (SQTPlugin plugin in plugins)
             {
-                if (plugin is SQTPlugin.ApproximateEdgeLengthModifier approximateEdgeLengthModifier)
+                if (plugin is SQTApproximateEdgeLengthPlugin approximateEdgeLengthModifier)
                 {
                     approximateEdgeLengthModifiers.Add(approximateEdgeLengthModifier);
                 }
-                if (plugin is SQTPlugin.MeshModifier meshModifier)
+                if (plugin is SQTMeshPlugin meshModifier)
                 {
                     meshModifiers.Add(meshModifier);
+                }
+                if (plugin is SQTDistanceToObjectPlugin distanceToObjectModifier)
+                {
+                    distanceToObjectModifiers.Add(distanceToObjectModifier);
                 }
             }
 
             this.approximateEdgeLengthModifiers = approximateEdgeLengthModifiers.ToArray();
             this.meshModifiers = meshModifiers.ToArray();
+            this.distanceToObjectModifiers = distanceToObjectModifiers.ToArray();
         }
 
         public void ModifyApproximateEdgeLength(ref float edgeLength)
         {
-            foreach (SQTPlugin.ApproximateEdgeLengthModifier modifier in approximateEdgeLengthModifiers)
+            foreach (SQTApproximateEdgeLengthPlugin modifier in approximateEdgeLengthModifiers)
             {
                 modifier.ModifyApproximateEdgeLength(ref edgeLength);
             }
         }
 
-        public void ModifyMesh(Mesh mesh)
+        public void ModifyMesh(Vector3[] vertices, Vector3[] normals)
         {
-            foreach (SQTPlugin.MeshModifier modifier in meshModifiers)
+            foreach (SQTMeshPlugin modifier in meshModifiers)
             {
-                modifier.ModifyMesh(mesh);
+                modifier.ModifyMesh(vertices, normals);
+            }
+        }
+
+        public void ModifyDistanceToObject(ref float distance)
+        {
+            foreach (SQTDistanceToObjectPlugin modifier in distanceToObjectModifiers)
+            {
+                modifier.ModifyDistanceToObject(ref distance);
             }
         }
     }

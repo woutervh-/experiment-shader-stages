@@ -560,42 +560,7 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!84 &246219757
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  serializedVersion: 3
-  m_Width: 643
-  m_Height: 599
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 1
-  m_ColorFormat: 4
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 1
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
---- !u!84 &396121915
+--- !u!84 &442058306
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -641,7 +606,6 @@ GameObject:
   - component: {fileID: 448428188}
   - component: {fileID: 448428189}
   - component: {fileID: 448428191}
-  - component: {fileID: 448428190}
   m_Layer: 0
   m_Name: SQT Test
   m_TagString: Untagged
@@ -677,22 +641,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 857283999}
   material: {fileID: 2100000, guid: c484359c25eb65041946997b707e8c18, type: 2}
-  radius: 1
+  maxDepth: 10
+  resolution: 7
+  desiredScreenSpaceLength: 10
   debug: 0
---- !u!114 &448428190
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 448428187}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e413fd9954e8a2d4d8e9ad2da488fc44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  seed: 0
-  height: 0
 --- !u!114 &448428191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -702,13 +654,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 448428187}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2dc4bb98348ce84ab92e2d3a9cc1ad3, type: 3}
+  m_Script: {fileID: 11500000, guid: d58bac9886c8eef44bf1178885a71abd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxDepth: 10
-  resolution: 7
-  desiredScreenSpaceLength: 10
-  sphere: 1
+  seed: 0
+  radius: 1
+  maxHeight: 1
 --- !u!1 &494720848
 GameObject:
   m_ObjectHideFlags: 0
@@ -773,7 +724,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 246219757}
+  m_TargetTexture: {fileID: 1149235997}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -939,7 +890,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 396121915}
+  m_TargetTexture: {fileID: 442058306}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -1647,6 +1598,41 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &1149235997
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  serializedVersion: 3
+  m_Width: 643
+  m_Height: 599
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 1
+  m_ColorFormat: 4
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &1215151036
 GameObject:
   m_ObjectHideFlags: 0

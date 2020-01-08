@@ -8,10 +8,10 @@ public class SQTReconciliationData
 
     public static SQTReconciliationData GetData(SQTConstants.SQTGlobal global, SQTConstants[] constants, Camera camera)
     {
-        Vector3 sphereToCamera = global.gameObject.transform.InverseTransformPoint(camera.transform.position);
-
-        float distanceToSphere = Mathf.Abs(Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - global.radius);
-        Vector3 aa = camera.transform.position + camera.transform.forward * distanceToSphere;
+        Vector3 objectToCamera = global.gameObject.transform.InverseTransformPoint(camera.transform.position);
+        float distanceToObject = Mathf.Sqrt(Vector3.Dot(objectToCamera, objectToCamera));
+        global.plugins.ModifyDistanceToObject(ref distanceToObject);
+        Vector3 aa = camera.transform.position + camera.transform.forward * distanceToObject;
         Vector3 a = camera.WorldToScreenPoint(aa);
         Vector3 b = new Vector3(a.x, a.y + global.desiredScreenSpaceLength, a.z);
         Vector3 bb = camera.ScreenToWorldPoint(b);
@@ -19,7 +19,7 @@ public class SQTReconciliationData
 
         for (int i = 0; i < constants.Length; i++)
         {
-            Vector2? pointInPlane = GetPointInPlane(constants[i], camera, sphereToCamera);
+            Vector2? pointInPlane = GetPointInPlane(constants[i], camera, objectToCamera);
             if (pointInPlane != null)
             {
                 return new SQTReconciliationData

@@ -4,16 +4,21 @@ using UnityEngine;
 public interface SQTPlugin
 {
     event EventHandler OnChange;
-
-    public interface ApproximateEdgeLengthModifier
-    {
-        void ModifyApproximateEdgeLength(ref float edgeLength);
-    }
-
-    public interface MeshModifier
-    {
-        void ModifyMesh(Mesh mesh);
-    }
-
-    public interface ChainedPlugins : ApproximateEdgeLengthModifier, MeshModifier { }
 }
+
+public interface SQTApproximateEdgeLengthPlugin
+{
+    void ModifyApproximateEdgeLength(ref float edgeLength);
+}
+
+public interface SQTMeshPlugin
+{
+    void ModifyMesh(Vector3[] vertices, Vector3[] normals);
+}
+
+public interface SQTDistanceToObjectPlugin
+{
+    void ModifyDistanceToObject(ref float distance);
+}
+
+public interface SQTChainedPlugins : SQTApproximateEdgeLengthPlugin, SQTMeshPlugin, SQTDistanceToObjectPlugin { }

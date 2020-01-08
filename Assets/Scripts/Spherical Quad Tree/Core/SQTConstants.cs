@@ -13,10 +13,13 @@ public class SQTConstants
             for (int i = 0; i <= global.maxDepth; i++)
             {
                 float scale = 1f / Mathf.Pow(2f, i);
+                float approximateSize = scale / global.resolution;
+                global.plugins.ModifyApproximateEdgeLength(ref approximateSize);
+
                 depth[i] = new SQTDepth
                 {
                     scale = scale,
-                    approximateSize = scale * global.radius / global.resolution
+                    approximateSize = approximateSize
                 };
             }
             return depth;
@@ -25,7 +28,7 @@ public class SQTConstants
 
     public class SQTGlobal
     {
-        public SQTPlugin.ChainedPlugins plugins;
+        public SQTChainedPlugins plugins;
         public int maxDepth;
         public int resolution;
         public float desiredScreenSpaceLength;
