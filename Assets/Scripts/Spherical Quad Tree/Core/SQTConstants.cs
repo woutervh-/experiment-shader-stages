@@ -16,7 +16,7 @@ public class SQTConstants
                 depth[i] = new SQTDepth
                 {
                     scale = scale,
-                    approximateSize = scale / global.resolution
+                    approximateSize = scale * global.radius / global.resolution
                 };
             }
             return depth;
