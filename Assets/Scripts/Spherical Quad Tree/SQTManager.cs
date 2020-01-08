@@ -1,20 +1,28 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SQTManager : MonoBehaviour
 {
     public GameObject player;
     public Material material;
-    [Range(0f, 1e6f)]
-    public float radius = 1f;
-    public SQTMeshSettings meshSettings;
-    public SQTVertexSettings vertexSettings;
+    [Range(0f, 16f)]
+    public int maxDepth = 10;
+    [Range(2f, 16f)]
+    public int resolution = 7;
+    [Range(1f, 100f)]
+    public float desiredScreenSpaceLength = 10f;
+    // [Range(0f, 1e6f)]
+    // public float radius = 1f;
+    // public bool sphere;
 
 #if UNITY_EDITOR
     public bool debug;
 #endif
 
     bool dirty;
+    SQTPlugin[] plugins;
+    PluginsChain pluginsChain;
     SQTBranches branches;
     Camera playerCamera;
 
@@ -30,17 +38,23 @@ public class SQTManager : MonoBehaviour
 
     void OnEnable()
     {
-        meshSettings.OnChange += HandleSettingsChange;
-        vertexSettings.OnChange += HandleSettingsChange;
+        plugins = GetComponents<SQTPlugin>();
+        pluginsChain = new PluginsChain(plugins);
+        foreach (SQTPlugin plugin in plugins)
+        {
+            plugin.OnChange += HandleChange;
+        }
     }
 
     void OnDisable()
     {
-        meshSettings.OnChange -= HandleSettingsChange;
-        vertexSettings.OnChange -= HandleSettingsChange;
+        foreach (SQTPlugin plugin in plugins)
+        {
+            plugin.OnChange -= HandleChange;
+        }
     }
 
-    void HandleSettingsChange(object sender, EventArgs e)
+    void HandleChange(object sender, EventArgs e)
     {
         dirty = true;
     }
@@ -56,13 +70,12 @@ public class SQTManager : MonoBehaviour
 
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
-            maxDepth = meshSettings.maxDepth,
-            resolution = meshSettings.resolution * 2 - 1,
-            radius = radius,
-            desiredScreenSpaceLength = meshSettings.desiredScreenSpaceLength,
+            maxDepth = maxDepth,
+            resolution = resolution * 2 - 1,
+            desiredScreenSpaceLength = desiredScreenSpaceLength,
             material = material,
             gameObject = gameObject,
-            sphere = meshSettings.sphere
+            plugins = pluginsChain
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
         SQTConstants.SQTMesh[] meshes = SQTConstants.SQTMesh.GetFromGlobal(global);
@@ -110,5 +123,48 @@ public class SQTManager : MonoBehaviour
     void OnDestroy()
     {
         branches.Destroy();
+    }
+
+    class PluginsChain : SQTPlugin.ChainedPlugins
+    {
+        SQTPlugin.ApproximateEdgeLengthModifier[] approximateEdgeLengthModifiers;
+        SQTPlugin.MeshModifier[] meshModifiers;
+
+        public PluginsChain(SQTPlugin[] plugins)
+        {
+            List<SQTPlugin.ApproximateEdgeLengthModifier> approximateEdgeLengthModifiers = new List<SQTPlugin.ApproximateEdgeLengthModifier>();
+            List<SQTPlugin.MeshModifier> meshModifiers = new List<SQTPlugin.MeshModifier>();
+
+            foreach (SQTPlugin plugin in plugins)
+            {
+                if (plugin is SQTPlugin.ApproximateEdgeLengthModifier approximateEdgeLengthModifier)
+                {
+                    approximateEdgeLengthModifiers.Add(approximateEdgeLengthModifier);
+                }
+                if (plugin is SQTPlugin.MeshModifier meshModifier)
+                {
+                    meshModifiers.Add(meshModifier);
+                }
+            }
+
+            this.approximateEdgeLengthModifiers = approximateEdgeLengthModifiers.ToArray();
+            this.meshModifiers = meshModifiers.ToArray();
+        }
+
+        public void ModifyApproximateEdgeLength(ref float edgeLength)
+        {
+            foreach (SQTPlugin.ApproximateEdgeLengthModifier modifier in approximateEdgeLengthModifiers)
+            {
+                modifier.ModifyApproximateEdgeLength(ref edgeLength);
+            }
+        }
+
+        public void ModifyMesh(Mesh mesh)
+        {
+            foreach (SQTPlugin.MeshModifier modifier in meshModifiers)
+            {
+                modifier.ModifyMesh(mesh);
+            }
+        }
     }
 }
