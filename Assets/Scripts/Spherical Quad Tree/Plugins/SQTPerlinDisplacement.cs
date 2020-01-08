@@ -56,7 +56,6 @@ public class SQTPerlinDisplacement : MonoBehaviour, SQTPlugin, SQTApproximateEdg
     {
         for (int i = 0; i < vertices.Length; i++)
         {
-            normals[i] = vertices[i].normalized;
             Perlin.PerlinSample sample = GetSample(normals[i]);
             vertices[i] = normals[i] * radius * sample.value;
             normals[i] = (normals[i] - sample.derivative).normalized;
