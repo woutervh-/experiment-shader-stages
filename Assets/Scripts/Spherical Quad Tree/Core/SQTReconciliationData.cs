@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class SQTReconciliationData
 {
-    const float desiredScreenSpaceLength = 10f;
-
     public SQTConstants constants;
     public float desiredLength;
     public Vector2 pointInPlane;
@@ -35,7 +33,7 @@ public class SQTReconciliationData
         float distanceToSphere = Mathf.Abs(Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - constants.global.radius);
         Vector3 aa = camera.transform.position + camera.transform.forward * distanceToSphere;
         Vector3 a = camera.WorldToScreenPoint(aa);
-        Vector3 b = new Vector3(a.x, a.y + desiredScreenSpaceLength, a.z);
+        Vector3 b = new Vector3(a.x, a.y + constants.global.desiredScreenSpaceLength, a.z);
         Vector3 bb = camera.ScreenToWorldPoint(b);
         float desiredLength = (aa - bb).magnitude;
 

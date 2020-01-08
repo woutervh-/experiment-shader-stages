@@ -28,6 +28,7 @@ public class SQTConstants
         public int maxDepth;
         public int resolution;
         public float radius;
+        public float desiredScreenSpaceLength;
         public bool sphere;
         public Material material;
         public GameObject gameObject;

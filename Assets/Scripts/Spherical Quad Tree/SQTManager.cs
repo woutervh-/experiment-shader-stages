@@ -10,6 +10,8 @@ public class SQTManager : MonoBehaviour
     public int resolution = 7;
     [Range(0f, 1e6f)]
     public float radius = 1f;
+    [Range(1f, 100f)]
+    public float desiredScreenSpaceLength = 10f;
     public bool sphere = false;
     public SQTHeightSettings heightSettings;
 
@@ -20,6 +22,7 @@ public class SQTManager : MonoBehaviour
     int currentMaxDepth;
     int currentResolution;
     float currentRadius;
+    float currentDesiredScreenSpaceLength;
     bool currentSphere;
     SQTBranches branches;
     Camera playerCamera;
@@ -31,7 +34,7 @@ public class SQTManager : MonoBehaviour
 
     bool ShouldUpdateSettings()
     {
-        return currentMaxDepth != maxDepth || currentResolution != resolution || currentRadius != radius || currentSphere != sphere;
+        return currentMaxDepth != maxDepth || currentResolution != resolution || currentRadius != radius || currentDesiredScreenSpaceLength != desiredScreenSpaceLength || currentSphere != sphere;
     }
 
     void DoUpdateSettings()
@@ -44,6 +47,7 @@ public class SQTManager : MonoBehaviour
         currentMaxDepth = maxDepth;
         currentResolution = resolution;
         currentRadius = radius;
+        currentDesiredScreenSpaceLength = desiredScreenSpaceLength;
         currentSphere = sphere;
 
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
@@ -51,6 +55,7 @@ public class SQTManager : MonoBehaviour
             maxDepth = maxDepth,
             resolution = resolution * 2 - 1,
             radius = radius,
+            desiredScreenSpaceLength = desiredScreenSpaceLength,
             material = material,
             gameObject = gameObject,
             sphere = sphere
