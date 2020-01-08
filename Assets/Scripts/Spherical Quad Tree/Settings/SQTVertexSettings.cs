@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "SQT/Vertex settings")]
 public class SQTVertexSettings : ScriptableObject
 {
     public int seed;

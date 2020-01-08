@@ -5,15 +5,9 @@ public class SQTManager : MonoBehaviour
 {
     public GameObject player;
     public Material material;
-    [Range(0f, 16f)]
-    public int maxDepth = 10;
-    [Range(2f, 16f)]
-    public int resolution = 7;
     [Range(0f, 1e6f)]
     public float radius = 1f;
-    [Range(1f, 100f)]
-    public float desiredScreenSpaceLength = 10f;
-    public bool sphere = false;
+    public SQTMeshSettings meshSettings;
     public SQTVertexSettings vertexSettings;
 
 #if UNITY_EDITOR
@@ -36,15 +30,17 @@ public class SQTManager : MonoBehaviour
 
     void OnEnable()
     {
-        vertexSettings.OnChange += HandleVertexSettingsChange;
+        meshSettings.OnChange += HandleSettingsChange;
+        vertexSettings.OnChange += HandleSettingsChange;
     }
 
     void OnDisable()
     {
-        vertexSettings.OnChange -= HandleVertexSettingsChange;
+        meshSettings.OnChange -= HandleSettingsChange;
+        vertexSettings.OnChange -= HandleSettingsChange;
     }
 
-    void HandleVertexSettingsChange(object sender, EventArgs e)
+    void HandleSettingsChange(object sender, EventArgs e)
     {
         dirty = true;
     }
@@ -60,13 +56,13 @@ public class SQTManager : MonoBehaviour
 
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
-            maxDepth = maxDepth,
-            resolution = resolution * 2 - 1,
+            maxDepth = meshSettings.maxDepth,
+            resolution = meshSettings.resolution * 2 - 1,
             radius = radius,
-            desiredScreenSpaceLength = desiredScreenSpaceLength,
+            desiredScreenSpaceLength = meshSettings.desiredScreenSpaceLength,
             material = material,
             gameObject = gameObject,
-            sphere = sphere
+            sphere = meshSettings.sphere
         };
         SQTConstants.SQTDepth[] depth = SQTConstants.SQTDepth.GetFromGlobal(global);
         SQTConstants.SQTMesh[] meshes = SQTConstants.SQTMesh.GetFromGlobal(global);
