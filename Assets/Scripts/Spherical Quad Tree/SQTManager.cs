@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SQTManager : MonoBehaviour
@@ -13,17 +14,13 @@ public class SQTManager : MonoBehaviour
     [Range(1f, 100f)]
     public float desiredScreenSpaceLength = 10f;
     public bool sphere = false;
-    public SQTHeightSettings heightSettings;
+    public SQTVertexSettings vertexSettings;
 
 #if UNITY_EDITOR
     public bool debug;
 #endif
 
-    int currentMaxDepth;
-    int currentResolution;
-    float currentRadius;
-    float currentDesiredScreenSpaceLength;
-    bool currentSphere;
+    bool dirty;
     SQTBranches branches;
     Camera playerCamera;
 
@@ -32,23 +29,34 @@ public class SQTManager : MonoBehaviour
         DoUpdateSettings();
     }
 
-    bool ShouldUpdateSettings()
+    void OnValidate()
     {
-        return currentMaxDepth != maxDepth || currentResolution != resolution || currentRadius != radius || currentDesiredScreenSpaceLength != desiredScreenSpaceLength || currentSphere != sphere;
+        dirty = true;
+    }
+
+    void OnEnable()
+    {
+        vertexSettings.OnChange += HandleVertexSettingsChange;
+    }
+
+    void OnDisable()
+    {
+        vertexSettings.OnChange -= HandleVertexSettingsChange;
+    }
+
+    void HandleVertexSettingsChange(object sender, EventArgs e)
+    {
+        dirty = true;
     }
 
     void DoUpdateSettings()
     {
+        dirty = false;
+
         if (branches != null)
         {
             branches.Destroy();
         }
-
-        currentMaxDepth = maxDepth;
-        currentResolution = resolution;
-        currentRadius = radius;
-        currentDesiredScreenSpaceLength = desiredScreenSpaceLength;
-        currentSphere = sphere;
 
         SQTConstants.SQTGlobal global = new SQTConstants.SQTGlobal
         {
@@ -87,7 +95,7 @@ public class SQTManager : MonoBehaviour
 
     void Update()
     {
-        if (ShouldUpdateSettings())
+        if (dirty)
         {
             DoUpdateSettings();
         }

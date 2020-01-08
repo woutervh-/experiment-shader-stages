@@ -4,11 +4,11 @@ public class MeshedNode
 {
     public MeshedNode[] children;
     public MeshRenderer meshRenderer;
+    public int neighborMask;
 
     MeshedNode parent;
     SQTConstants constants;
     SQTBuilder.Node node;
-    int neighborMask;
     Mesh mesh;
     GameObject gameObject;
     MeshFilter meshFilter;
@@ -44,14 +44,9 @@ public class MeshedNode
         UnityEngine.Object.Destroy(mesh);
     }
 
-    public void ReconcileMeshTriangles(int newNeighborMask)
+    public void SetMeshTriangles(int neighborMask)
     {
-        if (neighborMask == newNeighborMask)
-        {
-            return;
-        }
-        neighborMask = newNeighborMask;
-        mesh.triangles = constants.meshes[newNeighborMask].triangles;
+        mesh.triangles = constants.meshes[neighborMask].triangles;
         mesh.RecalculateBounds();
     }
 
