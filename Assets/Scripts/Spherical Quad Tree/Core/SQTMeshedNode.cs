@@ -70,8 +70,8 @@ public class SQTMeshedNode
                 Vector3 pointOnUnitCube = origin
                     + Mathf.Lerp(-1f, 1f, percent.x) * constants.depth[node.path.Length].scale * constants.branch.forward
                     + Mathf.Lerp(-1f, 1f, percent.y) * constants.depth[node.path.Length].scale * constants.branch.right;
-                Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
 
+                Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                 vertices[vertexIndex] = pointOnUnitSphere;
                 normals[vertexIndex] = pointOnUnitSphere;
             }

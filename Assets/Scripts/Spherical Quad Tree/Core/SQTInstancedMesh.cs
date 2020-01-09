@@ -45,7 +45,7 @@ public class SQTInstancedMesh
         }
     }
 
-    static void GenerateVertices(SQTConstants.SQTGlobal global, Vector3[] vertices, Vector3[] normals, int depth, Vector3 up, Vector3 forward, Vector3 right)
+    public static void GenerateVertices(SQTConstants.SQTGlobal global, Vector3[] vertices, Vector3[] normals, int depth, Vector3 up, Vector3 forward, Vector3 right)
     {
         for (int y = 0; y < global.resolution; y++)
         {
@@ -56,8 +56,8 @@ public class SQTInstancedMesh
                 Vector3 pointOnUnitCube = Vector3.up
                     + Mathf.Lerp(-1f, 1f, percent.x) * SQTConstants.SQTDepth.GetScale(depth) * forward
                     + Mathf.Lerp(-1f, 1f, percent.y) * SQTConstants.SQTDepth.GetScale(depth) * right;
-                Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
 
+                Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                 vertices[vertexIndex] = pointOnUnitSphere;
                 normals[vertexIndex] = pointOnUnitSphere;
             }

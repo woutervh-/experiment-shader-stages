@@ -12,9 +12,6 @@ public class SQTManager : MonoBehaviour
     public int resolution = 7;
     [Range(1f, 100f)]
     public float desiredScreenSpaceLength = 10f;
-    // [Range(0f, 1e6f)]
-    // public float radius = 1f;
-    // public bool sphere;
 
 #if UNITY_EDITOR
     public bool debug;
@@ -57,6 +54,8 @@ public class SQTManager : MonoBehaviour
         {
             plugin.OnChange += HandleChange;
         }
+
+        pluginsChain.ModifyMaterial(material);
     }
 
     void DoUpdateSettings()
@@ -128,58 +127,80 @@ public class SQTManager : MonoBehaviour
 
     class PluginsChain : SQTChainedPlugins
     {
-        SQTApproximateEdgeLengthPlugin[] approximateEdgeLengthModifiers;
-        SQTMeshPlugin[] meshModifiers;
-        SQTDistanceToObjectPlugin[] distanceToObjectModifiers;
+        SQTApproximateEdgeLengthPlugin[] approximateEdgeLengthPlugins;
+        SQTMeshPlugin[] meshPlugins;
+        SQTDistanceToObjectPlugin[] distanceToObjectPlugins;
+        SQTMaterialPlugin[] materialPlugins;
 
         public PluginsChain(SQTPlugin[] plugins)
         {
-            List<SQTApproximateEdgeLengthPlugin> approximateEdgeLengthModifiers = new List<SQTApproximateEdgeLengthPlugin>();
-            List<SQTMeshPlugin> meshModifiers = new List<SQTMeshPlugin>();
-            List<SQTDistanceToObjectPlugin> distanceToObjectModifiers = new List<SQTDistanceToObjectPlugin>();
+            List<SQTApproximateEdgeLengthPlugin> approximateEdgeLengthPlugins = new List<SQTApproximateEdgeLengthPlugin>();
+            List<SQTMeshPlugin> meshPlugins = new List<SQTMeshPlugin>();
+            List<SQTDistanceToObjectPlugin> distanceToObjectPlugins = new List<SQTDistanceToObjectPlugin>();
+            List<SQTMaterialPlugin> materialPlugins = new List<SQTMaterialPlugin>();
 
             foreach (SQTPlugin plugin in plugins)
             {
+                if (plugin is MonoBehaviour monoBehaviour)
+                {
+                    if (!monoBehaviour.enabled)
+                    {
+                        continue;
+                    }
+                }
                 if (plugin is SQTApproximateEdgeLengthPlugin approximateEdgeLengthModifier)
                 {
-                    approximateEdgeLengthModifiers.Add(approximateEdgeLengthModifier);
+                    approximateEdgeLengthPlugins.Add(approximateEdgeLengthModifier);
                 }
                 if (plugin is SQTMeshPlugin meshModifier)
                 {
-                    meshModifiers.Add(meshModifier);
+                    meshPlugins.Add(meshModifier);
                 }
                 if (plugin is SQTDistanceToObjectPlugin distanceToObjectModifier)
                 {
-                    distanceToObjectModifiers.Add(distanceToObjectModifier);
+                    distanceToObjectPlugins.Add(distanceToObjectModifier);
+                }
+                if (plugin is SQTMaterialPlugin materialModifier)
+                {
+                    materialPlugins.Add(materialModifier);
                 }
             }
 
-            this.approximateEdgeLengthModifiers = approximateEdgeLengthModifiers.ToArray();
-            this.meshModifiers = meshModifiers.ToArray();
-            this.distanceToObjectModifiers = distanceToObjectModifiers.ToArray();
+            this.approximateEdgeLengthPlugins = approximateEdgeLengthPlugins.ToArray();
+            this.meshPlugins = meshPlugins.ToArray();
+            this.distanceToObjectPlugins = distanceToObjectPlugins.ToArray();
+            this.materialPlugins = materialPlugins.ToArray();
         }
 
         public void ModifyApproximateEdgeLength(ref float edgeLength)
         {
-            foreach (SQTApproximateEdgeLengthPlugin modifier in approximateEdgeLengthModifiers)
+            foreach (SQTApproximateEdgeLengthPlugin plugin in approximateEdgeLengthPlugins)
             {
-                modifier.ModifyApproximateEdgeLength(ref edgeLength);
+                plugin.ModifyApproximateEdgeLength(ref edgeLength);
             }
         }
 
         public void ModifyMesh(Vector3[] vertices, Vector3[] normals)
         {
-            foreach (SQTMeshPlugin modifier in meshModifiers)
+            foreach (SQTMeshPlugin plugin in meshPlugins)
             {
-                modifier.ModifyMesh(vertices, normals);
+                plugin.ModifyMesh(vertices, normals);
             }
         }
 
         public void ModifyDistanceToObject(ref float distance)
         {
-            foreach (SQTDistanceToObjectPlugin modifier in distanceToObjectModifiers)
+            foreach (SQTDistanceToObjectPlugin plugin in distanceToObjectPlugins)
             {
-                modifier.ModifyDistanceToObject(ref distance);
+                plugin.ModifyDistanceToObject(ref distance);
+            }
+        }
+
+        public void ModifyMaterial(Material material)
+        {
+            foreach (SQTMaterialPlugin plugin in materialPlugins)
+            {
+                plugin.ModifyMaterial(material);
             }
         }
     }

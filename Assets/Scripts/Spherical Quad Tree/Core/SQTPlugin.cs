@@ -21,4 +21,9 @@ public interface SQTDistanceToObjectPlugin
     void ModifyDistanceToObject(ref float distance);
 }
 
-public interface SQTChainedPlugins : SQTApproximateEdgeLengthPlugin, SQTMeshPlugin, SQTDistanceToObjectPlugin { }
+public interface SQTMaterialPlugin
+{
+    void ModifyMaterial(Material material);
+}
+
+public interface SQTChainedPlugins : SQTApproximateEdgeLengthPlugin, SQTMeshPlugin, SQTDistanceToObjectPlugin, SQTMaterialPlugin { }

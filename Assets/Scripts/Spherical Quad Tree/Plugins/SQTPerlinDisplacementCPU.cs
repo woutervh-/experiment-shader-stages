@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class SQTPerlinDisplacement : MonoBehaviour, SQTPlugin, SQTApproximateEdgeLengthPlugin, SQTMeshPlugin, SQTDistanceToObjectPlugin
+public class SQTPerlinDisplacementCPU : MonoBehaviour, SQTPlugin, SQTApproximateEdgeLengthPlugin, SQTMeshPlugin, SQTDistanceToObjectPlugin
 {
     public int seed = 0;
     [Range(1f, 1e6f)]
@@ -35,10 +35,10 @@ public class SQTPerlinDisplacement : MonoBehaviour, SQTPlugin, SQTApproximateEdg
 
     Perlin.PerlinSample GetSample(Vector3 position)
     {
-        float strength = 0.28f;
+        float strength = 1f;
         float frequency = 1f;
-        float lacunarity = 2.3f;
-        float persistence = 0.4f;
+        float lacunarity = 2f;
+        float persistence = 0.5f;
         int octaves = 8;
 
         Perlin.PerlinSample sum = GetSample(position, frequency) * strength;
