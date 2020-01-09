@@ -1,34 +1,37 @@
 using System;
 using UnityEngine;
 
-public class SQTPerlinDisplacementGPU : MonoBehaviour, SQTPlugin, SQTMaterialPlugin
+namespace SQT.Plugins
 {
-    public int seed = 0;
-
-    public event EventHandler OnChange;
-
-    Perlin perlin;
-
-    void Start()
+    public class SQTPerlinDisplacementGPU : MonoBehaviour, SQT.Core.SQTPlugin, SQT.Core.SQTMaterialPlugin
     {
-        perlin = new Perlin(seed);
-    }
+        public int seed = 0;
 
-    void OnValidate()
-    {
-        perlin = new Perlin(seed);
+        public event EventHandler OnChange;
 
-        if (OnChange != null)
+        Perlin perlin;
+
+        void Start()
         {
-            OnChange.Invoke(this, EventArgs.Empty);
+            perlin = new Perlin(seed);
         }
-    }
 
-    public void ModifyMaterial(Material material)
-    {
-        Texture2D gradientsTexture = PerlinTextureGenerator.CreateGradientsTexture(perlin);
-        Texture2D permutationTexture = PerlinTextureGenerator.CreatePermutationTexture(perlin);
-        material.SetTexture("_Gradients2D", gradientsTexture);
-        material.SetTexture("_Permutation2D", permutationTexture);
+        void OnValidate()
+        {
+            perlin = new Perlin(seed);
+
+            if (OnChange != null)
+            {
+                OnChange.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public void ModifyMaterial(Material material)
+        {
+            Texture2D gradientsTexture = PerlinTextureGenerator.CreateGradientsTexture(perlin);
+            Texture2D permutationTexture = PerlinTextureGenerator.CreatePermutationTexture(perlin);
+            material.SetTexture("_Gradients2D", gradientsTexture);
+            material.SetTexture("_Permutation2D", permutationTexture);
+        }
     }
 }

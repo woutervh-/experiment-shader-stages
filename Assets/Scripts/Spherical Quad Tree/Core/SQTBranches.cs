@@ -1,53 +1,55 @@
 using UnityEngine;
 
-public partial class SQTBranches
+namespace SQT.Core
 {
-    static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
-
-    SQTConstants.SQTGlobal global;
-    SQTConstants[] constants;
-    SQTReconciler reconciler;
-    // SQTInstancedReconciler reconciler;
-
-    public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMesh[] meshes)
+    public partial class SQTBranches
     {
-        this.global = global;
-        constants = new SQTConstants[directions.Length];
-        int[] branchRootPath = new int[0];
-        for (int i = 0; i < directions.Length; i++)
+        static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+
+        SQTConstants.SQTGlobal global;
+        SQTConstants[] constants;
+        Reconciler reconciler;
+        // SQTReconciler reconciler;
+        // SQTInstancedReconciler reconciler;
+
+        public SQTBranches(SQTConstants.SQTGlobal global, SQTConstants.SQTDepth[] depth, SQTConstants.SQTMesh[] meshes, Reconciler reconciler)
         {
-            GameObject branchGameObject = new GameObject("SQT (" + i + ")");
-            branchGameObject.transform.SetParent(global.gameObject.transform, false);
-            SQTConstants.SQTBranch branch = new SQTConstants.SQTBranch(i, directions[i])
+            this.global = global;
+            constants = new SQTConstants[directions.Length];
+            int[] branchRootPath = new int[0];
+            for (int i = 0; i < directions.Length; i++)
             {
-                gameObject = branchGameObject
-            };
-            constants[i] = new SQTConstants
-            {
-                global = global,
-                branch = branch,
-                depth = depth,
-                meshes = meshes
-            };
+                GameObject branchGameObject = new GameObject("SQT (" + i + ")");
+                branchGameObject.transform.SetParent(global.gameObject.transform, false);
+                SQTConstants.SQTBranch branch = new SQTConstants.SQTBranch(i, directions[i])
+                {
+                    gameObject = branchGameObject
+                };
+                constants[i] = new SQTConstants
+                {
+                    global = global,
+                    branch = branch,
+                    depth = depth,
+                    meshes = meshes
+                };
+            }
         }
 
-        reconciler = new SQTReconciler(constants);
-    }
-
-    public void Reconcile(Camera camera)
-    {
-        SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(global, constants, camera);
-        SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);
-        reconciler.Reconcile(branches);
-        // Debug.Log(StringifyNode(branches[0]));
-    }
-
-    public void Destroy()
-    {
-        for (int i = 0; i < directions.Length; i++)
+        public void Reconcile(Camera camera)
         {
-            UnityEngine.Object.Destroy(constants[i].branch.gameObject);
+            SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(global, constants, camera);
+            SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);
+            reconciler.Reconcile(constants, branches);
+            // Debug.Log(StringifyNode(branches[0]));
         }
-        reconciler.Destroy();
+
+        public void Destroy()
+        {
+            for (int i = 0; i < directions.Length; i++)
+            {
+                UnityEngine.Object.Destroy(constants[i].branch.gameObject);
+            }
+            // reconciler.Destroy();
+        }
     }
 }
