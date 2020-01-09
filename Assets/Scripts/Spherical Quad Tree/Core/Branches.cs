@@ -31,14 +31,23 @@ namespace SQT.Core
                     meshes = meshes
                 };
             }
-            reconciler = reconcilerFactory.FromConstants(constants);
+            if (reconcilerFactory != null)
+            {
+                reconciler = reconcilerFactory.FromConstants(constants);
+            }
         }
 
         public void Reconcile(Camera camera)
         {
+            if (reconciler == null)
+            {
+                return;
+            }
+
             ReconciliationData reconciliationData = ReconciliationData.GetData(global, constants, camera);
             Builder.Node[] branches = Builder.BuildBranches(reconciliationData);
             reconciler.Reconcile(branches);
+
             // Debug.Log(StringifyNode(branches[0]));
         }
 
@@ -48,7 +57,10 @@ namespace SQT.Core
             {
                 UnityEngine.Object.Destroy(constants[i].branch.gameObject);
             }
-            reconciler.Destroy();
+            if (reconciler != null)
+            {
+                reconciler.Destroy();
+            }
         }
     }
 }

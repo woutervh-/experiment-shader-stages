@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SQT.Plugins
 {
-    public class PerlinDisplacementGPU : MonoBehaviour, SQT.Core.Plugin, SQT.Core.MaterialPlugin
+    public class PerlinDisplacementGPU : MonoBehaviour, SQT.Core.Plugin, SQT.Core.MaterialPlugin, SQT.Core.ReconcilerFactoryPlugin
     {
         public Material material;
         public int seed = 0;
@@ -34,6 +34,11 @@ namespace SQT.Plugins
             material = this.material;
             material.SetTexture("_Gradients2D", gradientsTexture);
             material.SetTexture("_Permutation2D", permutationTexture);
+        }
+
+        public void ModifyReconcilerFactory(ref SQT.Core.ReconcilerFactory reconcilerFactory)
+        {
+            reconcilerFactory = new SQT.Core.GPU.Reconciler.Factory();
         }
     }
 }

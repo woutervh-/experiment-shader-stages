@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SQT.Plugins
 {
-    public class PerlinDisplacementCPU : MonoBehaviour, SQT.Core.Plugin, SQT.Core.MeshPlugin, SQT.Core.MaterialPlugin
+    public class PerlinDisplacementCPU : MonoBehaviour, SQT.Core.Plugin, SQT.Core.MeshPlugin, SQT.Core.MaterialPlugin, SQT.Core.ReconcilerFactoryPlugin
     {
         public Material material;
         public int seed = 0;
@@ -66,6 +66,11 @@ namespace SQT.Plugins
         public void ModifyMaterial(ref Material material)
         {
             material = this.material;
+        }
+
+        public void ModifyReconcilerFactory(ref SQT.Core.ReconcilerFactory reconcilerFactory)
+        {
+            reconcilerFactory = new SQT.Core.CPU.Reconciler.Factory();
         }
     }
 }

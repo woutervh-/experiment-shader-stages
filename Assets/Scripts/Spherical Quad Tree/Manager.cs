@@ -21,7 +21,6 @@ namespace SQT
         SQT.Core.Plugin[] plugins;
         SQT.Core.PluginsChain pluginsChain;
         SQT.Core.Branches branches;
-        Material material;
         Camera playerCamera;
 
         void Start()
@@ -55,8 +54,6 @@ namespace SQT
             {
                 plugin.OnChange += HandleChange;
             }
-
-            pluginsChain.ModifyMaterial(ref material);
         }
 
         void DoUpdateSettings()
@@ -67,6 +64,9 @@ namespace SQT
             {
                 branches.Destroy();
             }
+
+            Material material = null;
+            pluginsChain.ModifyMaterial(ref material);
 
             SQT.Core.Constants.SQTGlobal global = new SQT.Core.Constants.SQTGlobal
             {
@@ -79,7 +79,10 @@ namespace SQT
             };
             SQT.Core.Constants.SQTDepth[] depth = SQT.Core.Constants.SQTDepth.GetFromGlobal(global);
             SQT.Core.Constants.SQTMesh[] meshes = SQT.Core.Constants.SQTMesh.GetFromGlobal(global);
-            branches = new SQT.Core.Branches(global, depth, meshes, );
+
+            SQT.Core.ReconcilerFactory factory = null;
+            pluginsChain.ModifyReconcilerFactory(ref factory);
+            branches = new SQT.Core.Branches(global, depth, meshes, factory);
         }
 
 #if UNITY_EDITOR

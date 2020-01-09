@@ -47,10 +47,10 @@ Shader "SQT/Vertex Displacement" {
 
             #define VertexProgram LitPassVertex
             Varyings Vertex(Attributes input) {
-                float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
-                float4 noiseSample = noise(pointOnUnitSphere);
-                input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
-                input.normalOS = normalize(pointOnUnitSphere - noiseSample.xyz);
+                // float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
+                // float4 noiseSample = noise(pointOnUnitSphere);
+                // input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
+                // input.normalOS = normalize(pointOnUnitSphere - noiseSample.xyz);
                 return LitPassVertex(input);
             }
 
@@ -77,9 +77,9 @@ Shader "SQT/Vertex Displacement" {
 
             #define VertexProgram ShadowPassVertex
             Varyings Vertex(Attributes input) {
-                float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
-                float4 noiseSample = noise(pointOnUnitSphere);
-                input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
+                // float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
+                // float4 noiseSample = noise(pointOnUnitSphere);
+                // input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
                 return ShadowPassVertex(input);
             }
 
@@ -105,9 +105,9 @@ Shader "SQT/Vertex Displacement" {
             #include "../Noise.hlsl"
 
             Varyings Vertex(Attributes input) {
-                float3 pointOnUnitSphere = normalize(input.position.xyz);
-                float4 noiseSample = noise(pointOnUnitSphere);
-                input.position.xyz = pointOnUnitSphere * noiseSample.w;
+                // float3 pointOnUnitSphere = normalize(input.position.xyz);
+                // float4 noiseSample = noise(pointOnUnitSphere);
+                // input.position.xyz = pointOnUnitSphere * noiseSample.w;
                 return DepthOnlyVertex(input);
             }
 

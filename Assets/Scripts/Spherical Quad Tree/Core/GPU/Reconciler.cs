@@ -71,13 +71,13 @@ namespace SQT.Core.GPU
                 siblings[index].meshRenderer.enabled = true;
             }
         }
-    }
 
-    public class Factory : SQT.Core.ReconcilerFactory
-    {
-        public SQT.Core.Reconciler FromConstants(SQT.Core.Constants[] constants)
+        public class Factory : SQT.Core.ReconcilerFactory
         {
-            return new Reconciler(constants);
+            public SQT.Core.Reconciler FromConstants(SQT.Core.Constants[] constants)
+            {
+                return new Reconciler(constants);
+            }
         }
     }
 }
