@@ -2,20 +2,20 @@ using UnityEngine;
 
 namespace SQT.Core.GPU
 {
-    public class SQTInstancedNode
+    public class MeshedNode
     {
-        public SQTInstancedNode[] children;
+        public MeshedNode[] children;
         public MeshRenderer meshRenderer;
         public int neighborMask;
 
-        SQTInstancedMesh instancedMesh;
-        SQTInstancedNode parent;
-        SQTConstants constants;
-        SQTBuilder.Node node;
+        InstancedMesh instancedMesh;
+        MeshedNode parent;
+        Constants constants;
+        Builder.Node node;
         GameObject gameObject;
         MeshFilter meshFilter;
 
-        public SQTInstancedNode(SQTInstancedNode parent, SQTConstants constants, SQTInstancedMesh instancedMesh, SQTBuilder.Node node)
+        public MeshedNode(MeshedNode parent, Constants constants, InstancedMesh instancedMesh, Builder.Node node)
         {
             this.instancedMesh = instancedMesh;
             this.parent = parent;
@@ -35,7 +35,7 @@ namespace SQT.Core.GPU
         {
             if (children != null)
             {
-                foreach (SQTInstancedNode child in children)
+                foreach (MeshedNode child in children)
                 {
                     child.Destroy();
                 }

@@ -3,8 +3,9 @@ using UnityEngine;
 
 namespace SQT.Plugins
 {
-    public class SQTPerlinDisplacementCPU : MonoBehaviour, SQT.Core.SQTPlugin, SQT.Core.SQTMeshPlugin
+    public class PerlinDisplacementCPU : MonoBehaviour, SQT.Core.Plugin, SQT.Core.MeshPlugin, SQT.Core.MaterialPlugin
     {
+        public Material material;
         public int seed = 0;
 
         public event EventHandler OnChange;
@@ -60,6 +61,11 @@ namespace SQT.Plugins
                 vertices[i] = normals[i] * sample.value;
                 normals[i] = (normals[i] - sample.derivative).normalized;
             }
+        }
+
+        public void ModifyMaterial(ref Material material)
+        {
+            material = this.material;
         }
     }
 }

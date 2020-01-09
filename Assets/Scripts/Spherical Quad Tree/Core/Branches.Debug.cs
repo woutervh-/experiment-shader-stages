@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SQT.Core
 {
-    public partial class SQTBranches
+    public partial class Branches
     {
 #if UNITY_EDITOR
         void DrawQuad(Vector3 up, Vector3 forward, Vector3 right, Vector2 offset, float scale)
@@ -15,17 +15,17 @@ namespace SQT.Core
             Debug.DrawLine(origin + forward * scale - right * scale, origin - forward * scale - right * scale, Color.magenta);
         }
 
-        void DrawBranch(SQTBuilder.Node root)
+        void DrawBranch(Builder.Node root)
         {
             Vector3 up = directions[root.branch];
             Vector3 forward = new Vector3(up.y, up.z, up.x);
             Vector3 right = Vector3.Cross(up, forward);
 
-            Stack<SQTBuilder.Node> nodes = new Stack<SQTBuilder.Node>();
+            Stack<Builder.Node> nodes = new Stack<Builder.Node>();
             nodes.Push(root);
             while (nodes.Count >= 1)
             {
-                SQTBuilder.Node node = nodes.Pop();
+                Builder.Node node = nodes.Pop();
                 DrawQuad(up, forward, right, node.offset, 1f / Mathf.Pow(2f, node.path.Length));
                 if (node.children != null)
                 {
@@ -42,15 +42,15 @@ namespace SQT.Core
 
         public void DrawBranches(Camera camera)
         {
-            SQTReconciliationData reconciliationData = SQTReconciliationData.GetData(global, constants, camera);
-            SQTBuilder.Node[] branches = SQTBuilder.BuildBranches(reconciliationData);
-            foreach (SQTBuilder.Node branch in branches)
+            ReconciliationData reconciliationData = ReconciliationData.GetData(global, constants, camera);
+            Builder.Node[] branches = Builder.BuildBranches(reconciliationData);
+            foreach (Builder.Node branch in branches)
             {
                 DrawBranch(branch);
             }
         }
 
-        string StringifyNode(SQTBuilder.Node node)
+        string StringifyNode(Builder.Node node)
         {
             if (node.children == null)
             {

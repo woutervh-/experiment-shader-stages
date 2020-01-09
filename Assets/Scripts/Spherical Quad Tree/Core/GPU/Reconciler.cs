@@ -1,14 +1,16 @@
 namespace SQT.Core.GPU
 {
-    public class SQTInstancedReconciler : SQT.Core.Reconciler
+    public class Reconciler : SQT.Core.Reconciler
     {
-        SQTInstancedMesh instancedMesh;
-        SQTInstancedNode[] instancedBranches;
+        Constants[] constants;
+        InstancedMesh instancedMesh;
+        MeshedNode[] instancedBranches;
 
-        public SQTInstancedReconciler(SQTConstants[] constants)
+        public Reconciler(Constants[] constants)
         {
-            instancedMesh = new SQTInstancedMesh(constants[0].global, constants[0].meshes); // TODO: make proper fix for meshes location.
-            instancedBranches = new SQTInstancedNode[constants.Length];
+            this.constants = constants;
+            instancedMesh = new InstancedMesh(constants[0].global, constants[0].meshes); // TODO: make proper fix for meshes location.
+            instancedBranches = new MeshedNode[constants.Length];
         }
 
         public void Destroy()
@@ -22,19 +24,19 @@ namespace SQT.Core.GPU
             }
         }
 
-        public void Reconcile(SQTConstants[] constants, SQTBuilder.Node[] newBranches)
+        public void Reconcile(Builder.Node[] newBranches)
         {
             for (int i = 0; i < instancedBranches.Length; i++)
             {
                 if (instancedBranches[i] == null)
                 {
-                    instancedBranches[i] = new SQTInstancedNode(null, constants[i], instancedMesh, newBranches[i]);
+                    instancedBranches[i] = new MeshedNode(null, constants[i], instancedMesh, newBranches[i]);
                 }
                 Reconcile(constants[i], newBranches[i], instancedBranches, i);
             }
         }
 
-        void Reconcile(SQTConstants constants, SQTBuilder.Node newNode, SQTInstancedNode[] siblings, int index)
+        void Reconcile(Constants constants, Builder.Node newNode, MeshedNode[] siblings, int index)
         {
             if (siblings[index].neighborMask != newNode.neighborMask)
             {
@@ -52,10 +54,10 @@ namespace SQT.Core.GPU
             else if (newNode.children != null && siblings[index].children == null)
             {
                 siblings[index].meshRenderer.enabled = false;
-                siblings[index].children = new SQTInstancedNode[4];
+                siblings[index].children = new MeshedNode[4];
                 for (int i = 0; i < 4; i++)
                 {
-                    siblings[index].children[i] = new SQTInstancedNode(siblings[index], constants, instancedMesh, newNode.children[i]);
+                    siblings[index].children[i] = new MeshedNode(siblings[index], constants, instancedMesh, newNode.children[i]);
                     Reconcile(constants, newNode.children[i], siblings[index].children, i);
                 }
             }
@@ -68,6 +70,14 @@ namespace SQT.Core.GPU
                 siblings[index].children = null;
                 siblings[index].meshRenderer.enabled = true;
             }
+        }
+    }
+
+    public class Factory : SQT.Core.ReconcilerFactory
+    {
+        public SQT.Core.Reconciler FromConstants(SQT.Core.Constants[] constants)
+        {
+            return new Reconciler(constants);
         }
     }
 }

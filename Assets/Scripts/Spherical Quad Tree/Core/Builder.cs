@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SQT.Core
 {
-    public class SQTBuilder
+    public class Builder
     {
         const int MAX_PATH_LENGTH = 5;
 
@@ -89,7 +89,7 @@ namespace SQT.Core
         }
     };
 
-        public static Node[] BuildBranches(SQTReconciliationData reconciliationData)
+        public static Node[] BuildBranches(ReconciliationData reconciliationData)
         {
             Node[] branches = new Node[6];
             for (int i = 0; i < 6; i++)
@@ -321,13 +321,13 @@ namespace SQT.Core
             return (t.x < 0 ? 0 : 1) + (t.y < 0 ? 0 : 2);
         }
 
-        static bool ShouldSplit(Node node, SQTReconciliationData reconciliationData)
+        static bool ShouldSplit(Node node, ReconciliationData reconciliationData)
         {
             return node.path.Length < reconciliationData.constants.global.maxDepth
                 && reconciliationData.constants.depth[node.path.Length].approximateSize > reconciliationData.desiredLength;
         }
 
-        static Node DeepSplit(Node node, SQTReconciliationData reconciliationData)
+        static Node DeepSplit(Node node, ReconciliationData reconciliationData)
         {
             if (ShouldSplit(node, reconciliationData))
             {

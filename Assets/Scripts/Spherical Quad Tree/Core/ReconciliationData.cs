@@ -2,13 +2,13 @@ using UnityEngine;
 
 namespace SQT.Core
 {
-    public class SQTReconciliationData
+    public class ReconciliationData
     {
-        public SQTConstants constants;
+        public Constants constants;
         public float desiredLength;
         public Vector2 pointInPlane;
 
-        public static SQTReconciliationData GetData(SQTConstants.SQTGlobal global, SQTConstants[] constants, Camera camera)
+        public static ReconciliationData GetData(Constants.SQTGlobal global, Constants[] constants, Camera camera)
         {
             Vector3 sphereToCamera = global.gameObject.transform.InverseTransformPoint(camera.transform.position);
             float distanceToSphere = Mathf.Abs(Mathf.Sqrt(Vector3.Dot(sphereToCamera, sphereToCamera)) - 1f);
@@ -23,7 +23,7 @@ namespace SQT.Core
                 Vector2? pointInPlane = GetPointInPlane(constants[i], camera, sphereToCamera);
                 if (pointInPlane != null)
                 {
-                    return new SQTReconciliationData
+                    return new ReconciliationData
                     {
                         constants = constants[i],
                         desiredLength = desiredLength,
@@ -35,7 +35,7 @@ namespace SQT.Core
             return null;
         }
 
-        static Vector2? GetPointInPlane(SQTConstants constants, Camera camera, Vector3 sphereToCamera)
+        static Vector2? GetPointInPlane(Constants constants, Camera camera, Vector3 sphereToCamera)
         {
             Vector3 direction;
             float denominator;

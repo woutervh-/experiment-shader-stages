@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SQT.Core
 {
-    public class SQTConstants
+    public class Constants
     {
         public class SQTDepth
         {
@@ -34,7 +34,7 @@ namespace SQT.Core
 
         public class SQTGlobal
         {
-            public SQTChainedPlugins plugins;
+            public ChainedPlugins plugins;
             public int maxDepth;
             public int resolution;
             public float desiredScreenSpaceLength;
@@ -85,10 +85,10 @@ namespace SQT.Core
 
             public static SQTMesh GetFromGlobal(SQTGlobal global, int neighborMask)
             {
-                int lerpWest = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[0]) == 0 ? 0 : 1;
-                int lerpEast = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[1]) == 0 ? 0 : 1;
-                int lerpSouth = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[2]) == 0 ? 0 : 1;
-                int lerpNorth = (neighborMask & SQTBuilder.Node.NEIGHBOR_MASKS[3]) == 0 ? 0 : 1;
+                int lerpWest = (neighborMask & Builder.Node.NEIGHBOR_MASKS[0]) == 0 ? 0 : 1;
+                int lerpEast = (neighborMask & Builder.Node.NEIGHBOR_MASKS[1]) == 0 ? 0 : 1;
+                int lerpSouth = (neighborMask & Builder.Node.NEIGHBOR_MASKS[2]) == 0 ? 0 : 1;
+                int lerpNorth = (neighborMask & Builder.Node.NEIGHBOR_MASKS[3]) == 0 ? 0 : 1;
 
                 int westTriangles = lerpWest == 0 ? 0 : (global.resolution / 2 + 2 * (global.resolution / 2 - 1));
                 int eastTriangles = lerpEast == 0 ? 0 : (global.resolution / 2 + 2 * (global.resolution / 2 - 1));

@@ -2,17 +2,17 @@ using UnityEngine;
 
 namespace SQT.Core.GPU
 {
-    public class SQTInstancedMesh
+    public class InstancedMesh
     {
         Mesh[,] meshInstances;
 
-        public SQTInstancedMesh(SQTConstants.SQTGlobal global, SQTConstants.SQTMesh[] meshes)
+        public InstancedMesh(Constants.SQTGlobal global, Constants.SQTMesh[] meshes)
         {
             meshInstances = new Mesh[global.maxDepth + 1, meshes.Length];
 
             Vector3 up = Vector3.up;
-            Vector3 forward = SQTConstants.SQTBranch.GetForward(up);
-            Vector3 right = SQTConstants.SQTBranch.GetRight(up);
+            Vector3 forward = Constants.SQTBranch.GetForward(up);
+            Vector3 right = Constants.SQTBranch.GetRight(up);
 
             for (int i = 0; i <= global.maxDepth; i++)
             {
@@ -47,7 +47,7 @@ namespace SQT.Core.GPU
             }
         }
 
-        public static void GenerateVertices(SQTConstants.SQTGlobal global, Vector3[] vertices, Vector3[] normals, int depth, Vector3 up, Vector3 forward, Vector3 right)
+        public static void GenerateVertices(Constants.SQTGlobal global, Vector3[] vertices, Vector3[] normals, int depth, Vector3 up, Vector3 forward, Vector3 right)
         {
             for (int y = 0; y < global.resolution; y++)
             {
@@ -56,8 +56,8 @@ namespace SQT.Core.GPU
                     int vertexIndex = x + global.resolution * y;
                     Vector2 percent = new Vector2(x, y) / (global.resolution - 1);
                     Vector3 pointOnUnitCube = Vector3.up
-                        + Mathf.Lerp(-1f, 1f, percent.x) * SQTConstants.SQTDepth.GetScale(depth) * forward
-                        + Mathf.Lerp(-1f, 1f, percent.y) * SQTConstants.SQTDepth.GetScale(depth) * right;
+                        + Mathf.Lerp(-1f, 1f, percent.x) * Constants.SQTDepth.GetScale(depth) * forward
+                        + Mathf.Lerp(-1f, 1f, percent.y) * Constants.SQTDepth.GetScale(depth) * right;
 
                     Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                     vertices[vertexIndex] = pointOnUnitSphere;
