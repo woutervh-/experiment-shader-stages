@@ -11,7 +11,7 @@ namespace SQT.Core
 
     public interface MeshPlugin
     {
-        void ModifyMesh(Vector3[] vertices, Vector3[] normals);
+        void ModifyMesh(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals);
     }
 
     public interface MaterialPlugin
@@ -78,11 +78,11 @@ namespace SQT.Core
             this.builderLeavesPlugins = builderLeavesPlugins.ToArray();
         }
 
-        public void ModifyMesh(Vector3[] vertices, Vector3[] normals)
+        public void ModifyMesh(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
             foreach (MeshPlugin plugin in meshPlugins)
             {
-                plugin.ModifyMesh(vertices, normals);
+                plugin.ModifyMesh(constants, vertices, normals);
             }
         }
 

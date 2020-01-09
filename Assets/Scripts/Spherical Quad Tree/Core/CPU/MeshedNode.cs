@@ -79,7 +79,7 @@ namespace SQT.Core.CPU
                 }
             }
 
-            constants.global.plugins.ModifyMesh(vertices, normals);
+            constants.global.plugins.ModifyMesh(constants, vertices, normals);
 
             Mesh mesh = new Mesh();
             mesh.vertices = vertices;
