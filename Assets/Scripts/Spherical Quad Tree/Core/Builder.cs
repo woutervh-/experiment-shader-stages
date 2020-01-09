@@ -105,8 +105,14 @@ namespace SQT.Core
                 };
             }
 
-            Node leaf = DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData);
-            BuildBalancedNodes(branches, leaf);
+            Node[] leaves = new Node[] { DeepSplit(branches[reconciliationData.constants.branch.index], reconciliationData) };
+            reconciliationData.constants.global.plugins.ModifyBuilderLeaves(ref leaves, branches);
+
+            foreach (Node leaf in leaves)
+            {
+                BuildBalancedNodes(branches, leaf);
+            }
+
             FillMissingSiblings(branches);
             DetermineNeighborMasks(branches);
             return branches;
@@ -173,10 +179,10 @@ namespace SQT.Core
                 }
 
                 Node[] parentNeighbors = new Node[] {
-                GetNeighbor(branches, current.parent, 0),
-                GetNeighbor(branches, current.parent, 1),
-                GetNeighbor(branches, current.parent, 2),
-                GetNeighbor(branches, current.parent, 3)
+                EnsureNeighbor(branches, current.parent, 0),
+                EnsureNeighbor(branches, current.parent, 1),
+                EnsureNeighbor(branches, current.parent, 2),
+                EnsureNeighbor(branches, current.parent, 3)
             };
 
                 for (int i = 0; i < 4; i++)
@@ -190,7 +196,7 @@ namespace SQT.Core
             }
         }
 
-        static int GetCommonAncestorDistance(Node node, int direction)
+        public static int GetCommonAncestorDistance(Node node, int direction)
         {
             int commonAncestorDistance = 1;
             for (int i = node.path.Length - 1; i >= 0; i--)
@@ -204,7 +210,7 @@ namespace SQT.Core
             return commonAncestorDistance;
         }
 
-        static int[] GetNeighborPath(Node node, int direction, int commonAncestorDistance)
+        public static int[] GetNeighborPath(Node node, int direction, int commonAncestorDistance)
         {
             int[] neighborPath = new int[node.path.Length];
             if (commonAncestorDistance <= node.path.Length)
@@ -233,7 +239,7 @@ namespace SQT.Core
             return neighborPath;
         }
 
-        static int GetNeighborBranch(Node node, int direction, int commonAncestorDistance)
+        public static int GetNeighborBranch(Node node, int direction, int commonAncestorDistance)
         {
             if (commonAncestorDistance <= node.path.Length)
             {
@@ -245,7 +251,7 @@ namespace SQT.Core
             }
         }
 
-        static bool HasNeighbor(Node[] branches, Node node, int direction)
+        public static bool HasNeighbor(Node[] branches, Node node, int direction)
         {
             int commonAncestorDistance = GetCommonAncestorDistance(node, direction);
             int[] neighborPath = GetNeighborPath(node, direction, commonAncestorDistance);
@@ -253,7 +259,7 @@ namespace SQT.Core
             return GetRelativePath(branches[neighborBranch], neighborPath) != null;
         }
 
-        static Node GetNeighbor(Node[] branches, Node node, int direction)
+        public static Node EnsureNeighbor(Node[] branches, Node node, int direction)
         {
             int commonAncestorDistance = GetCommonAncestorDistance(node, direction);
             int[] neighborPath = GetNeighborPath(node, direction, commonAncestorDistance);
@@ -261,7 +267,7 @@ namespace SQT.Core
             return EnsureRelativePath(branches[neighborBranch], neighborPath);
         }
 
-        static Node GetRelativePath(Node node, int[] path)
+        public static Node GetRelativePath(Node node, int[] path)
         {
             Node current = node;
             for (int i = 0; i < path.Length && current != null; i++)
@@ -271,7 +277,7 @@ namespace SQT.Core
             return current;
         }
 
-        static Node EnsureRelativePath(Node node, int[] path)
+        public static Node EnsureRelativePath(Node node, int[] path)
         {
             Node current = node;
             for (int i = 0; i < path.Length; i++)
@@ -281,7 +287,7 @@ namespace SQT.Core
             return current;
         }
 
-        static Node GetChild(Node node, int ordinal)
+        public static Node GetChild(Node node, int ordinal)
         {
             if (node.children == null)
             {
@@ -294,7 +300,7 @@ namespace SQT.Core
             return node.children[ordinal];
         }
 
-        static Node EnsureChild(Node node, int ordinal)
+        public static Node EnsureChild(Node node, int ordinal)
         {
             if (node.children == null)
             {

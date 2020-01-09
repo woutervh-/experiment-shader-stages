@@ -24,21 +24,28 @@ namespace SQT.Core
         void ModifyReconcilerFactory(ref SQT.Core.ReconcilerFactory reconcilerFactory);
     }
 
-    public interface ChainedPlugins : MeshPlugin, MaterialPlugin, ReconcilerFactoryPlugin { }
+    public interface BuilderLeavesPlugin
+    {
+        void ModifyBuilderLeaves(ref SQT.Core.Builder.Node[] leaves, SQT.Core.Builder.Node[] branches);
+    }
+
+    public interface ChainedPlugins : MeshPlugin, MaterialPlugin, ReconcilerFactoryPlugin, BuilderLeavesPlugin { }
 
     class PluginsChain : SQT.Core.ChainedPlugins
     {
-        SQT.Core.MeshPlugin[] meshPlugins;
-        SQT.Core.MaterialPlugin[] materialPlugins;
-        SQT.Core.ReconcilerFactoryPlugin[] reconcilerFactoryPlugins;
+        MeshPlugin[] meshPlugins;
+        MaterialPlugin[] materialPlugins;
+        ReconcilerFactoryPlugin[] reconcilerFactoryPlugins;
+        BuilderLeavesPlugin[] builderLeavesPlugins;
 
         public PluginsChain(SQT.Core.Plugin[] plugins)
         {
-            List<SQT.Core.MeshPlugin> meshPlugins = new List<SQT.Core.MeshPlugin>();
-            List<SQT.Core.MaterialPlugin> materialPlugins = new List<SQT.Core.MaterialPlugin>();
-            List<SQT.Core.ReconcilerFactoryPlugin> reconcilerFactoryPlugins = new List<SQT.Core.ReconcilerFactoryPlugin>();
+            List<MeshPlugin> meshPlugins = new List<MeshPlugin>();
+            List<MaterialPlugin> materialPlugins = new List<MaterialPlugin>();
+            List<ReconcilerFactoryPlugin> reconcilerFactoryPlugins = new List<ReconcilerFactoryPlugin>();
+            List<BuilderLeavesPlugin> builderLeavesPlugins = new List<BuilderLeavesPlugin>();
 
-            foreach (SQT.Core.Plugin plugin in plugins)
+            foreach (Plugin plugin in plugins)
             {
                 if (plugin is MonoBehaviour monoBehaviour)
                 {
@@ -47,28 +54,33 @@ namespace SQT.Core
                         continue;
                     }
                 }
-                if (plugin is SQT.Core.MeshPlugin meshModifier)
+                if (plugin is MeshPlugin meshModifier)
                 {
                     meshPlugins.Add(meshModifier);
                 }
-                if (plugin is SQT.Core.MaterialPlugin materialModifier)
+                if (plugin is MaterialPlugin materialModifier)
                 {
                     materialPlugins.Add(materialModifier);
                 }
-                if (plugin is SQT.Core.ReconcilerFactoryPlugin reconcilerFactoryPlugin)
+                if (plugin is ReconcilerFactoryPlugin reconcilerFactoryPlugin)
                 {
                     reconcilerFactoryPlugins.Add(reconcilerFactoryPlugin);
+                }
+                if (plugin is BuilderLeavesPlugin builderLeavesPlugin)
+                {
+                    builderLeavesPlugins.Add(builderLeavesPlugin);
                 }
             }
 
             this.meshPlugins = meshPlugins.ToArray();
             this.materialPlugins = materialPlugins.ToArray();
             this.reconcilerFactoryPlugins = reconcilerFactoryPlugins.ToArray();
+            this.builderLeavesPlugins = builderLeavesPlugins.ToArray();
         }
 
         public void ModifyMesh(Vector3[] vertices, Vector3[] normals)
         {
-            foreach (SQT.Core.MeshPlugin plugin in meshPlugins)
+            foreach (MeshPlugin plugin in meshPlugins)
             {
                 plugin.ModifyMesh(vertices, normals);
             }
@@ -76,7 +88,7 @@ namespace SQT.Core
 
         public void ModifyMaterial(ref Material material)
         {
-            foreach (SQT.Core.MaterialPlugin plugin in materialPlugins)
+            foreach (MaterialPlugin plugin in materialPlugins)
             {
                 plugin.ModifyMaterial(ref material);
             }
@@ -84,9 +96,17 @@ namespace SQT.Core
 
         public void ModifyReconcilerFactory(ref SQT.Core.ReconcilerFactory reconcilerFactory)
         {
-            foreach (SQT.Core.ReconcilerFactoryPlugin plugin in reconcilerFactoryPlugins)
+            foreach (ReconcilerFactoryPlugin plugin in reconcilerFactoryPlugins)
             {
                 plugin.ModifyReconcilerFactory(ref reconcilerFactory);
+            }
+        }
+
+        public void ModifyBuilderLeaves(ref SQT.Core.Builder.Node[] leaves, SQT.Core.Builder.Node[] branches)
+        {
+            foreach (BuilderLeavesPlugin plugin in builderLeavesPlugins)
+            {
+                plugin.ModifyBuilderLeaves(ref leaves, branches);
             }
         }
     }
