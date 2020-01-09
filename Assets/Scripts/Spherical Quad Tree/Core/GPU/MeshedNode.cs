@@ -79,8 +79,6 @@ namespace SQT.Core.GPU
                 }
             }
 
-            constants.global.plugins.ModifyMesh(vertices, normals);
-
             Mesh mesh = new Mesh();
             mesh.vertices = vertices;
             mesh.normals = normals;
