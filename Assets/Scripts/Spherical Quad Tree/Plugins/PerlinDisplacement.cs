@@ -72,16 +72,11 @@ namespace SQT.Plugins
 
         public void ModifyMaterial(ref Material material)
         {
-            SetKeyword(material, "_VERTEX_DISPLACEMENT", displaceOnGPU);
-            material.SetFloat("_VertexDisplacement", displaceOnGPU ? 1f : 0f);
-
-            if (!displaceOnGPU)
-            {
-                return;
-            }
-
             Texture2D gradientsTexture = PerlinTextureGenerator.CreateGradientsTexture(perlin);
             Texture2D permutationTexture = PerlinTextureGenerator.CreatePermutationTexture(perlin);
+
+            SetKeyword(material, "_VERTEX_DISPLACEMENT", displaceOnGPU);
+            material.SetFloat("_VertexDisplacement", displaceOnGPU ? 1f : 0f);
             material.SetTexture("_Gradients2D", gradientsTexture);
             material.SetTexture("_Permutation2D", permutationTexture);
             material.SetFloat("_Strength", strength);

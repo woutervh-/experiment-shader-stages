@@ -5,6 +5,7 @@ Shader "SQT/Lit" {
         [MainColor] _BaseColor("Color", Color) = (0.5, 0.5, 0.5, 1.0)
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
 
+        [Toggle(_PER_FRAGMENT_NORMALS)] _PerFragmentNormals ("Per fragment normals", Float) = 0
         [Toggle(_VERTEX_DISPLACEMENT)] _VertexDisplacement ("Vertex displacement", Float) = 0
         [HideInInspector] _Gradients2D ("Gradients", 2D) = "white" {}
         [HideInInspector] _Permutation2D ("Permutation", 2D) = "white" {}
@@ -39,9 +40,10 @@ Shader "SQT/Lit" {
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile_fog
             #pragma shader_feature _VERTEX_DISPLACEMENT
+            #pragma shader_feature _PER_FRAGMENT_NORMALS
 
             #pragma vertex Vertex
-            #pragma fragment LitPassFragment
+            #pragma fragment Fragment
 
             #include "Packages/com.unity.render-pipelines.lightweight/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.lightweight/Shaders/LitForwardPass.hlsl"
@@ -49,14 +51,40 @@ Shader "SQT/Lit" {
 
             #define VertexProgram LitPassVertex
             Varyings Vertex(Attributes input) {
-                #if defined(_VERTEX_DISPLACEMENT)
+                #if defined(_VERTEX_DISPLACEMENT) || defined(_PER_FRAGMENT_NORMALS)
                     float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
                     float4 noiseSample = noise(pointOnUnitSphere);
-                    input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
-                    input.normalOS = normalize(pointOnUnitSphere - noiseSample.xyz);
+
+                    #if defined(_VERTEX_DISPLACEMENT)
+                        input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
+                    #endif
+
+                    #if defined(_PER_FRAGMENT_NORMALS)
+                        input.normalOS = pointOnUnitSphere;
+                    #else
+                        input.normalOS = normalize(pointOnUnitSphere - noiseSample.xyz);
+                    #endif
                 #endif
 
                 return LitPassVertex(input);
+            }
+
+            float4 Fragment(Varyings input) : SV_TARGET {
+                #if defined(_PER_FRAGMENT_NORMALS)
+                    #ifdef UNITY_REVERSED_Z
+                        float h = 1.0 - input.positionCS.z;
+                    #else
+                        float h = input.positionCS.z;
+                    #endif
+                    h /= 8.0;
+                    h *= h;
+
+                    float3 pointOnUnitSphere = normalize(TransformWorldToObjectDir(input.normalWS));
+                    float3 adjustedNormal = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
+                    input.normalWS = TransformObjectToWorldNormal(adjustedNormal);
+                #endif
+
+                return LitPassFragment(input);
             }
 
             ENDHLSL
