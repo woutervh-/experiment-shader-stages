@@ -3,36 +3,34 @@ namespace SQT.Core.GPU
     public class Reconciler : SQT.Core.Reconciler
     {
         Constants[] constants;
-        InstancedMesh instancedMesh;
-        MeshedNode[] instancedBranches;
+        MeshedNode[] meshedBranches;
 
         public Reconciler(Constants[] constants)
         {
             this.constants = constants;
-            instancedMesh = new InstancedMesh(constants[0].global, constants[0].meshes); // TODO: make proper fix for meshes location.
-            instancedBranches = new MeshedNode[constants.Length];
+            meshedBranches = new MeshedNode[constants.Length];
         }
 
         public void Destroy()
         {
-            for (int i = 0; i < instancedBranches.Length; i++)
+            for (int i = 0; i < meshedBranches.Length; i++)
             {
-                if (instancedBranches[i] != null)
+                if (meshedBranches[i] != null)
                 {
-                    instancedBranches[i].Destroy();
+                    meshedBranches[i].Destroy();
                 }
             }
         }
 
         public void Reconcile(Builder.Node[] newBranches)
         {
-            for (int i = 0; i < instancedBranches.Length; i++)
+            for (int i = 0; i < meshedBranches.Length; i++)
             {
-                if (instancedBranches[i] == null)
+                if (meshedBranches[i] == null)
                 {
-                    instancedBranches[i] = new MeshedNode(null, constants[i], instancedMesh, newBranches[i]);
+                    meshedBranches[i] = new MeshedNode(null, constants[i], newBranches[i]);
                 }
-                Reconcile(constants[i], newBranches[i], instancedBranches, i);
+                Reconcile(constants[i], newBranches[i], meshedBranches, i);
             }
         }
 
@@ -57,7 +55,7 @@ namespace SQT.Core.GPU
                 siblings[index].children = new MeshedNode[4];
                 for (int i = 0; i < 4; i++)
                 {
-                    siblings[index].children[i] = new MeshedNode(siblings[index], constants, instancedMesh, newNode.children[i]);
+                    siblings[index].children[i] = new MeshedNode(siblings[index], constants, newNode.children[i]);
                     Reconcile(constants, newNode.children[i], siblings[index].children, i);
                 }
             }

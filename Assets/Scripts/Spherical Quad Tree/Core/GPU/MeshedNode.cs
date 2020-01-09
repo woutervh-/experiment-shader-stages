@@ -8,16 +8,15 @@ namespace SQT.Core.GPU
         public MeshRenderer meshRenderer;
         public int neighborMask;
 
-        InstancedMesh instancedMesh;
         MeshedNode parent;
         Constants constants;
         Builder.Node node;
+        Mesh mesh;
         GameObject gameObject;
         MeshFilter meshFilter;
 
-        public MeshedNode(MeshedNode parent, Constants constants, InstancedMesh instancedMesh, Builder.Node node)
+        public MeshedNode(MeshedNode parent, Constants constants, Builder.Node node)
         {
-            this.instancedMesh = instancedMesh;
             this.parent = parent;
             this.constants = constants;
             this.node = node;
@@ -25,9 +24,10 @@ namespace SQT.Core.GPU
             neighborMask = -1;
             gameObject = new GameObject("Chunk " + string.Join("", node.path));
             gameObject.transform.SetParent(constants.branch.gameObject.transform, false);
-            gameObject.transform.SetPositionAndRotation(Vector3.zero, GetRotation());
             meshFilter = gameObject.AddComponent<MeshFilter>();
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            mesh = GenerateMesh();
+            meshFilter.sharedMesh = mesh;
             meshRenderer.sharedMaterial = constants.global.material;
         }
 
@@ -43,12 +43,13 @@ namespace SQT.Core.GPU
             UnityEngine.Object.Destroy(meshRenderer);
             UnityEngine.Object.Destroy(meshFilter);
             UnityEngine.Object.Destroy(gameObject);
+            UnityEngine.Object.Destroy(mesh);
         }
 
         public void SetMeshTriangles(int neighborMask)
         {
-
-            meshFilter.sharedMesh = instancedMesh.GetMesh(node.path.Length, neighborMask);
+            mesh.triangles = constants.meshes[neighborMask].triangles;
+            mesh.RecalculateBounds();
         }
 
         Vector3 GetOrigin()
@@ -56,9 +57,34 @@ namespace SQT.Core.GPU
             return constants.branch.up + node.offset.x * constants.branch.forward + node.offset.y * constants.branch.right;
         }
 
-        Quaternion GetRotation()
+        Mesh GenerateMesh()
         {
-            return Quaternion.FromToRotation(Vector3.up, GetOrigin());
+            Vector3[] vertices = new Vector3[constants.global.resolution * constants.global.resolution];
+            Vector3[] normals = new Vector3[constants.global.resolution * constants.global.resolution];
+
+            Vector3 origin = GetOrigin();
+            for (int y = 0; y < constants.global.resolution; y++)
+            {
+                for (int x = 0; x < constants.global.resolution; x++)
+                {
+                    int vertexIndex = x + constants.global.resolution * y;
+                    Vector2 percent = new Vector2(x, y) / (constants.global.resolution - 1);
+                    Vector3 pointOnUnitCube = origin
+                        + Mathf.Lerp(-1f, 1f, percent.x) * constants.depth[node.path.Length].scale * constants.branch.forward
+                        + Mathf.Lerp(-1f, 1f, percent.y) * constants.depth[node.path.Length].scale * constants.branch.right;
+
+                    Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
+                    vertices[vertexIndex] = pointOnUnitSphere;
+                    normals[vertexIndex] = pointOnUnitSphere;
+                }
+            }
+
+            constants.global.plugins.ModifyMesh(vertices, normals);
+
+            Mesh mesh = new Mesh();
+            mesh.vertices = vertices;
+            mesh.normals = normals;
+            return mesh;
         }
     }
 }
