@@ -4,8 +4,6 @@ using UnityEngine;
 public class SQTPerlinDisplacementGPU : MonoBehaviour, SQTPlugin, SQTMaterialPlugin
 {
     public int seed = 0;
-    [Range(1f, 1e6f)]
-    public float radius = 1f;
 
     public event EventHandler OnChange;
 

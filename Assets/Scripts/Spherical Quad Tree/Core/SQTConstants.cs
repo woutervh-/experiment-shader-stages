@@ -14,7 +14,6 @@ public class SQTConstants
             {
                 float scale = GetScale(i);
                 float approximateSize = scale / global.resolution;
-                global.plugins.ModifyApproximateEdgeLength(ref approximateSize);
 
                 depth[i] = new SQTDepth
                 {

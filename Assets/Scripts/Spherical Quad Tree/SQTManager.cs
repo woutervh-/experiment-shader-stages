@@ -127,16 +127,12 @@ public class SQTManager : MonoBehaviour
 
     class PluginsChain : SQTChainedPlugins
     {
-        SQTApproximateEdgeLengthPlugin[] approximateEdgeLengthPlugins;
         SQTMeshPlugin[] meshPlugins;
-        SQTDistanceToObjectPlugin[] distanceToObjectPlugins;
         SQTMaterialPlugin[] materialPlugins;
 
         public PluginsChain(SQTPlugin[] plugins)
         {
-            List<SQTApproximateEdgeLengthPlugin> approximateEdgeLengthPlugins = new List<SQTApproximateEdgeLengthPlugin>();
             List<SQTMeshPlugin> meshPlugins = new List<SQTMeshPlugin>();
-            List<SQTDistanceToObjectPlugin> distanceToObjectPlugins = new List<SQTDistanceToObjectPlugin>();
             List<SQTMaterialPlugin> materialPlugins = new List<SQTMaterialPlugin>();
 
             foreach (SQTPlugin plugin in plugins)
@@ -148,17 +144,9 @@ public class SQTManager : MonoBehaviour
                         continue;
                     }
                 }
-                if (plugin is SQTApproximateEdgeLengthPlugin approximateEdgeLengthModifier)
-                {
-                    approximateEdgeLengthPlugins.Add(approximateEdgeLengthModifier);
-                }
                 if (plugin is SQTMeshPlugin meshModifier)
                 {
                     meshPlugins.Add(meshModifier);
-                }
-                if (plugin is SQTDistanceToObjectPlugin distanceToObjectModifier)
-                {
-                    distanceToObjectPlugins.Add(distanceToObjectModifier);
                 }
                 if (plugin is SQTMaterialPlugin materialModifier)
                 {
@@ -166,18 +154,8 @@ public class SQTManager : MonoBehaviour
                 }
             }
 
-            this.approximateEdgeLengthPlugins = approximateEdgeLengthPlugins.ToArray();
             this.meshPlugins = meshPlugins.ToArray();
-            this.distanceToObjectPlugins = distanceToObjectPlugins.ToArray();
             this.materialPlugins = materialPlugins.ToArray();
-        }
-
-        public void ModifyApproximateEdgeLength(ref float edgeLength)
-        {
-            foreach (SQTApproximateEdgeLengthPlugin plugin in approximateEdgeLengthPlugins)
-            {
-                plugin.ModifyApproximateEdgeLength(ref edgeLength);
-            }
         }
 
         public void ModifyMesh(Vector3[] vertices, Vector3[] normals)
@@ -185,14 +163,6 @@ public class SQTManager : MonoBehaviour
             foreach (SQTMeshPlugin plugin in meshPlugins)
             {
                 plugin.ModifyMesh(vertices, normals);
-            }
-        }
-
-        public void ModifyDistanceToObject(ref float distance)
-        {
-            foreach (SQTDistanceToObjectPlugin plugin in distanceToObjectPlugins)
-            {
-                plugin.ModifyDistanceToObject(ref distance);
             }
         }
 

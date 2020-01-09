@@ -1,11 +1,9 @@
 using System;
 using UnityEngine;
 
-public class SQTPerlinDisplacementCPU : MonoBehaviour, SQTPlugin, SQTApproximateEdgeLengthPlugin, SQTMeshPlugin, SQTDistanceToObjectPlugin
+public class SQTPerlinDisplacementCPU : MonoBehaviour, SQTPlugin, SQTMeshPlugin
 {
     public int seed = 0;
-    [Range(1f, 1e6f)]
-    public float radius = 1f;
 
     public event EventHandler OnChange;
 
@@ -57,18 +55,8 @@ public class SQTPerlinDisplacementCPU : MonoBehaviour, SQTPlugin, SQTApproximate
         for (int i = 0; i < vertices.Length; i++)
         {
             Perlin.PerlinSample sample = GetSample(normals[i]);
-            vertices[i] = normals[i] * radius * sample.value;
+            vertices[i] = normals[i] * sample.value;
             normals[i] = (normals[i] - sample.derivative).normalized;
         }
-    }
-
-    public void ModifyApproximateEdgeLength(ref float edgeLength)
-    {
-        edgeLength *= radius;
-    }
-
-    public void ModifyDistanceToObject(ref float distance)
-    {
-        distance = Mathf.Abs(distance - radius);
     }
 }
