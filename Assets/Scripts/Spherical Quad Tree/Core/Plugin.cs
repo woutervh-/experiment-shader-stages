@@ -9,9 +9,14 @@ namespace SQT.Core
         event EventHandler OnChange;
     }
 
+    public interface VerticesPlugin
+    {
+        void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals);
+    }
+
     public interface MeshPlugin
     {
-        void ModifyMesh(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals);
+        void ModifyMesh(SQT.Core.Constants constants, Mesh mesh, SQT.Core.Builder.Node node);
     }
 
     public interface MaterialPlugin
@@ -29,10 +34,11 @@ namespace SQT.Core
         void ModifyBuilderLeaves(ref SQT.Core.Builder.Node[] leaves, SQT.Core.Builder.Node[] branches);
     }
 
-    public interface ChainedPlugins : MeshPlugin, MaterialPlugin, ReconcilerFactoryPlugin, BuilderLeavesPlugin { }
+    public interface ChainedPlugins : VerticesPlugin, MeshPlugin, MaterialPlugin, ReconcilerFactoryPlugin, BuilderLeavesPlugin { }
 
     class PluginsChain : SQT.Core.ChainedPlugins
     {
+        VerticesPlugin[] verticesPlugins;
         MeshPlugin[] meshPlugins;
         MaterialPlugin[] materialPlugins;
         ReconcilerFactoryPlugin[] reconcilerFactoryPlugins;
@@ -40,6 +46,7 @@ namespace SQT.Core
 
         public PluginsChain(SQT.Core.Plugin[] plugins)
         {
+            List<VerticesPlugin> verticesPlugins = new List<VerticesPlugin>();
             List<MeshPlugin> meshPlugins = new List<MeshPlugin>();
             List<MaterialPlugin> materialPlugins = new List<MaterialPlugin>();
             List<ReconcilerFactoryPlugin> reconcilerFactoryPlugins = new List<ReconcilerFactoryPlugin>();
@@ -54,9 +61,13 @@ namespace SQT.Core
                         continue;
                     }
                 }
-                if (plugin is MeshPlugin meshModifier)
+                if (plugin is VerticesPlugin verticesPlugin)
                 {
-                    meshPlugins.Add(meshModifier);
+                    verticesPlugins.Add(verticesPlugin);
+                }
+                if (plugin is MeshPlugin meshPlugin)
+                {
+                    meshPlugins.Add(meshPlugin);
                 }
                 if (plugin is MaterialPlugin materialModifier)
                 {
@@ -72,17 +83,26 @@ namespace SQT.Core
                 }
             }
 
+            this.verticesPlugins = verticesPlugins.ToArray();
             this.meshPlugins = meshPlugins.ToArray();
             this.materialPlugins = materialPlugins.ToArray();
             this.reconcilerFactoryPlugins = reconcilerFactoryPlugins.ToArray();
             this.builderLeavesPlugins = builderLeavesPlugins.ToArray();
         }
 
-        public void ModifyMesh(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        {
+            foreach (VerticesPlugin plugin in verticesPlugins)
+            {
+                plugin.ModifyVertices(constants, vertices, normals);
+            }
+        }
+
+        public void ModifyMesh(SQT.Core.Constants constants, Mesh mesh, SQT.Core.Builder.Node node)
         {
             foreach (MeshPlugin plugin in meshPlugins)
             {
-                plugin.ModifyMesh(constants, vertices, normals);
+                plugin.ModifyMesh(constants, mesh, node);
             }
         }
 

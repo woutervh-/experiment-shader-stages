@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SQT.Plugins
 {
-    public class PerlinDisplacement : MonoBehaviour, SQT.Core.Plugin, SQT.Core.MeshPlugin, SQT.Core.MaterialPlugin
+    public class PerlinDisplacement : MonoBehaviour, SQT.Core.Plugin, SQT.Core.VerticesPlugin, SQT.Core.MeshPlugin, SQT.Core.MaterialPlugin
     {
         public int seed = 0;
         public float strength = 1f;
@@ -52,10 +52,11 @@ namespace SQT.Plugins
                 Perlin.PerlinSample sample = GetSample(position, frequency) * strength;
                 sum += sample;
             }
-            return sum + 1f;
+            // return sum + 1f;
+            return sum;
         }
 
-        public void ModifyMesh(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
             if (displaceOnGPU)
             {
@@ -65,9 +66,50 @@ namespace SQT.Plugins
             for (int i = 0; i < vertices.Length; i++)
             {
                 Perlin.PerlinSample sample = GetSample(normals[i]);
-                vertices[i] = normals[i] * sample.value;
+                vertices[i] = normals[i] * (1f + sample.value);
                 normals[i] = (normals[i] - sample.derivative).normalized;
             }
+        }
+
+        public void ModifyMesh(SQT.Core.Constants constants, Mesh mesh, SQT.Core.Builder.Node node)
+        {
+            if (!displaceOnGPU)
+            {
+                return;
+            }
+
+            float strength = this.strength;
+            float maxOffset = strength;
+            for (int i = 1; i < octaves; i++)
+            {
+                strength *= persistence;
+                maxOffset += strength;
+            }
+
+            float scale = constants.depth[node.path.Length].scale;
+            Vector3 origin = constants.branch.up + constants.branch.forward * node.offset.x + constants.branch.right * node.offset.y;
+            Vector3 p00 = (origin - scale * constants.branch.forward - scale * constants.branch.right).normalized;
+            Vector3 p01 = (origin + scale * constants.branch.forward - scale * constants.branch.right).normalized;
+            Vector3 p10 = (origin - scale * constants.branch.forward + scale * constants.branch.right).normalized;
+            Vector3 p11 = (origin + scale * constants.branch.forward + scale * constants.branch.right).normalized;
+            Vector3 b000 = p00 * (1f - maxOffset);
+            Vector3 b001 = p01 * (1f - maxOffset);
+            Vector3 b010 = p10 * (1f - maxOffset);
+            Vector3 b011 = p11 * (1f - maxOffset);
+            Vector3 b100 = p00 * (1f + maxOffset);
+            Vector3 b101 = p01 * (1f + maxOffset);
+            Vector3 b110 = p10 * (1f + maxOffset);
+            Vector3 b111 = p11 * (1f + maxOffset);
+            Bounds bounds = new Bounds(b000, Vector3.zero);
+            bounds.Encapsulate(b001);
+            bounds.Encapsulate(b010);
+            bounds.Encapsulate(b011);
+            bounds.Encapsulate(b100);
+            bounds.Encapsulate(b101);
+            bounds.Encapsulate(b110);
+            bounds.Encapsulate(b111);
+
+            mesh.bounds = bounds;
         }
 
         public void ModifyMaterial(ref Material material)

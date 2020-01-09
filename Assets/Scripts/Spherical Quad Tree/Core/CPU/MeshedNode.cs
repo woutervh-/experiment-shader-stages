@@ -50,6 +50,7 @@ namespace SQT.Core.CPU
         {
             mesh.triangles = constants.meshes[neighborMask].triangles;
             mesh.RecalculateBounds();
+            constants.global.plugins.ModifyMesh(constants, mesh, node);
         }
 
         Vector3 GetOrigin()
@@ -79,7 +80,7 @@ namespace SQT.Core.CPU
                 }
             }
 
-            constants.global.plugins.ModifyMesh(constants, vertices, normals);
+            constants.global.plugins.ModifyVertices(constants, vertices, normals);
 
             Mesh mesh = new Mesh();
             mesh.vertices = vertices;

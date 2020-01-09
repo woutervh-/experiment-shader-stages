@@ -89,7 +89,7 @@ float4 noise(float3 p) {
         sum.xyz += value.xyz * frequency;
         sum.w += value.w;
     }
-    sum.w += 1.0;
+    // sum.w += 1.0;
     return sum;
 }
 

@@ -56,7 +56,7 @@ Shader "SQT/Lit" {
                     float4 noiseSample = noise(pointOnUnitSphere);
 
                     #if defined(_VERTEX_DISPLACEMENT)
-                        input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
+                        input.positionOS.xyz = pointOnUnitSphere * (1 + noiseSample.w);
                     #endif
 
                     #if defined(_PER_FRAGMENT_NORMALS)
@@ -116,7 +116,7 @@ Shader "SQT/Lit" {
                 #if defined(_VERTEX_DISPLACEMENT)
                     float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
                     float4 noiseSample = noise(pointOnUnitSphere);
-                    input.positionOS.xyz = pointOnUnitSphere * noiseSample.w;
+                    input.positionOS.xyz = pointOnUnitSphere * (1 + noiseSample.w);
                 #endif
 
                 return ShadowPassVertex(input);
@@ -149,7 +149,7 @@ Shader "SQT/Lit" {
                 #if defined(_VERTEX_DISPLACEMENT)
                     float3 pointOnUnitSphere = normalize(input.position.xyz);
                     float4 noiseSample = noise(pointOnUnitSphere);
-                    input.position.xyz = pointOnUnitSphere * noiseSample.w;
+                    input.position.xyz = pointOnUnitSphere * (1 + noiseSample.w);
                 #endif
                 
                 return DepthOnlyVertex(input);
