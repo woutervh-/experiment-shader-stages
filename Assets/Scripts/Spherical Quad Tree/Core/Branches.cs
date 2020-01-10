@@ -45,6 +45,11 @@ namespace SQT.Core
             }
 
             ReconciliationData reconciliationData = ReconciliationData.GetData(global, constants, camera);
+            if (reconciliationData == null)
+            {
+                return;
+            }
+
             Builder.Node[] branches = Builder.BuildBranches(reconciliationData);
             reconciler.Reconcile(branches);
 

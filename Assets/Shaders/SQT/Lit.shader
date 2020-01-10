@@ -71,17 +71,18 @@ Shader "SQT/Lit" {
 
             float4 Fragment(Varyings input) : SV_TARGET {
                 #if defined(_PER_FRAGMENT_NORMALS)
-                    #ifdef UNITY_REVERSED_Z
-                        float h = 1.0 - input.positionCS.z;
-                    #else
-                        float h = input.positionCS.z;
-                    #endif
-                    h /= 8.0;
-                    h *= h;
-
                     float3 pointOnUnitSphere = normalize(TransformWorldToObjectDir(input.normalWS));
+
+                    // #ifdef UNITY_REVERSED_Z
+                    //     float h = 1.0 - input.positionCS.z;
+                    // #else
+                    //     float h = input.positionCS.z;
+                    // #endif
+                    // h /= 8.0;
+                    // h *= h;
                     // float3 adjustedNormal = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
                     float3 adjustedNormal = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
+
                     input.normalWS = TransformObjectToWorldNormal(adjustedNormal);
                 #endif
 
