@@ -1,0 +1,15 @@
+#pragma kernel GenerateMesh
+
+#include "./Noise.hlsl"
+
+RWStructuredBuffer<float3> positionBuffer;
+RWStructuredBuffer<float3> normalBuffer;
+
+[numthreads(64, 1, 1)]
+void GenerateMesh(uint3 dispatchThreadID : SV_DispatchThreadID) {
+    float3 position = positionBuffer[dispatchThreadID.x];
+    float3 pointOnUnitSphere = normalize(position);
+    float4 noiseSample = noise(pointOnUnitSphere);
+    positionBuffer[dispatchThreadID.x] = pointOnUnitSphere * (1 + noiseSample.w);
+    normalBuffer[dispatchThreadID.x] = normalize(pointOnUnitSphere - noiseSample.xyz);
+}
