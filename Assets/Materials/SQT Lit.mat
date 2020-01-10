@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: SQT Lit
   m_Shader: {fileID: 4800000, guid: 75e98c8296965144da3810329e974d27, type: 3}
-  m_ShaderKeywords: _PER_FRAGMENT_NORMALS
+  m_ShaderKeywords: _PER_FRAGMENT_NORMALS _VERTEX_DISPLACEMENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -81,7 +81,7 @@ Material:
     - _SrcBlend: 1
     - _Strength: 0.1
     - _Surface: 0
-    - _VertexDisplacement: 0
+    - _VertexDisplacement: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

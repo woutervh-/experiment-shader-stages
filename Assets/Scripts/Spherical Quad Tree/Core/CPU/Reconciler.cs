@@ -51,6 +51,7 @@ namespace SQT.Core.CPU
             }
             else if (newNode.children != null && siblings[index].children == null)
             {
+                siblings[index].meshRenderer.enabled = false;
                 siblings[index].children = new MeshedNode[4];
                 for (int i = 0; i < 4; i++)
                 {
@@ -65,6 +66,7 @@ namespace SQT.Core.CPU
                     siblings[index].children[i].Destroy();
                 }
                 siblings[index].children = null;
+                siblings[index].meshRenderer.enabled = true;
             }
         }
 

@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SQT.Plugins
@@ -59,22 +58,19 @@ namespace SQT.Plugins
             return sum;
         }
 
-        public Task ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
-            return Task.Factory.StartNew(() =>
+            if (displaceOnGPU)
             {
-                if (displaceOnGPU)
-                {
-                    return;
-                }
+                return;
+            }
 
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    Perlin.PerlinSample sample = GetSample(vertices[i]);
-                    vertices[i] += normals[i] * sample.value;
-                    normals[i] = (normals[i] - sample.derivative).normalized;
-                }
-            });
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                Perlin.PerlinSample sample = GetSample(vertices[i]);
+                vertices[i] += normals[i] * sample.value;
+                normals[i] = (normals[i] - sample.derivative).normalized;
+            }
         }
 
         public void ModifyMesh(SQT.Core.Constants constants, Mesh mesh, SQT.Core.Builder.Node node)

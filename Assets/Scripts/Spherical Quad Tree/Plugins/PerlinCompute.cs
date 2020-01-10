@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SQT.Plugins
 {
-    public class PerlinCompute : MonoBehaviour, SQT.Core.Plugin, SQT.Core.VerticesPlugin, SQT.Core.MaterialPlugin
+    public class PerlinCompute : MonoBehaviour, SQT.Core.Plugin, SQT.Core.VerticesPluginAsync, SQT.Core.MaterialPlugin
     {
         public int seed = 0;
         public float strength = 0.1f;
@@ -56,9 +56,9 @@ namespace SQT.Plugins
             }
         }
 
-        public Task ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public Task ModifyVerticesAsync(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
-            return new Task(() =>
+            return Task.Factory.StartNew(() =>
             {
                 if (positionBuffer == null || positionBuffer.count != vertices.Length)
                 {
