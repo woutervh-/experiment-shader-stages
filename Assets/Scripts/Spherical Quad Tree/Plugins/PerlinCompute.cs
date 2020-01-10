@@ -11,7 +11,7 @@ namespace SQT.Plugins
         public float lacunarity = 2f;
         public float persistence = 0.5f;
         public int octaves = 8;
-        public ComputeShader meshGeneratorShader;
+        public ComputeShader computeShader;
 
         public event EventHandler OnChange;
 
@@ -20,11 +20,11 @@ namespace SQT.Plugins
         Texture2D permutationTexture;
         ComputeBuffer positionBuffer;
         ComputeBuffer normalBuffer;
-        int generateMeshKernel;
+        int computeKernel;
 
         public void StartPlugin()
         {
-            generateMeshKernel = meshGeneratorShader.FindKernel("GenerateMesh");
+            computeKernel = computeShader.FindKernel("GenerateMesh");
 
             perlin = new Perlin(seed);
             gradientsTexture = PerlinTextureGenerator.CreateGradientsTexture(perlin);
@@ -77,17 +77,20 @@ namespace SQT.Plugins
             normalBuffer.SetData(normals);
             positionBuffer.SetData(vertices);
 
-            meshGeneratorShader.SetBuffer(generateMeshKernel, "positionBuffer", positionBuffer);
-            meshGeneratorShader.SetBuffer(generateMeshKernel, "normalBuffer", normalBuffer);
-            meshGeneratorShader.SetTexture(generateMeshKernel, "_Gradients2D", gradientsTexture);
-            meshGeneratorShader.SetTexture(generateMeshKernel, "_Permutation2D", permutationTexture);
-            meshGeneratorShader.SetFloat("_Strength", strength);
-            meshGeneratorShader.SetFloat("_Frequency", frequency);
-            meshGeneratorShader.SetFloat("_Lacunarity", lacunarity);
-            meshGeneratorShader.SetFloat("_Persistence", persistence);
-            meshGeneratorShader.SetInt("_Octaves", octaves);
+            computeShader.SetBuffer(computeKernel, "positionBuffer", positionBuffer);
+            computeShader.SetBuffer(computeKernel, "normalBuffer", normalBuffer);
+            computeShader.SetTexture(computeKernel, "_Gradients2D", gradientsTexture);
+            computeShader.SetTexture(computeKernel, "_Permutation2D", permutationTexture);
+            computeShader.SetFloat("_Strength", strength);
+            computeShader.SetFloat("_Frequency", frequency);
+            computeShader.SetFloat("_Lacunarity", lacunarity);
+            computeShader.SetFloat("_Persistence", persistence);
+            computeShader.SetInt("_Octaves", octaves);
 
-            meshGeneratorShader.Dispatch(generateMeshKernel, Mathf.CeilToInt(vertices.Length / 64f), 1, 1);
+            uint x, y, z;
+            computeShader.GetKernelThreadGroupSizes(computeKernel, out x, out y, out z);
+            float total = x * y * z;
+            computeShader.Dispatch(computeKernel, Mathf.CeilToInt(vertices.Length / total), 1, 1);
 
             positionBuffer.GetData(vertices);
             normalBuffer.GetData(normals);
