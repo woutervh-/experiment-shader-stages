@@ -45,6 +45,7 @@ namespace SQT
             {
                 foreach (SQT.Core.Plugin plugin in plugins)
                 {
+                    plugin.StopPlugin();
                     plugin.OnChange -= HandleChange;
                 }
             }
@@ -53,13 +54,12 @@ namespace SQT
             foreach (SQT.Core.Plugin plugin in plugins)
             {
                 plugin.OnChange += HandleChange;
+                plugin.StartPlugin();
             }
         }
 
         void DoUpdateSettings()
         {
-            dirty = false;
-
             if (branches != null)
             {
                 branches.Destroy();
@@ -109,6 +109,7 @@ namespace SQT
         {
             if (dirty)
             {
+                dirty = false;
                 DoUpdatePlugins();
                 DoUpdateSettings();
             }
@@ -126,6 +127,14 @@ namespace SQT
 
         void OnDestroy()
         {
+            if (plugins != null)
+            {
+                foreach (SQT.Core.Plugin plugin in plugins)
+                {
+                    plugin.StopPlugin();
+                    plugin.OnChange -= HandleChange;
+                }
+            }
             branches.Destroy();
         }
     }

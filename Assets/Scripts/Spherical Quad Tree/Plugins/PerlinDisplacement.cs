@@ -17,10 +17,12 @@ namespace SQT.Plugins
 
         Perlin perlin;
 
-        void Start()
+        public void StartPlugin()
         {
             perlin = new Perlin(seed);
         }
+
+        public void StopPlugin() { }
 
         void OnValidate()
         {

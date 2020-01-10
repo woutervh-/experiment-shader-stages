@@ -15,6 +15,10 @@ namespace SQT.Plugins
             }
         }
 
+        public void StartPlugin() { }
+
+        public void StopPlugin() { }
+
         public void ModifyReconcilerFactory(ref SQT.Core.ReconcilerFactory reconcilerFactory)
         {
             reconcilerFactory = new SQT.Core.CPU.Reconciler.Factory();

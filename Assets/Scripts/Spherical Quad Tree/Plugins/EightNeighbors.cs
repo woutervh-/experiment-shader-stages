@@ -15,34 +15,9 @@ namespace SQT.Plugins
             }
         }
 
-        // public void ModifyBuilderLeaves(ref SQT.Core.Builder.Node[] leaves, SQT.Core.Builder.Node[] branches)
-        // {
-        //     List<SQT.Core.Builder.Node> newLeaves = new List<SQT.Core.Builder.Node>();
+        public void StartPlugin() { }
 
-        //     SQT.Core.Builder.Node current = leaves[0];
-        //     while (current != null)
-        //     {
-        //         SQT.Core.Builder.Node n1 = SQT.Core.Builder.EnsureNeighbor(branches, current, 0);
-        //         SQT.Core.Builder.Node n2 = SQT.Core.Builder.EnsureNeighbor(branches, current, 1);
-        //         SQT.Core.Builder.Node n3 = SQT.Core.Builder.EnsureNeighbor(branches, current, 2);
-        //         SQT.Core.Builder.Node n4 = SQT.Core.Builder.EnsureNeighbor(branches, current, 3);
-        //         SQT.Core.Builder.Node n5 = SQT.Core.Builder.EnsureNeighbor(branches, n1, 3);
-        //         SQT.Core.Builder.Node n6 = SQT.Core.Builder.EnsureNeighbor(branches, n2, 2);
-        //         SQT.Core.Builder.Node n7 = SQT.Core.Builder.EnsureNeighbor(branches, n3, 0);
-        //         SQT.Core.Builder.Node n8 = SQT.Core.Builder.EnsureNeighbor(branches, n4, 1);
-        //         newLeaves.Add(n1);
-        //         newLeaves.Add(n2);
-        //         newLeaves.Add(n3);
-        //         newLeaves.Add(n4);
-        //         newLeaves.Add(n5);
-        //         newLeaves.Add(n6);
-        //         newLeaves.Add(n7);
-        //         newLeaves.Add(n8);
-        //         current = current.parent;
-        //     }
-
-        //     leaves = newLeaves.ToArray();
-        // }
+        public void StopPlugin() { }
 
         public void ModifyBuilderLeaves(ref SQT.Core.Builder.Node[] leaves, SQT.Core.Builder.Node[] branches)
         {

@@ -17,6 +17,10 @@ namespace SQT.Plugins
             }
         }
 
+        public void StartPlugin() { }
+
+        public void StopPlugin() { }
+
         public void ModifyMaterial(ref Material material)
         {
             material = this.material;

@@ -16,25 +16,39 @@ namespace SQT.Plugins
         public event EventHandler OnChange;
 
         Perlin perlin;
+        Texture2D gradientsTexture;
+        Texture2D permutationTexture;
         ComputeBuffer positionBuffer;
         ComputeBuffer normalBuffer;
+        int generateMeshKernel;
 
-        void Start()
+        public void StartPlugin()
         {
-            positionBuffer = new ComputeBuffer()
+            generateMeshKernel = meshGeneratorShader.FindKernel("GenerateMesh");
+
             perlin = new Perlin(seed);
+            gradientsTexture = PerlinTextureGenerator.CreateGradientsTexture(perlin);
+            permutationTexture = PerlinTextureGenerator.CreatePermutationTexture(perlin);
         }
 
-        void OnDestroy()
+        public void StopPlugin()
         {
-            positionBuffer.Release();
-            normalBuffer.Release();
+            if (positionBuffer != null)
+            {
+                positionBuffer.Release();
+                positionBuffer = null;
+            }
+            if (normalBuffer != null)
+            {
+                normalBuffer.Release();
+                normalBuffer = null;
+            }
+            UnityEngine.Object.Destroy(gradientsTexture);
+            UnityEngine.Object.Destroy(permutationTexture);
         }
 
         void OnValidate()
         {
-            perlin = new Perlin(seed);
-
             if (OnChange != null)
             {
                 OnChange.Invoke(this, EventArgs.Empty);
@@ -43,14 +57,43 @@ namespace SQT.Plugins
 
         public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
+            if (positionBuffer == null || positionBuffer.count != vertices.Length)
+            {
+                if (positionBuffer != null)
+                {
+                    positionBuffer.Release();
+                }
+                positionBuffer = new ComputeBuffer(vertices.Length, 3 * 4);
+            }
+            if (normalBuffer == null || normalBuffer.count != normals.Length)
+            {
+                if (normalBuffer != null)
+                {
+                    normalBuffer.Release();
+                }
+                normalBuffer = new ComputeBuffer(normals.Length, 3 * 4);
+            }
 
+            positionBuffer.SetData(vertices);
+
+            meshGeneratorShader.SetBuffer(generateMeshKernel, "positionBuffer", positionBuffer);
+            meshGeneratorShader.SetBuffer(generateMeshKernel, "normalBuffer", normalBuffer);
+            meshGeneratorShader.SetTexture(generateMeshKernel, "_Gradients2D", gradientsTexture);
+            meshGeneratorShader.SetTexture(generateMeshKernel, "_Permutation2D", permutationTexture);
+            meshGeneratorShader.SetFloat("_Strength", strength);
+            meshGeneratorShader.SetFloat("_Frequency", frequency);
+            meshGeneratorShader.SetFloat("_Lacunarity", lacunarity);
+            meshGeneratorShader.SetFloat("_Persistence", persistence);
+            meshGeneratorShader.SetInt("_Octaves", octaves);
+
+            meshGeneratorShader.Dispatch(generateMeshKernel, Mathf.CeilToInt(vertices.Length / 64f), 1, 1);
+
+            positionBuffer.GetData(vertices);
+            normalBuffer.GetData(normals);
         }
 
         public void ModifyMaterial(ref Material material)
         {
-            Texture2D gradientsTexture = PerlinTextureGenerator.CreateGradientsTexture(perlin);
-            Texture2D permutationTexture = PerlinTextureGenerator.CreatePermutationTexture(perlin);
-
             SetKeyword(material, "_VERTEX_DISPLACEMENT", false);
             material.SetFloat("_VertexDisplacement", 0f);
             material.SetTexture("_Gradients2D", gradientsTexture);

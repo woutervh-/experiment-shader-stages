@@ -7,6 +7,9 @@ namespace SQT.Core
     public interface Plugin
     {
         event EventHandler OnChange;
+
+        void StartPlugin();
+        void StopPlugin();
     }
 
     public interface VerticesPlugin
