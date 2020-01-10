@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SQT.Plugins
@@ -6,7 +7,7 @@ namespace SQT.Plugins
     public class PerlinCompute : MonoBehaviour, SQT.Core.Plugin, SQT.Core.VerticesPlugin, SQT.Core.MaterialPlugin
     {
         public int seed = 0;
-        public float strength = 1f;
+        public float strength = 0.1f;
         public float frequency = 1f;
         public float lacunarity = 2f;
         public float persistence = 0.5f;
@@ -55,45 +56,48 @@ namespace SQT.Plugins
             }
         }
 
-        public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public Task ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
-            if (positionBuffer == null || positionBuffer.count != vertices.Length)
+            return new Task(() =>
             {
-                if (positionBuffer != null)
+                if (positionBuffer == null || positionBuffer.count != vertices.Length)
                 {
-                    positionBuffer.Release();
+                    if (positionBuffer != null)
+                    {
+                        positionBuffer.Release();
+                    }
+                    positionBuffer = new ComputeBuffer(vertices.Length, 3 * 4);
                 }
-                positionBuffer = new ComputeBuffer(vertices.Length, 3 * 4);
-            }
-            if (normalBuffer == null || normalBuffer.count != normals.Length)
-            {
-                if (normalBuffer != null)
+                if (normalBuffer == null || normalBuffer.count != normals.Length)
                 {
-                    normalBuffer.Release();
+                    if (normalBuffer != null)
+                    {
+                        normalBuffer.Release();
+                    }
+                    normalBuffer = new ComputeBuffer(normals.Length, 3 * 4);
                 }
-                normalBuffer = new ComputeBuffer(normals.Length, 3 * 4);
-            }
 
-            normalBuffer.SetData(normals);
-            positionBuffer.SetData(vertices);
+                normalBuffer.SetData(normals);
+                positionBuffer.SetData(vertices);
 
-            computeShader.SetBuffer(computeKernel, "positionBuffer", positionBuffer);
-            computeShader.SetBuffer(computeKernel, "normalBuffer", normalBuffer);
-            computeShader.SetTexture(computeKernel, "_Gradients2D", gradientsTexture);
-            computeShader.SetTexture(computeKernel, "_Permutation2D", permutationTexture);
-            computeShader.SetFloat("_Strength", strength);
-            computeShader.SetFloat("_Frequency", frequency);
-            computeShader.SetFloat("_Lacunarity", lacunarity);
-            computeShader.SetFloat("_Persistence", persistence);
-            computeShader.SetInt("_Octaves", octaves);
+                computeShader.SetBuffer(computeKernel, "positionBuffer", positionBuffer);
+                computeShader.SetBuffer(computeKernel, "normalBuffer", normalBuffer);
+                computeShader.SetTexture(computeKernel, "_Gradients2D", gradientsTexture);
+                computeShader.SetTexture(computeKernel, "_Permutation2D", permutationTexture);
+                computeShader.SetFloat("_Strength", strength);
+                computeShader.SetFloat("_Frequency", frequency);
+                computeShader.SetFloat("_Lacunarity", lacunarity);
+                computeShader.SetFloat("_Persistence", persistence);
+                computeShader.SetInt("_Octaves", octaves);
 
-            uint x, y, z;
-            computeShader.GetKernelThreadGroupSizes(computeKernel, out x, out y, out z);
-            float total = x * y * z;
-            computeShader.Dispatch(computeKernel, Mathf.CeilToInt(vertices.Length / total), 1, 1);
+                uint x, y, z;
+                computeShader.GetKernelThreadGroupSizes(computeKernel, out x, out y, out z);
+                float total = x * y * z;
+                computeShader.Dispatch(computeKernel, Mathf.CeilToInt(vertices.Length / total), 1, 1);
 
-            positionBuffer.GetData(vertices);
-            normalBuffer.GetData(normals);
+                positionBuffer.GetData(vertices);
+                normalBuffer.GetData(normals);
+            });
         }
 
         public void ModifyMaterial(ref Material material)

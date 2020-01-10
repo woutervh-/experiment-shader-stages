@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SQT.Core
@@ -14,7 +15,7 @@ namespace SQT.Core
 
     public interface VerticesPlugin
     {
-        void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals);
+        Task ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals);
     }
 
     public interface MeshPlugin
@@ -93,11 +94,12 @@ namespace SQT.Core
             this.builderLeavesPlugins = builderLeavesPlugins.ToArray();
         }
 
-        public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public async Task ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
             foreach (VerticesPlugin plugin in verticesPlugins)
             {
-                plugin.ModifyVertices(constants, vertices, normals);
+                await plugin.ModifyVertices(constants, vertices, normals);
+                await Task.Delay(500);
             }
         }
 

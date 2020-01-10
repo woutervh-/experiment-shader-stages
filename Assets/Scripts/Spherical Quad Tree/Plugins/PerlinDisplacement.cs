@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SQT.Plugins
@@ -6,7 +7,7 @@ namespace SQT.Plugins
     public class PerlinDisplacement : MonoBehaviour, SQT.Core.Plugin, SQT.Core.VerticesPlugin, SQT.Core.MeshPlugin, SQT.Core.MaterialPlugin
     {
         public int seed = 0;
-        public float strength = 1f;
+        public float strength = 0.1f;
         public float frequency = 1f;
         public float lacunarity = 2f;
         public float persistence = 0.5f;
@@ -58,19 +59,22 @@ namespace SQT.Plugins
             return sum;
         }
 
-        public void ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
+        public Task ModifyVertices(SQT.Core.Constants constants, Vector3[] vertices, Vector3[] normals)
         {
-            if (displaceOnGPU)
+            return Task.Factory.StartNew(() =>
             {
-                return;
-            }
+                if (displaceOnGPU)
+                {
+                    return;
+                }
 
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Perlin.PerlinSample sample = GetSample(normals[i]);
-                vertices[i] = normals[i] * (1f + sample.value);
-                normals[i] = (normals[i] - sample.derivative).normalized;
-            }
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    Perlin.PerlinSample sample = GetSample(vertices[i]);
+                    vertices[i] += normals[i] * sample.value;
+                    normals[i] = (normals[i] - sample.derivative).normalized;
+                }
+            });
         }
 
         public void ModifyMesh(SQT.Core.Constants constants, Mesh mesh, SQT.Core.Builder.Node node)
