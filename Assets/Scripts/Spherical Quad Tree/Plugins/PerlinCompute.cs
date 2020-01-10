@@ -74,6 +74,7 @@ namespace SQT.Plugins
                 normalBuffer = new ComputeBuffer(normals.Length, 3 * 4);
             }
 
+            normalBuffer.SetData(normals);
             positionBuffer.SetData(vertices);
 
             meshGeneratorShader.SetBuffer(generateMeshKernel, "positionBuffer", positionBuffer);

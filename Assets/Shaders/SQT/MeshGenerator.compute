@@ -9,8 +9,7 @@ RWStructuredBuffer<float3> normalBuffer;
 void GenerateMesh(uint3 dispatchThreadID : SV_DispatchThreadID) {
     uint index = dispatchThreadID.x + dispatchThreadID.y * 64;
     float3 position = positionBuffer[index];
-    float3 pointOnUnitSphere = normalize(position);
-    float4 noiseSample = noise(pointOnUnitSphere);
-    positionBuffer[index] = pointOnUnitSphere * (1 + noiseSample.w);
-    normalBuffer[index] = normalize(pointOnUnitSphere - noiseSample.xyz);
+    float4 noiseSample = noise(position);
+    positionBuffer[index] += normalBuffer[index] * noiseSample.w;
+    normalBuffer[index] = normalize(normalBuffer[index] - noiseSample.xyz);
 }
