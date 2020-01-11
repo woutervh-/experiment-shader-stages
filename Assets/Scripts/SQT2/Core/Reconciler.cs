@@ -16,19 +16,18 @@ namespace SQT2.Core
             HashSet<Node> marked = new HashSet<Node>();
 
             // Add all roots to marked.
-            foreach (Node node in context.roots)
-            {
-                marked.Add(node);
-            }
+            MarkRoots(marked, context);
 
             // Perform deep split.
             Node root = context.roots[reconciliationData.branch.index];
             Node leaf = DeepSplit(context, reconciliationData, root);
-            MarkPathToNode(marked, leaf);
+            marked.Add(leaf);
 
-            // TODO: mark all children of nodes with some marked children.
+            // Ensure parents and siblings of marked nodes are marked as well (recursively).
+            MarkRequiredNodes(marked, context.roots);
 
             // Walk quad tree and sweep unmarked nodes.
+            Sweep(marked, context.roots);
         }
 
         static void Sweep(HashSet<Node> marked, Node[] nodes)
@@ -38,28 +37,62 @@ namespace SQT2.Core
                 if (node.children != null)
                 {
                     Sweep(marked, node.children);
+                    if (!HasMarkedChild(marked, node))
+                    {
+                        Node.RemoveChildren(node);
+                    }
                 }
                 if (!marked.Contains(node))
                 {
-
+                    node.Destroy();
                 }
             }
         }
 
-        static void MarkPathToNode(HashSet<Node> marked, Node node)
+        static void MarkRoots(HashSet<Node> marked, Context context)
         {
-            while (node != null)
+            foreach (Node root in context.roots)
             {
-                marked.Add(node);
-                node = node.parent;
+                marked.Add(root);
             }
+        }
+
+        static void MarkRequiredNodes(HashSet<Node> marked, Node[] nodes)
+        {
+            foreach (Node node in nodes)
+            {
+                if (node.children != null)
+                {
+                    MarkRequiredNodes(marked, node.children);
+                    if (HasMarkedChild(marked, node))
+                    {
+                        marked.Add(node);
+                        foreach (Node child in node.children)
+                        {
+                            marked.Add(child);
+                        }
+                    }
+                }
+            }
+        }
+
+        static bool HasMarkedChild(HashSet<Node> marked, Node node)
+        {
+            foreach (Node child in node.children)
+            {
+                if (marked.Contains(child))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         static Node EnsureChild(Context context, Node node, int ordinal)
         {
             if (node.children == null)
             {
-                node.children = Node.CreateChildren(context, node);
+                Node.CreateChildren(context, node);
             }
             return node.children[ordinal];
         }
