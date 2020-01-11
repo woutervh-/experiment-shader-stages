@@ -21,6 +21,7 @@ namespace SQT2
         bool dirty;
         Camera playerCamera;
         Core.Context context;
+        Core.Plugin[] plugins;
 
         void OnEnable()
         {
@@ -33,6 +34,11 @@ namespace SQT2
         }
 
         void OnValidate()
+        {
+            dirty = true;
+        }
+
+        void HandleChange(object sender, EventArgs e)
         {
             dirty = true;
         }
@@ -66,11 +72,23 @@ namespace SQT2
                 roots = roots
             };
 
+            plugins = GetComponents<Core.Plugin>();
+            foreach (Core.Plugin plugin in plugins)
+            {
+                plugin.OnChange += HandleChange;
+                plugin.OnPluginStart();
+            }
+
             Core.Reconciler.Initialize(context);
         }
 
         void DoCleanup()
         {
+            foreach (Core.Plugin plugin in plugins)
+            {
+                plugin.OnPluginStop();
+                plugin.OnChange -= HandleChange;
+            }
             for (int i = 0; i < 6; i++)
             {
                 UnityEngine.Object.Destroy(context.branches[i].gameObject);
