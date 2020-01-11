@@ -19,7 +19,6 @@ namespace SQT2.Core
             public Vector3 up;
             public Vector3 forward;
             public Vector3 right;
-            public GameObject gameObject;
 
             public static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
@@ -33,7 +32,7 @@ namespace SQT2.Core
                 return Vector3.Cross(up, GetForward(up));
             }
 
-            public static Branch[] GetFromConstants(Constants constants, GameObject[] gameObjects)
+            public static Branch[] GetFromConstants(Constants constants)
             {
                 Branch[] branches = new Branch[6];
                 for (int i = 0; i < 6; i++)
@@ -43,7 +42,6 @@ namespace SQT2.Core
                         up = directions[i],
                         forward = GetForward(directions[i]),
                         right = GetRight(directions[i]),
-                        gameObject = gameObjects[i],
                         index = i
                     };
                 }

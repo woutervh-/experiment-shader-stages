@@ -1777,11 +1777,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da5cf0c1142b7e4e94ee8617d6556bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 857283999}
   maxDepth: 10
   resolution: 7
   desiredScreenSpaceLength: 10
-  material: {fileID: 0}
+  material: {fileID: 2100000, guid: c484359c25eb65041946997b707e8c18, type: 2}
   debug: 0
 --- !u!1 &1518225765
 GameObject:

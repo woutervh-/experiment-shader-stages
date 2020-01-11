@@ -48,14 +48,7 @@ namespace SQT2
                 resolution = resolution * 2 - 1 // We can only use odd resolutions.
             };
 
-            GameObject[] branchGameObjects = new GameObject[6];
-            for (int i = 0; i < 6; i++)
-            {
-                branchGameObjects[i] = new GameObject("SQT (" + i + ")");
-                branchGameObjects[i].transform.SetParent(gameObject.transform, false);
-            }
-
-            Core.Context.Branch[] branches = Core.Context.Branch.GetFromConstants(constants, branchGameObjects);
+            Core.Context.Branch[] branches = Core.Context.Branch.GetFromConstants(constants);
             Core.Context.Depth[] depths = Core.Context.Depth.GetFromConstants(constants);
             Core.Context.Triangles[] triangles = Core.Context.Triangles.GetFromConstants(constants);
             Core.Node[] roots = new Core.Node[6];
@@ -79,10 +72,6 @@ namespace SQT2
             for (int i = 0; i < 6; i++)
             {
                 context.roots[i].Destroy();
-            }
-            for (int i = 0; i < 6; i++)
-            {
-                UnityEngine.Object.Destroy(context.branches[i].gameObject);
             }
         }
 
