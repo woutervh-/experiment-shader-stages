@@ -11,6 +11,7 @@ namespace SQT2.Core
             public float desiredScreenSpaceLength;
             public Material material;
             public GameObject gameObject;
+            public Plugin.PluginChain plugins;
         }
 
         public class Branch

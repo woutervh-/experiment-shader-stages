@@ -45,13 +45,16 @@ namespace SQT2
 
         void DoUpdate()
         {
+            plugins = GetComponents<Core.Plugin>();
+
             Core.Context.Constants constants = new Core.Context.Constants
             {
                 desiredScreenSpaceLength = desiredScreenSpaceLength,
                 gameObject = gameObject,
                 material = material,
                 maxDepth = maxDepth,
-                resolution = resolution * 2 - 1 // We can only use odd resolutions.
+                resolution = resolution * 2 - 1, // We can only use odd resolutions.
+                plugins = new Core.Plugin.PluginChain(plugins)
             };
 
             Core.Context.Branch[] branches = Core.Context.Branch.GetFromConstants(constants);
@@ -72,7 +75,6 @@ namespace SQT2
                 roots = roots
             };
 
-            plugins = GetComponents<Core.Plugin>();
             foreach (Core.Plugin plugin in plugins)
             {
                 plugin.OnChange += HandleChange;

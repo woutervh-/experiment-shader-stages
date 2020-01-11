@@ -16,6 +16,8 @@ namespace SQT2.Core
         public Context.Depth depth;
         public Vector2 offset;
         public GameObject gameObject;
+        public Vector3[] positions;
+        public Vector3[] normals;
         public Mesh mesh;
         public MeshFilter meshFilter;
         public MeshRenderer meshRenderer;
@@ -178,12 +180,9 @@ namespace SQT2.Core
 
         public async Task RequestMesh(Context context)
         {
-            Vector3[] positions;
-            Vector3[] normals;
             MeshHelper.GenerateVertices(context, branch, depth, offset, out positions, out normals);
 
-            // Artificial delay. TODO: remove it and replace with plugins.
-            await Task.Delay((int)UnityEngine.Random.Range(750f, 1500f), meshRequestCancellation.Token);
+            await context.constants.plugins.ModifyVertices(context, this, meshRequestCancellation);
 
             if (!meshRequestCancellation.Token.IsCancellationRequested)
             {
