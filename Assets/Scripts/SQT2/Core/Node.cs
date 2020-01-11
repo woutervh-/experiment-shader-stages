@@ -10,6 +10,8 @@ namespace SQT2.Core
         public Node parent;
         public Node[] children;
         public int[] path;
+        public int[] neighborBranches;
+        public int[][] neighborPaths;
         public Context.Branch branch;
         public Context.Depth depth;
         public Vector2 offset;
@@ -29,11 +31,18 @@ namespace SQT2.Core
             meshRenderer.enabled = false;
             meshRenderer.sharedMaterial = constants.material;
 
+            int[] path = new int[0];
+            int[] neighborBranches;
+            int[][] neighborPaths;
+            GetNeighborPaths(path, branch.index, out neighborBranches, out neighborPaths);
+
             return new Node
             {
                 parent = null,
                 children = null,
-                path = new int[0],
+                path = path,
+                neighborBranches = neighborBranches,
+                neighborPaths = neighborPaths,
                 branch = branch,
                 depth = depth,
                 offset = Vector2.zero,
@@ -49,6 +58,10 @@ namespace SQT2.Core
         public static Node CreateChild(Context context, Node parent, int ordinal)
         {
             int[] path = GetChildPath(parent.path, ordinal);
+            int[] neighborBranches;
+            int[][] neighborPaths;
+            GetNeighborPaths(path, parent.branch.index, out neighborBranches, out neighborPaths);
+
             GameObject gameObject = new GameObject("Chunk " + string.Join("", path));
             gameObject.transform.SetParent(parent.branch.gameObject.transform, false);
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
@@ -62,6 +75,8 @@ namespace SQT2.Core
                 parent = parent,
                 children = null,
                 path = path,
+                neighborBranches = neighborBranches,
+                neighborPaths = neighborPaths,
                 branch = parent.branch,
                 depth = depth,
                 offset = parent.offset + childOffsetVectors[ordinal] * depth.scale,
@@ -92,12 +107,73 @@ namespace SQT2.Core
             parent.children = null;
         }
 
-        public static int[] GetChildPath(int[] path, int ordinal)
+        static int[] GetChildPath(int[] path, int ordinal)
         {
             int[] childPath = new int[path.Length + 1];
             Array.Copy(path, childPath, path.Length);
             childPath[path.Length] = ordinal;
             return childPath;
+        }
+
+        static void GetNeighborPaths(int[] path, int branch, out int[] neighborBranches, out int[][] neighborPaths)
+        {
+            neighborBranches = new int[4];
+            neighborPaths = new int[4][];
+            for (int i = 0; i < 4; i++)
+            {
+                int neighborBranch;
+                int[] neighborPath;
+                GetNeighborPath(path, branch, i, out neighborBranch, out neighborPath);
+                neighborBranches[i] = neighborBranch;
+                neighborPaths[i] = neighborPath;
+            }
+        }
+
+        static void GetNeighborPath(int[] path, int branch, int direction, out int neighborBranch, out int[] neighborPath)
+        {
+            int commonAncestorDistance = 1;
+            for (int i = path.Length - 1; i >= 0; i--)
+            {
+                if (Node.neighborSameParent[path[i]][direction])
+                {
+                    break;
+                }
+                commonAncestorDistance += 1;
+            }
+
+            neighborPath = new int[path.Length];
+            if (commonAncestorDistance <= path.Length)
+            {
+                for (int i = 0; i < path.Length; i++)
+                {
+                    if (i < commonAncestorDistance)
+                    {
+                        neighborPath[path.Length - i - 1] = Node.neighborOrdinal[path[path.Length - i - 1]][direction];
+                    }
+                    else
+                    {
+                        neighborPath[path.Length - i - 1] = path[path.Length - i - 1];
+                    }
+                }
+            }
+            else
+            {
+                int fromOrdinal = branch;
+                int toOrdinal = Node.rootOrdinalRotation[fromOrdinal][direction];
+                for (int i = 0; i < path.Length; i++)
+                {
+                    neighborPath[i] = Node.neighborOrdinalRotation[fromOrdinal][toOrdinal][path[i]];
+                }
+            }
+
+            if (commonAncestorDistance <= path.Length)
+            {
+                neighborBranch = branch;
+            }
+            else
+            {
+                neighborBranch = Node.rootOrdinalRotation[branch][direction];
+            }
         }
 
         public async Task RequestMesh(Context context)
@@ -107,7 +183,7 @@ namespace SQT2.Core
             MeshHelper.GenerateVertices(context, branch, depth, offset, out positions, out normals);
 
             // Artificial delay. TODO: remove it and replace with plugins.
-            await Task.Delay((int)UnityEngine.Random.Range(250f, 750f), meshRequestCancellation.Token);
+            await Task.Delay((int)UnityEngine.Random.Range(750f, 1500f), meshRequestCancellation.Token);
 
             if (!meshRequestCancellation.Token.IsCancellationRequested)
             {

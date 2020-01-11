@@ -48,22 +48,28 @@ namespace SQT2.Core
         {
             foreach (Node node in nodes)
             {
-                // TODO: also consider neighbor nodes. If they are not yet loaded, then there could be misalignment...
-
                 if (node.mesh == null)
                 {
                     continue;
                 }
 
-                if (node.children != null && AreChildMeshesLoaded(node))
+                int neighborMask = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    Node neighbor = GetNeighbor(context, node, i);
+                    if (neighbor == null || neighbor.mesh == null || (neighbor.parent != null && !AreChildMeshesLoaded(neighbor.parent)))
+                    {
+                        neighborMask |= 1 << i;
+                    }
+                }
+
+                if (node.children != null && neighborMask == 0 && AreChildMeshesLoaded(node))
                 {
                     node.meshRenderer.enabled = false;
                     DetermineVisibleMeshes(context, node.children);
                 }
                 else
                 {
-                    // TODO: determine actual neighbor mask.
-                    int neighborMask = 0;
                     if (node.mesh.triangles != context.triangles[neighborMask].triangles)
                     {
                         node.mesh.triangles = context.triangles[neighborMask].triangles;
@@ -200,6 +206,15 @@ namespace SQT2.Core
             return node.children[ordinal];
         }
 
+        static Node GetChild(Node node, int ordinal)
+        {
+            if (node.children == null)
+            {
+                return null;
+            }
+            return node.children[ordinal];
+        }
+
         static Node EnsureRelativePath(Context context, Node node, int[] path)
         {
             Node current = node;
@@ -210,67 +225,24 @@ namespace SQT2.Core
             return current;
         }
 
-        static int GetNeighborCommonAncestorDistance(Node node, int direction)
+        static Node GetRelativePath(Node node, int[] path)
         {
-            int commonAncestorDistance = 1;
-            for (int i = node.path.Length - 1; i >= 0; i--)
+            Node current = node;
+            for (int i = 0; i < path.Length && current != null; i++)
             {
-                if (Node.neighborSameParent[node.path[i]][direction])
-                {
-                    break;
-                }
-                commonAncestorDistance += 1;
+                current = GetChild(current, path[i]);
             }
-            return commonAncestorDistance;
+            return current;
         }
 
-        static int[] GetNeighborPath(Node node, int direction, int commonAncestorDistance)
+        static Node GetNeighbor(Context context, Node node, int direction)
         {
-            int[] neighborPath = new int[node.path.Length];
-            if (commonAncestorDistance <= node.path.Length)
-            {
-                for (int i = 0; i < node.path.Length; i++)
-                {
-                    if (i < commonAncestorDistance)
-                    {
-                        neighborPath[node.path.Length - i - 1] = Node.neighborOrdinal[node.path[node.path.Length - i - 1]][direction];
-                    }
-                    else
-                    {
-                        neighborPath[node.path.Length - i - 1] = node.path[node.path.Length - i - 1];
-                    }
-                }
-            }
-            else
-            {
-                int fromOrdinal = node.branch.index;
-                int toOrdinal = Node.rootOrdinalRotation[fromOrdinal][direction];
-                for (int i = 0; i < node.path.Length; i++)
-                {
-                    neighborPath[i] = Node.neighborOrdinalRotation[fromOrdinal][toOrdinal][node.path[i]];
-                }
-            }
-            return neighborPath;
-        }
-
-        static int GetNeighborBranch(Node node, int direction, int commonAncestorDistance)
-        {
-            if (commonAncestorDistance <= node.path.Length)
-            {
-                return node.branch.index;
-            }
-            else
-            {
-                return Node.rootOrdinalRotation[node.branch.index][direction];
-            }
+            return GetRelativePath(context.roots[node.neighborBranches[direction]], node.neighborPaths[direction]);
         }
 
         static Node EnsureNeighbor(Context context, Node node, int direction)
         {
-            int commonAncestorDistance = GetNeighborCommonAncestorDistance(node, direction);
-            int[] neighborPath = GetNeighborPath(node, direction, commonAncestorDistance);
-            int neighborBranch = GetNeighborBranch(node, direction, commonAncestorDistance);
-            return EnsureRelativePath(context, context.roots[neighborBranch], neighborPath);
+            return EnsureRelativePath(context, context.roots[node.neighborBranches[direction]], node.neighborPaths[direction]);
         }
 
         static int GetChildOrdinal(Vector2 pointInPlane, Vector2 offset, float scale)

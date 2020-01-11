@@ -291,10 +291,6 @@ namespace SQT.Core
             {
                 return null;
             }
-            if (node.children[ordinal] == null)
-            {
-                return null;
-            }
             return node.children[ordinal];
         }
 
