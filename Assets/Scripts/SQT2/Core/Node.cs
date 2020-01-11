@@ -106,8 +106,8 @@ namespace SQT2.Core
             Vector3[] normals;
             MeshHelper.GenerateVertices(context, branch, depth, offset, out positions, out normals);
 
-            // Dummy delay. TODO: remove it and replace with plugins.
-            await Task.Delay(500, meshRequestCancellation.Token);
+            // Artificial delay. TODO: remove it and replace with plugins.
+            await Task.Delay((int)UnityEngine.Random.Range(250f, 750f), meshRequestCancellation.Token);
 
             if (!meshRequestCancellation.Token.IsCancellationRequested)
             {
