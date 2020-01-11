@@ -109,10 +109,13 @@ namespace SQT2.Core
             // Dummy delay. TODO: remove it and replace with plugins.
             await Task.Delay(500, meshRequestCancellation.Token);
 
-            mesh = new Mesh();
-            mesh.vertices = positions;
-            mesh.normals = normals;
-            meshFilter.sharedMesh = mesh;
+            if (!meshRequestCancellation.Token.IsCancellationRequested)
+            {
+                mesh = new Mesh();
+                mesh.vertices = positions;
+                mesh.normals = normals;
+                meshFilter.sharedMesh = mesh;
+            }
         }
 
         public void Destroy()
