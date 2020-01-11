@@ -6,8 +6,6 @@ namespace SQT.Core
 {
     public class Builder
     {
-        const int MAX_PATH_LENGTH = 5;
-
         static Vector2[] childOffsetVectors = new Vector2[] {
         new Vector2(-1f, -1f),
         new Vector2(1f, -1f),

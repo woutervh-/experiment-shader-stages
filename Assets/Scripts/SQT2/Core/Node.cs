@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace SQT2.Core
@@ -10,10 +11,10 @@ namespace SQT2.Core
         public Context.Branch branch;
         public Context.Depth depth;
         public Vector2 offset;
-        GameObject gameObject;
-        Mesh mesh;
-        MeshFilter meshFilter;
-        MeshRenderer meshRenderer;
+        public GameObject gameObject;
+        public Mesh mesh;
+        public MeshFilter meshFilter;
+        public MeshRenderer meshRenderer;
 
         public static Node CreateRoot(Context context, Context.Branch branch)
         {
@@ -38,6 +39,39 @@ namespace SQT2.Core
             };
         }
 
+        public static Node CreateChild(Context context, Node parent, int ordinal)
+        {
+            int[] path = GetChildPath(parent.path, ordinal);
+            GameObject gameObject = new GameObject("Chunk " + string.Join("", path));
+            gameObject.transform.SetParent(context.roots[parent.branch.index].gameObject.transform, false);
+            MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+            MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial = context.constants.material;
+            Context.Depth depth = context.depths[parent.depth.index + 1];
+
+            return new Node
+            {
+                parent = parent,
+                children = null,
+                path = path,
+                branch = parent.branch,
+                depth = depth,
+                offset = parent.offset + childOffsetVectors[ordinal] * depth.scale,
+                gameObject = gameObject,
+                mesh = null,
+                meshFilter = meshFilter,
+                meshRenderer = meshRenderer
+            };
+        }
+
+        public static int[] GetChildPath(int[] path, int ordinal)
+        {
+            int[] childPath = new int[path.Length + 1];
+            Array.Copy(path, childPath, path.Length);
+            childPath[path.Length] = ordinal;
+            return childPath;
+        }
+
         public void Destroy()
         {
             if (mesh != null)
@@ -58,28 +92,11 @@ namespace SQT2.Core
             }
         }
 
-        public enum Cardinal
-        {
-            WEST = 0,
-            EAST = 1,
-            SOUTH = 2,
-            NORTH = 3
-        }
-
-        public enum CardinalMask
-        {
-            WEST = 1,
-            EAST = 2,
-            SOUTH = 4,
-            NORTH = 8
-        }
-
-        public enum Ordinal
-        {
-            SOUTH_WEST = 0,
-            SOUTH_EAST = 1,
-            NORTH_WEST = 2,
-            NORTH_EAST = 3
-        }
+        static Vector2[] childOffsetVectors = new Vector2[] {
+            new Vector2(-1f, -1f),
+            new Vector2(1f, -1f),
+            new Vector2(-1f, 1f),
+            new Vector2(1f, 1f),
+        };
     }
 }

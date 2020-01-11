@@ -4,10 +4,10 @@ namespace SQT2.Core
     {
         public static int[] GetTriangles(int resolution, int neighborMask)
         {
-            int lerpWest = (neighborMask & (int)Node.CardinalMask.WEST) == 0 ? 0 : 1;
-            int lerpEast = (neighborMask & (int)Node.CardinalMask.EAST) == 0 ? 0 : 1;
-            int lerpSouth = (neighborMask & (int)Node.CardinalMask.SOUTH) == 0 ? 0 : 1;
-            int lerpNorth = (neighborMask & (int)Node.CardinalMask.NORTH) == 0 ? 0 : 1;
+            int lerpWest = (neighborMask & 1) == 0 ? 0 : 1;
+            int lerpEast = (neighborMask & 2) == 0 ? 0 : 1;
+            int lerpSouth = (neighborMask & 4) == 0 ? 0 : 1;
+            int lerpNorth = (neighborMask & 8) == 0 ? 0 : 1;
 
             int outerTrianglesCount = 0;
             if (lerpWest == 1)

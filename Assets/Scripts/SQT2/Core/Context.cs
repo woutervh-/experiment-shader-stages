@@ -51,6 +51,7 @@ namespace SQT2.Core
 
         public class Depth
         {
+            public int index;
             public float scale;
             public float approximateSize;
 
@@ -64,6 +65,7 @@ namespace SQT2.Core
 
                     depths[i] = new Depth
                     {
+                        index = i,
                         scale = scale,
                         approximateSize = approximateSize
                     };
