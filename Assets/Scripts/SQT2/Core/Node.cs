@@ -17,16 +17,17 @@ namespace SQT2.Core
         public Mesh mesh;
         public MeshFilter meshFilter;
         public MeshRenderer meshRenderer;
-        public Task<Mesh> meshRequest;
+        public Task meshRequest;
         public CancellationTokenSource meshRequestCancellation;
 
-        public static Node CreateRoot(Context context, Context.Branch branch)
+        public static Node CreateRoot(Context.Constants constants, Context.Depth depth, Context.Branch branch)
         {
-            GameObject gameObject = new GameObject("SQT (" + branch.index + ")");
-            gameObject.transform.SetParent(context.constants.gameObject.transform, false);
+            GameObject gameObject = new GameObject("Chunk");
+            gameObject.transform.SetParent(branch.gameObject.transform, false);
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.sharedMaterial = context.constants.material;
+            meshRenderer.enabled = false;
+            meshRenderer.sharedMaterial = constants.material;
 
             return new Node
             {
@@ -34,7 +35,7 @@ namespace SQT2.Core
                 children = null,
                 path = new int[0],
                 branch = branch,
-                depth = context.depths[0],
+                depth = depth,
                 offset = Vector2.zero,
                 gameObject = gameObject,
                 mesh = null,
@@ -49,9 +50,10 @@ namespace SQT2.Core
         {
             int[] path = GetChildPath(parent.path, ordinal);
             GameObject gameObject = new GameObject("Chunk " + string.Join("", path));
-            gameObject.transform.SetParent(context.roots[parent.branch.index].gameObject.transform, false);
+            gameObject.transform.SetParent(parent.branch.gameObject.transform, false);
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.enabled = false;
             meshRenderer.sharedMaterial = context.constants.material;
             Context.Depth depth = context.depths[parent.depth.index + 1];
 
@@ -98,7 +100,7 @@ namespace SQT2.Core
             return childPath;
         }
 
-        public async void RequestMesh(Context context)
+        public async Task RequestMesh(Context context)
         {
             Vector3[] positions;
             Vector3[] normals;
@@ -110,6 +112,7 @@ namespace SQT2.Core
             mesh = new Mesh();
             mesh.vertices = positions;
             mesh.normals = normals;
+            meshFilter.sharedMesh = mesh;
         }
 
         public void Destroy()

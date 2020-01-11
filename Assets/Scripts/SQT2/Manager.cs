@@ -54,7 +54,7 @@ namespace SQT2
             Core.Node[] roots = new Core.Node[6];
             for (int i = 0; i < 6; i++)
             {
-                roots[i] = Core.Node.CreateRoot(context, context.branches[i]);
+                roots[i] = Core.Node.CreateRoot(constants, depths[0], branches[i]);
             }
 
             context = new Core.Context
@@ -73,6 +73,7 @@ namespace SQT2
         {
             for (int i = 0; i < 6; i++)
             {
+                UnityEngine.Object.Destroy(context.branches[i].gameObject);
                 context.roots[i].Destroy();
             }
         }

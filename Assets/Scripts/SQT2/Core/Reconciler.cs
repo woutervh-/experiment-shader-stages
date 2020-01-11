@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 namespace SQT2.Core
@@ -23,11 +24,72 @@ namespace SQT2.Core
             Node leaf = DeepSplit(context, reconciliationData, root);
             marked.Add(leaf);
 
-            // Ensure parents and siblings of marked nodes are marked as well (recursively).
+            // Ensure parents and siblings of marked nodes are marked as well.
             MarkRequiredNodes(marked, context.roots);
 
             // Walk quad tree and sweep unmarked nodes.
             Sweep(marked, context.roots);
+
+            // Request meshes.
+            MakeMeshRequests(context, context.roots);
+
+            // Set mesh visibilities.
+            DetermineVisibleMeshes(context, context.roots);
+        }
+
+        static void DetermineVisibleMeshes(Context context, Node[] nodes)
+        {
+            foreach (Node node in nodes)
+            {
+                if (node.mesh == null)
+                {
+                    continue;
+                }
+
+                if (node.children != null && AreChildMeshesLoaded(node))
+                {
+                    node.meshRenderer.enabled = false;
+                    DetermineVisibleMeshes(context, node.children);
+                }
+                else
+                {
+                    // TODO: determine actual neighbor mask.
+                    int neighborMask = 0;
+                    if (node.mesh.triangles != context.triangles[neighborMask].triangles)
+                    {
+                        node.mesh.triangles = context.triangles[neighborMask].triangles;
+                    }
+                    node.meshRenderer.enabled = true;
+                }
+            }
+        }
+
+        static bool AreChildMeshesLoaded(Node parent)
+        {
+            foreach (Node child in parent.children)
+            {
+                if (child.mesh == null)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        static void MakeMeshRequests(Context context, Node[] nodes)
+        {
+            foreach (Node node in nodes)
+            {
+                if (node.meshRequest == null)
+                {
+                    node.meshRequestCancellation = new CancellationTokenSource();
+                    node.meshRequest = node.RequestMesh(context);
+                }
+                if (node.children != null)
+                {
+                    MakeMeshRequests(context, node.children);
+                }
+            }
         }
 
         static void Sweep(HashSet<Node> marked, Node[] nodes)

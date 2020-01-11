@@ -19,6 +19,7 @@ namespace SQT2.Core
             public Vector3 up;
             public Vector3 forward;
             public Vector3 right;
+            public GameObject gameObject;
 
             public static Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
@@ -37,12 +38,15 @@ namespace SQT2.Core
                 Branch[] branches = new Branch[6];
                 for (int i = 0; i < 6; i++)
                 {
+                    GameObject gameObject = new GameObject("Branch (" + i + ")");
+                    gameObject.transform.SetParent(constants.gameObject.transform, false);
                     branches[i] = new Branch
                     {
                         up = directions[i],
                         forward = GetForward(directions[i]),
                         right = GetRight(directions[i]),
-                        index = i
+                        index = i,
+                        gameObject = gameObject
                     };
                 }
                 return branches;
