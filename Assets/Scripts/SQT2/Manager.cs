@@ -65,6 +65,8 @@ namespace SQT2
                 triangles = triangles,
                 roots = roots
             };
+
+            Core.Reconciler.Initialize(context);
         }
 
         void DoCleanup()

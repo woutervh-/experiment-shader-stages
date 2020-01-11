@@ -72,6 +72,16 @@ namespace SQT2.Core
             };
         }
 
+        public static Node[] CreateChildren(Context context, Node parent)
+        {
+            Node[] children = new Node[4];
+            for (int i = 0; i < 4; i++)
+            {
+                children[i] = CreateChild(context, parent, i);
+            }
+            return children;
+        }
+
         public static int[] GetChildPath(int[] path, int ordinal)
         {
             int[] childPath = new int[path.Length + 1];
