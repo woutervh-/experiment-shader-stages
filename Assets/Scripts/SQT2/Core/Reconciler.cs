@@ -8,15 +8,14 @@ namespace SQT2.Core
     {
         public static void Initialize(Context context)
         {
-            // TODO: load meshes without depth.
+            HashSet<Node> marked = new HashSet<Node>();
+            MarkRoots(marked, context);
+            PerformMarkAndSweep(context, marked);
         }
 
         public static void Reconcile(Context context, ReconciliationData reconciliationData)
         {
-            // Mark-and-sweep.
             HashSet<Node> marked = new HashSet<Node>();
-
-            // Add all roots to marked.
             MarkRoots(marked, context);
 
             // Perform deep split.
@@ -24,6 +23,11 @@ namespace SQT2.Core
             Node leaf = DeepSplit(context, reconciliationData, root);
             marked.Add(leaf);
 
+            PerformMarkAndSweep(context, marked);
+        }
+
+        static void PerformMarkAndSweep(Context context, HashSet<Node> marked)
+        {
             // Ensure parents and siblings of marked nodes are marked as well.
             MarkRequiredNodes(marked, context.roots);
 
