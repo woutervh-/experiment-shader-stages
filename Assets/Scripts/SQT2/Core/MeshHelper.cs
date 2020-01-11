@@ -4,9 +4,9 @@ namespace SQT2.Core
 {
     public static class MeshHelper
     {
-        public static void GenerateVertices(Context context, Context.Branch branch, Context.Depth depth, Vector2 offset, ref Vector3[] vertices, ref Vector3[] normals)
+        public static void GenerateVertices(Context context, Context.Branch branch, Context.Depth depth, Vector2 offset, out Vector3[] positions, out Vector3[] normals)
         {
-            vertices = new Vector3[context.constants.resolution * context.constants.resolution];
+            positions = new Vector3[context.constants.resolution * context.constants.resolution];
             normals = new Vector3[context.constants.resolution * context.constants.resolution];
 
             Vector3 origin = branch.up + offset.x * branch.forward + offset.y * branch.right;
@@ -21,7 +21,7 @@ namespace SQT2.Core
                         + Mathf.Lerp(-1f, 1f, percent.y) * depth.scale * branch.right;
 
                     Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                    vertices[vertexIndex] = pointOnUnitSphere;
+                    positions[vertexIndex] = pointOnUnitSphere;
                     normals[vertexIndex] = pointOnUnitSphere;
                 }
             }

@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SQT2.Core
@@ -15,6 +17,8 @@ namespace SQT2.Core
         public Mesh mesh;
         public MeshFilter meshFilter;
         public MeshRenderer meshRenderer;
+        public Task<Mesh> meshRequest;
+        public CancellationTokenSource meshRequestCancellation;
 
         public static Node CreateRoot(Context context, Context.Branch branch)
         {
@@ -35,7 +39,9 @@ namespace SQT2.Core
                 gameObject = gameObject,
                 mesh = null,
                 meshFilter = meshFilter,
-                meshRenderer = meshRenderer
+                meshRenderer = meshRenderer,
+                meshRequest = null,
+                meshRequestCancellation = null
             };
         }
 
@@ -60,7 +66,9 @@ namespace SQT2.Core
                 gameObject = gameObject,
                 mesh = null,
                 meshFilter = meshFilter,
-                meshRenderer = meshRenderer
+                meshRenderer = meshRenderer,
+                meshRequest = null,
+                meshRequestCancellation = null
             };
         }
 
@@ -72,8 +80,26 @@ namespace SQT2.Core
             return childPath;
         }
 
+        public async void RequestMesh(Context context)
+        {
+            Vector3[] positions;
+            Vector3[] normals;
+            MeshHelper.GenerateVertices(context, branch, depth, offset, out positions, out normals);
+
+            // Dummy delay. TODO: remove it and replace with plugins.
+            await Task.Delay(500, meshRequestCancellation.Token);
+
+            mesh = new Mesh();
+            mesh.vertices = positions;
+            mesh.normals = normals;
+        }
+
         public void Destroy()
         {
+            if (meshRequestCancellation != null)
+            {
+                meshRequestCancellation.Cancel();
+            }
             if (mesh != null)
             {
                 UnityEngine.Object.Destroy(mesh);
