@@ -142,11 +142,85 @@ namespace SQT2.Core
             }
         }
 
-        static Vector2[] childOffsetVectors = new Vector2[] {
+        public static Vector2[] childOffsetVectors = new Vector2[] {
             new Vector2(-1f, -1f),
             new Vector2(1f, -1f),
             new Vector2(-1f, 1f),
             new Vector2(1f, 1f),
+        };
+
+        public static bool[][] neighborSameParent = new bool[][] {
+            new bool[] { false, true, false, true },
+            new bool[] { true, false, false, true },
+            new bool[] { false, true, true, false },
+            new bool[] { true, false, true, false }
+        };
+
+        public static int[][] neighborOrdinal = new int[][] {
+            new int[] { 1, 1, 2, 2 },
+            new int[] { 0, 0, 3, 3 },
+            new int[] { 3, 3, 0, 0 },
+            new int[] { 2, 2, 1, 1 }
+        };
+
+        public static int[][] rootOrdinalRotation = new int[][] {
+            new int[] { 2, 3, 4, 5 },
+            new int[] { 3, 2, 4, 5 },
+            new int[] { 4, 5, 0, 1 },
+            new int[] { 5, 4, 0, 1 },
+            new int[] { 1, 0, 3, 2 },
+            new int[] { 0, 1, 3, 2 }
+        };
+
+        public static int[][][] neighborOrdinalRotation = new int[][][] {
+            new int[][] {
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 3, 1, 2, 0 }
+            },
+            new int[][] {
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 0, 2, 1, 3 }
+            },
+            new int[][] {
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 2, 1, 3 }
+            },
+            new int[][] {
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 2, 1, 3 }
+            },
+            new int[][] {
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 1, 2, 3 }
+            },
+            new int[][] {
+                new int[] { 3, 1, 2, 0 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 0, 2, 1, 3 },
+                new int[] { 0, 1, 2, 3 },
+                new int[] { 0, 1, 2, 3 }
+            }
         };
     }
 }
