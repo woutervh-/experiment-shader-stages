@@ -6,6 +6,7 @@ Shader "SQT/Lit" {
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
 
         [Toggle(_PER_FRAGMENT_NORMALS)] _PerFragmentNormals ("Per fragment normals", Float) = 0
+        [Toggle(_FINITE_DIFFERENCE_NORMALS)] _FiniteDifferenceNormals ("Finite difference normals", Float) = 0
         [Toggle(_VERTEX_DISPLACEMENT)] _VertexDisplacement ("Vertex displacement", Float) = 0
         [HideInInspector] _Gradients2D ("Gradients", 2D) = "white" {}
         [HideInInspector] _Permutation2D ("Permutation", 2D) = "white" {}
@@ -41,6 +42,7 @@ Shader "SQT/Lit" {
             #pragma multi_compile_fog
             #pragma shader_feature _VERTEX_DISPLACEMENT
             #pragma shader_feature _PER_FRAGMENT_NORMALS
+            #pragma shader_feature _FINITE_DIFFERENCE_NORMALS
 
             #pragma vertex Vertex
             #pragma fragment Fragment
@@ -73,15 +75,18 @@ Shader "SQT/Lit" {
                 #if defined(_PER_FRAGMENT_NORMALS)
                     float3 pointOnUnitSphere = normalize(TransformWorldToObjectDir(input.normalWS));
 
-                    // #ifdef UNITY_REVERSED_Z
-                    //     float h = 1.0 - input.positionCS.z;
-                    // #else
-                    //     float h = input.positionCS.z;
-                    // #endif
-                    // h /= 8.0;
-                    // h *= h;
-                    // float3 adjustedNormal = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
-                    float3 adjustedNormal = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
+                    #if defined(_FINITE_DIFFERENCE_NORMALS)
+                        #ifdef UNITY_REVERSED_Z
+                            float h = 1.0 - input.positionCS.z;
+                        #else
+                            float h = input.positionCS.z;
+                        #endif
+                        h /= 8.0;
+                        h *= h;
+                        float3 adjustedNormal = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
+                    #else
+                        float3 adjustedNormal = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
+                    #endif
 
                     input.normalWS = TransformObjectToWorldNormal(adjustedNormal);
                 #endif

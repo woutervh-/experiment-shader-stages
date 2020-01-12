@@ -25,6 +25,7 @@ namespace SQT2
 
         void OnEnable()
         {
+            dirty = false;
             DoUpdate();
         }
 
@@ -80,6 +81,8 @@ namespace SQT2
                 plugin.OnChange += HandleChange;
                 plugin.OnPluginStart();
             }
+
+            constants.plugins.ModifyMaterial(context, constants.material);
 
             Core.Reconciler.Initialize(context);
         }
