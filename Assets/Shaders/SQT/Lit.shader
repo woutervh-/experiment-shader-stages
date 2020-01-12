@@ -4,6 +4,11 @@ Shader "SQT/Lit" {
         _Smoothness ("Smoothness", Range(0, 1)) = 0.5
         [MainColor] _BaseColor("Color", Color) = (0.5, 0.5, 0.5, 1.0)
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
+        [Toggle(_NORMALMAP)] _NormalMap ("Bump", Float) = 0
+        _BumpScale("Bump scale", Float) = 1.0
+        _BumpMap("Bump Map", 2D) = "bump" {}
+        [Toggle(_TRIPLANAR_MAPPING)] _TriplanarMapping ("Triplanar mapping", Float) = 0
+        _MapScale("Map scale", Float) = 1.0
 
         [Toggle(_PER_FRAGMENT_NORMALS)] _PerFragmentNormals ("Per fragment normals", Float) = 0
         [Toggle(_FINITE_DIFFERENCE_NORMALS)] _FiniteDifferenceNormals ("Finite difference normals", Float) = 0
@@ -34,24 +39,30 @@ Shader "SQT/Lit" {
 
             HLSLPROGRAM
 
+            #pragma shader_feature _NORMALMAP
+            #pragma shader_feature _VERTEX_DISPLACEMENT
+            #pragma shader_feature _PER_FRAGMENT_NORMALS
+            #pragma shader_feature _FINITE_DIFFERENCE_NORMALS
+            #pragma shader_feature _TRIPLANAR_MAPPING
+
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile_fog
-            #pragma shader_feature _VERTEX_DISPLACEMENT
-            #pragma shader_feature _PER_FRAGMENT_NORMALS
-            #pragma shader_feature _FINITE_DIFFERENCE_NORMALS
 
             #pragma vertex Vertex
             #pragma fragment Fragment
+
+            #define _ADDITIONAL_LIGHTS // This is to include positionWS in Varyings.
 
             #include "Packages/com.unity.render-pipelines.lightweight/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.lightweight/Shaders/LitForwardPass.hlsl"
             #include "./Noise.hlsl"
 
-            #define VertexProgram LitPassVertex
+            float _MapScale;
+
             Varyings Vertex(Attributes input) {
                 #if defined(_VERTEX_DISPLACEMENT) || defined(_PER_FRAGMENT_NORMALS)
                     float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
@@ -72,8 +83,10 @@ Shader "SQT/Lit" {
             }
 
             float4 Fragment(Varyings input) : SV_TARGET {
+                float3 positionOS = TransformWorldToObject(input.positionWS);
+
                 #if defined(_PER_FRAGMENT_NORMALS)
-                    float3 pointOnUnitSphere = normalize(TransformWorldToObjectDir(input.normalWS));
+                    float3 pointOnUnitSphere = normalize(positionOS);
 
                     #if defined(_FINITE_DIFFERENCE_NORMALS)
                         #ifdef UNITY_REVERSED_Z
@@ -88,10 +101,43 @@ Shader "SQT/Lit" {
                         float3 adjustedNormal = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
                     #endif
 
-                    input.normalWS = TransformObjectToWorldNormal(adjustedNormal);
+                    input.normalWS.xyz = TransformObjectToWorldNormal(adjustedNormal);
                 #endif
 
-                return LitPassFragment(input);
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                SurfaceData surfaceData;
+                InitializeStandardLitSurfaceData(input.uv, surfaceData);
+
+                #if defined(_TRIPLANAR_MAPPING)
+                    float3 normalOS = normalize(TransformWorldToObjectDir(input.normalWS));
+                    float3 bf = normalize(abs(normalOS));
+                    bf /= bf.x + bf.y + bf.z;
+                    float2 tx = positionOS.yz * _MapScale;
+                    float2 ty = positionOS.zx * _MapScale;
+                    float2 tz = positionOS.xy * _MapScale;
+
+                    float4 cx = SampleAlbedoAlpha(tx, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * bf.x;
+                    float4 cy = SampleAlbedoAlpha(ty, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * bf.y;
+                    float4 cz = SampleAlbedoAlpha(tz, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * bf.z;
+                    surfaceData.albedo = (cx + cy + cz).rgb;
+
+                    #ifdef _NORMALMAP
+                        float3 nx = SampleNormal(tx, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.x;
+                        float3 ny = SampleNormal(ty, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.y;
+                        float3 nz = SampleNormal(tz, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.z;
+                        surfaceData.normalTS = nx + ny + nz;
+                    #endif
+                #endif
+
+                InputData inputData;
+                InitializeInputData(input, surfaceData.normalTS, inputData);
+
+                half4 color = LightweightFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
+
+                color.rgb = MixFog(color.rgb, inputData.fogCoord);
+                return color;
             }
 
             ENDHLSL
@@ -117,7 +163,6 @@ Shader "SQT/Lit" {
             #include "Packages/com.unity.render-pipelines.lightweight/Shaders/ShadowCasterPass.hlsl"
             #include "./Noise.hlsl"
 
-            #define VertexProgram ShadowPassVertex
             Varyings Vertex(Attributes input) {
                 #if defined(_VERTEX_DISPLACEMENT)
                     float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
