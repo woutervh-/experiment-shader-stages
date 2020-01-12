@@ -4,12 +4,12 @@ namespace SQT2.Core
 {
     public static class MeshHelper
     {
-        public static void GenerateVertices(Context context, Context.Branch branch, Context.Depth depth, Vector2 offset, out Vector3[] positions, out Vector3[] normals)
+        public static void GenerateVertices(Context context, Node node, out Vector3[] positions, out Vector3[] normals)
         {
             positions = new Vector3[context.constants.resolution * context.constants.resolution];
             normals = new Vector3[context.constants.resolution * context.constants.resolution];
 
-            Vector3 origin = branch.up + offset.x * branch.forward + offset.y * branch.right;
+            Vector3 origin = node.branch.up + node.offset.x * node.branch.forward + node.offset.y * node.branch.right;
             for (int y = 0; y < context.constants.resolution; y++)
             {
                 for (int x = 0; x < context.constants.resolution; x++)
@@ -17,8 +17,8 @@ namespace SQT2.Core
                     int vertexIndex = x + context.constants.resolution * y;
                     Vector2 percent = new Vector2(x, y) / (context.constants.resolution - 1);
                     Vector3 pointOnUnitCube = origin
-                        + Mathf.Lerp(-1f, 1f, percent.x) * depth.scale * branch.forward
-                        + Mathf.Lerp(-1f, 1f, percent.y) * depth.scale * branch.right;
+                        + Mathf.Lerp(-1f, 1f, percent.x) * node.depth.scale * node.branch.forward
+                        + Mathf.Lerp(-1f, 1f, percent.y) * node.depth.scale * node.branch.right;
 
                     Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                     positions[vertexIndex] = pointOnUnitSphere;

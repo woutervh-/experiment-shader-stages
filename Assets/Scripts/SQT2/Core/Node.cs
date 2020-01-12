@@ -180,7 +180,7 @@ namespace SQT2.Core
 
         public async Task RequestMesh(Context context)
         {
-            MeshHelper.GenerateVertices(context, branch, depth, offset, out positions, out normals);
+            MeshHelper.GenerateVertices(context, this, out positions, out normals);
 
             await context.constants.plugins.ModifyVertices(context, this, meshRequestCancellation);
 
