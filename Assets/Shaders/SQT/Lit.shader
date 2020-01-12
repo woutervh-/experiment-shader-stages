@@ -4,9 +4,11 @@ Shader "SQT/Lit" {
         _Smoothness ("Smoothness", Range(0, 1)) = 0.5
         [MainColor] _BaseColor("Color", Color) = (0.5, 0.5, 0.5, 1.0)
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
+        _SlopeMap("Slope albedo", 2D) = "white" {}
         [Toggle(_NORMALMAP)] _NormalMap ("Bump", Float) = 0
         _BumpScale("Bump scale", Float) = 1.0
-        _BumpMap("Bump Map", 2D) = "bump" {}
+        _BumpMap("Bump map", 2D) = "bump" {}
+        _SlopeBumpMap("Slope bump map", 2D) = "bump" {}
         [Toggle(_TRIPLANAR_MAPPING)] _TriplanarMapping ("Triplanar mapping", Float) = 0
         _MapScale("Map scale", Float) = 1.0
 
@@ -62,6 +64,7 @@ Shader "SQT/Lit" {
             #include "./Noise.hlsl"
 
             float _MapScale;
+            TEXTURE2D(_SlopeMap); SAMPLER(sampler_SlopeMap);
 
             Varyings Vertex(Attributes input) {
                 #if defined(_VERTEX_DISPLACEMENT) || defined(_PER_FRAGMENT_NORMALS)
@@ -84,10 +87,9 @@ Shader "SQT/Lit" {
 
             float4 Fragment(Varyings input) : SV_TARGET {
                 float3 positionOS = TransformWorldToObject(input.positionWS);
+                float3 pointOnUnitSphere = normalize(positionOS);
 
                 #if defined(_PER_FRAGMENT_NORMALS)
-                    float3 pointOnUnitSphere = normalize(positionOS);
-
                     #if defined(_FINITE_DIFFERENCE_NORMALS)
                         #ifdef UNITY_REVERSED_Z
                             float h = 1.0 - input.positionCS.z;
@@ -96,12 +98,14 @@ Shader "SQT/Lit" {
                         #endif
                         h /= 8.0;
                         h *= h;
-                        float3 adjustedNormal = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
+                        float3 normalOS = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
                     #else
-                        float3 adjustedNormal = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
+                        float3 normalOS = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
                     #endif
 
-                    input.normalWS.xyz = TransformObjectToWorldNormal(adjustedNormal);
+                    input.normalWS.xyz = TransformObjectToWorldNormal(normalOS);
+                #else
+                    float3 normalOS = TransformWorldToObjectDir(input.normalWS);
                 #endif
 
                 UNITY_SETUP_INSTANCE_ID(input);
@@ -111,7 +115,6 @@ Shader "SQT/Lit" {
                 InitializeStandardLitSurfaceData(input.uv, surfaceData);
 
                 #if defined(_TRIPLANAR_MAPPING)
-                    float3 normalOS = normalize(TransformWorldToObjectDir(input.normalWS));
                     float3 bf = normalize(abs(normalOS));
                     bf /= bf.x + bf.y + bf.z;
                     float2 tx = positionOS.yz * _MapScale;
@@ -121,7 +124,12 @@ Shader "SQT/Lit" {
                     float4 cx = SampleAlbedoAlpha(tx, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * bf.x;
                     float4 cy = SampleAlbedoAlpha(ty, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * bf.y;
                     float4 cz = SampleAlbedoAlpha(tz, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * bf.z;
-                    surfaceData.albedo = (cx + cy + cz).rgb;
+                    float4 sx = SampleAlbedoAlpha(tx, TEXTURE2D_ARGS(_SlopeMap, sampler_SlopeMap)) * bf.x;
+                    float4 sy = SampleAlbedoAlpha(ty, TEXTURE2D_ARGS(_SlopeMap, sampler_SlopeMap)) * bf.y;
+                    float4 sz = SampleAlbedoAlpha(tz, TEXTURE2D_ARGS(_SlopeMap, sampler_SlopeMap)) * bf.z;
+
+                    float flatness = smoothstep(0.75, 1, dot(pointOnUnitSphere, normalOS));
+                    surfaceData.albedo = flatness * (cx + cy + cz).rgb + (1 - flatness) * (sx + sy + sz).rgb;
 
                     #ifdef _NORMALMAP
                         float3 nx = SampleNormal(tx, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.x;

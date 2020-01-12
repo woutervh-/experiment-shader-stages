@@ -51,6 +51,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SlopeBumpMap:
+        m_Texture: {fileID: 2800000, guid: cea17d84ee34ce84e92c07738ccf6f39, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SlopeMap:
+        m_Texture: {fileID: 2800000, guid: 795ff18152267e1479e7ed24d8eef1cb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -82,7 +90,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Strength: 0.1
+    - _Strength: 0.2
     - _Surface: 0
     - _TriplanarMapping: 1
     - _VertexDisplacement: 0
