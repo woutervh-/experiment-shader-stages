@@ -73,6 +73,7 @@ namespace SQT2.Core
                     if (node.mesh.triangles != context.triangles[neighborMask].triangles)
                     {
                         node.mesh.triangles = context.triangles[neighborMask].triangles;
+                        node.mesh.RecalculateBounds();
                     }
                     node.meshRenderer.enabled = true;
                 }
