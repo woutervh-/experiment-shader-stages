@@ -5,14 +5,17 @@ Shader "SQT/Lit" {
         [MainColor] _BaseColor("Color", Color) = (0.5, 0.5, 0.5, 1.0)
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
         _SlopeMap("Slope albedo", 2D) = "white" {}
+        _AltitudeMap("Altitude albedo", 2D) = "white" {}
         [Toggle(_NORMALMAP)] _NormalMap ("Bump", Float) = 0
         _BumpScale("Bump scale", Float) = 1.0
         _BumpMap("Bump map", 2D) = "bump" {}
         _SlopeBumpMap("Slope bump map", 2D) = "bump" {}
+        _AltitudeBumpMap("Altitude bump map", 2D) = "bump" {}
         [Toggle(_TRIPLANAR_MAPPING)] _TriplanarMapping ("Triplanar mapping", Float) = 0
         _MapScale("Map scale", Float) = 1.0
 
         [Toggle(_PER_FRAGMENT_NORMALS)] _PerFragmentNormals ("Per fragment normals", Float) = 0
+        [Toggle(_PER_FRAGMENT_HEIGHT)] _PerFragmentHeight ("Per fragment height", Float) = 0
         [Toggle(_FINITE_DIFFERENCE_NORMALS)] _FiniteDifferenceNormals ("Finite difference normals", Float) = 0
         [Toggle(_VERTEX_DISPLACEMENT)] _VertexDisplacement ("Vertex displacement", Float) = 0
         [HideInInspector] _Gradients2D ("Gradients", 2D) = "white" {}
@@ -44,6 +47,7 @@ Shader "SQT/Lit" {
             #pragma shader_feature _NORMALMAP
             #pragma shader_feature _VERTEX_DISPLACEMENT
             #pragma shader_feature _PER_FRAGMENT_NORMALS
+            #pragma shader_feature _PER_FRAGMENT_HEIGHT
             #pragma shader_feature _FINITE_DIFFERENCE_NORMALS
             #pragma shader_feature _TRIPLANAR_MAPPING
 
@@ -65,6 +69,9 @@ Shader "SQT/Lit" {
 
             float _MapScale;
             TEXTURE2D(_SlopeMap); SAMPLER(sampler_SlopeMap);
+            TEXTURE2D(_SlopeBumpMap); SAMPLER(sampler_SlopeBumpMap); // TODO: use me
+            TEXTURE2D(_AltitudeMap); SAMPLER(sampler_AltitudeMap);
+            TEXTURE2D(_AltitudeBumpMap); SAMPLER(sampler_AltitudeBumpMap); // TODO: use me
 
             Varyings Vertex(Attributes input) {
                 #if defined(_VERTEX_DISPLACEMENT) || defined(_PER_FRAGMENT_NORMALS)
@@ -89,6 +96,14 @@ Shader "SQT/Lit" {
                 float3 positionOS = TransformWorldToObject(input.positionWS);
                 float3 pointOnUnitSphere = normalize(positionOS);
 
+                #if defined(_PER_FRAGMENT_NORMALS) || defined(_PER_FRAGMENT_HEIGHT)
+                    float4 noiseSample = noise(pointOnUnitSphere);
+                #endif
+
+                #if defined(_PER_FRAGMENT_HEIGHT)
+                    positionOS = pointOnUnitSphere * (1 + noiseSample.w);
+                #endif
+
                 #if defined(_PER_FRAGMENT_NORMALS)
                     #if defined(_FINITE_DIFFERENCE_NORMALS)
                         #ifdef UNITY_REVERSED_Z
@@ -100,7 +115,7 @@ Shader "SQT/Lit" {
                         h *= h;
                         float3 normalOS = normalize(pointOnUnitSphere - finiteDifferenceGradient(pointOnUnitSphere, h));
                     #else
-                        float3 normalOS = normalize(pointOnUnitSphere - noise(pointOnUnitSphere).xyz);
+                        float3 normalOS = normalize(pointOnUnitSphere - noiseSample.xyz);
                     #endif
 
                     input.normalWS.xyz = TransformObjectToWorldNormal(normalOS);
@@ -127,15 +142,36 @@ Shader "SQT/Lit" {
                     float4 sx = SampleAlbedoAlpha(tx, TEXTURE2D_ARGS(_SlopeMap, sampler_SlopeMap)) * bf.x;
                     float4 sy = SampleAlbedoAlpha(ty, TEXTURE2D_ARGS(_SlopeMap, sampler_SlopeMap)) * bf.y;
                     float4 sz = SampleAlbedoAlpha(tz, TEXTURE2D_ARGS(_SlopeMap, sampler_SlopeMap)) * bf.z;
+                    float4 ax = SampleAlbedoAlpha(tx, TEXTURE2D_ARGS(_AltitudeMap, sampler_AltitudeMap)) * bf.x;
+                    float4 ay = SampleAlbedoAlpha(ty, TEXTURE2D_ARGS(_AltitudeMap, sampler_AltitudeMap)) * bf.y;
+                    float4 az = SampleAlbedoAlpha(tz, TEXTURE2D_ARGS(_AltitudeMap, sampler_AltitudeMap)) * bf.z;
 
+                    float3 flatAlbedo = (cx + cy + cz).rgb;
+                    float3 slopeAlbedo = (sx + sy + sz).rgb;
+                    float3 altitudeAlbedo = (ax + ay + az).rgb * 2;
+
+                    float3 unitSphereToPosition = positionOS - pointOnUnitSphere;
+                    float unitSphereToPositionDot = dot(pointOnUnitSphere, unitSphereToPosition);
+                    float signedDistnace = sign(unitSphereToPositionDot) * sqrt(unitSphereToPositionDot);
                     float flatness = smoothstep(0.75, 1, dot(pointOnUnitSphere, normalOS));
-                    surfaceData.albedo = flatness * (cx + cy + cz).rgb + (1 - flatness) * (sx + sy + sz).rgb;
+                    float altitude = smoothstep(0.1875, 0.19, signedDistnace);
+                    surfaceData.albedo = flatness * (altitude * altitudeAlbedo + (1 - altitude) * flatAlbedo) + (1 - flatness) * slopeAlbedo;
 
                     #ifdef _NORMALMAP
-                        float3 nx = SampleNormal(tx, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.x;
-                        float3 ny = SampleNormal(ty, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.y;
-                        float3 nz = SampleNormal(tz, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.z;
-                        surfaceData.normalTS = nx + ny + nz;
+                        float3 cnx = SampleNormal(tx, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.x;
+                        float3 cny = SampleNormal(ty, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.y;
+                        float3 cnz = SampleNormal(tz, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale) * bf.z;
+                        float3 snx = SampleNormal(tx, TEXTURE2D_ARGS(_SlopeBumpMap, sampler_SlopeBumpMap), _BumpScale) * bf.x;
+                        float3 sny = SampleNormal(ty, TEXTURE2D_ARGS(_SlopeBumpMap, sampler_SlopeBumpMap), _BumpScale) * bf.y;
+                        float3 snz = SampleNormal(tz, TEXTURE2D_ARGS(_SlopeBumpMap, sampler_SlopeBumpMap), _BumpScale) * bf.z;
+                        float3 anx = SampleNormal(tx, TEXTURE2D_ARGS(_AltitudeBumpMap, sampler_AltitudeBumpMap), _BumpScale) * bf.x;
+                        float3 any = SampleNormal(ty, TEXTURE2D_ARGS(_AltitudeBumpMap, sampler_AltitudeBumpMap), _BumpScale) * bf.y;
+                        float3 anz = SampleNormal(tz, TEXTURE2D_ARGS(_AltitudeBumpMap, sampler_AltitudeBumpMap), _BumpScale) * bf.z;
+
+                        float3 flatNormal = cnx + cny + cnz;
+                        float3 slopeNormal = snx + sny + snz;
+                        float3 altitudeNormal = anx + any + anz;
+                        surfaceData.normalTS = flatness * (altitude * altitudeNormal + (1 - altitude) * flatNormal) + (1 - flatness) * slopeNormal;
                     #endif
                 #endif
 

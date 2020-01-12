@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: SQT Lit
   m_Shader: {fileID: 4800000, guid: 75e98c8296965144da3810329e974d27, type: 3}
-  m_ShaderKeywords: _NORMALMAP _PER_FRAGMENT_NORMALS _TRIPLANAR_MAPPING
+  m_ShaderKeywords: _NORMALMAP _PER_FRAGMENT_HEIGHT _PER_FRAGMENT_NORMALS _TRIPLANAR_MAPPING
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -19,12 +19,20 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AltitudeBumpMap:
+        m_Texture: {fileID: 2800000, guid: d2cebb3c4ceffd94eb953abbc567b1ea, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AltitudeMap:
+        m_Texture: {fileID: 2800000, guid: 74174227a73aa7249951fa39f06f6f30, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: a62f271a1ce68914cbde8e06d651f701, type: 3}
+        m_Texture: {fileID: 2800000, guid: dd516a4bffc7ab444b8217f3134f959a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 1beb1daaa8fdc4043aaf8cc1d554af67, type: 3}
+        m_Texture: {fileID: 2800000, guid: be8d9ca532a7e37418bb91d9001dcdd1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -52,11 +60,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SlopeBumpMap:
-        m_Texture: {fileID: 2800000, guid: cea17d84ee34ce84e92c07738ccf6f39, type: 3}
+        m_Texture: {fileID: 2800000, guid: d137e95213341cf4493753aa4307eab2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SlopeMap:
-        m_Texture: {fileID: 2800000, guid: 795ff18152267e1479e7ed24d8eef1cb, type: 3}
+        m_Texture: {fileID: 2800000, guid: bea6de0d47c7ea7409d64c6d6c57689f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -66,7 +74,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _Blend: 0
-    - _BumpScale: 1.47
+    - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DstBlend: 0
@@ -82,6 +90,7 @@ Material:
     - _NormalMap: 1
     - _OcclusionStrength: 1
     - _Octaves: 8
+    - _PerFragmentHeight: 1
     - _PerFragmentNormals: 1
     - _Persistence: 0.5
     - _QueueOffset: 0
