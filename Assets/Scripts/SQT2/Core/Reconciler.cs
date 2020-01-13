@@ -23,8 +23,10 @@ namespace SQT2.Core
             Node leaf = DeepSplit(context, reconciliationData, root);
             marked.Add(leaf);
 
+            context.constants.plugins.ModifyMarkedSet(context, marked, leaf);
+
             // Mark nodes to create a balanced tree (max 2:1 split between neighbors).
-            MarkBalancedNodes(context, marked, leaf);
+            MarkBalancedNodes(context, marked);
 
             PerformMarkAndSweep(context, marked);
         }
@@ -135,14 +137,19 @@ namespace SQT2.Core
             }
         }
 
-        static void MarkBalancedNodes(Context context, HashSet<Node> marked, Node node)
+        static void MarkBalancedNodes(Context context, HashSet<Node> marked)
         {
             HashSet<Node> seen = new HashSet<Node>();
             Stack<Node> remaining = new Stack<Node>();
-            remaining.Push(node);
+            foreach (Node node in marked)
+            {
+                remaining.Push(node);
+                seen.Add(node);
+            }
             while (remaining.Count >= 1)
             {
                 Node current = remaining.Pop();
+
                 if (current.path.Length <= 1)
                 {
                     continue;
@@ -241,7 +248,7 @@ namespace SQT2.Core
             return GetRelativePath(context.roots[node.neighborBranches[direction]], node.neighborPaths[direction]);
         }
 
-        static Node EnsureNeighbor(Context context, Node node, int direction)
+        public static Node EnsureNeighbor(Context context, Node node, int direction)
         {
             return EnsureRelativePath(context, context.roots[node.neighborBranches[direction]], node.neighborPaths[direction]);
         }

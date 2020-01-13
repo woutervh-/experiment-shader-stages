@@ -2,17 +2,17 @@ Shader "SQT/Lit" {
     Properties {
         _Metallic ("Metallic", Range(0, 1)) = 0.5
         _Smoothness ("Smoothness", Range(0, 1)) = 0.5
-        [MainColor] _BaseColor("Color", Color) = (0.5, 0.5, 0.5, 1.0)
-        [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
-        _SlopeMap("Slope albedo", 2D) = "white" {}
-        _AltitudeMap("Altitude albedo", 2D) = "white" {}
+        [MainColor] _BaseColor ("Color", Color) = (0.5, 0.5, 0.5, 1.0)
+        [MainTexture] _BaseMap ("Albedo", 2D) = "white" {}
+        _SlopeMap ("Slope albedo", 2D) = "white" {}
+        _AltitudeMap ("Altitude albedo", 2D) = "white" {}
         [Toggle(_NORMALMAP)] _NormalMap ("Bump", Float) = 0
-        _BumpScale("Bump scale", Float) = 1.0
-        _BumpMap("Bump map", 2D) = "bump" {}
-        _SlopeBumpMap("Slope bump map", 2D) = "bump" {}
-        _AltitudeBumpMap("Altitude bump map", 2D) = "bump" {}
+        _BumpScale ("Bump scale", Float) = 1.0
+        _BumpMap ("Bump map", 2D) = "bump" {}
+        _SlopeBumpMap ("Slope bump map", 2D) = "bump" {}
+        _AltitudeBumpMap ("Altitude bump map", 2D) = "bump" {}
         [Toggle(_TRIPLANAR_MAPPING)] _TriplanarMapping ("Triplanar mapping", Float) = 0
-        _MapScale("Map scale", Float) = 1.0
+        _MapScale ("Map scale", Float) = 1.0
 
         [Toggle(_PER_FRAGMENT_NORMALS)] _PerFragmentNormals ("Per fragment normals", Float) = 0
         [Toggle(_PER_FRAGMENT_HEIGHT)] _PerFragmentHeight ("Per fragment height", Float) = 0
@@ -148,12 +148,12 @@ Shader "SQT/Lit" {
 
                     float3 flatAlbedo = (cx + cy + cz).rgb;
                     float3 slopeAlbedo = (sx + sy + sz).rgb;
-                    float3 altitudeAlbedo = (ax + ay + az).rgb * 2;
+                    float3 altitudeAlbedo = (ax + ay + az).rgb;
 
                     float3 unitSphereToPosition = positionOS - pointOnUnitSphere;
                     float unitSphereToPositionDot = dot(pointOnUnitSphere, unitSphereToPosition);
                     float signedDistnace = sign(unitSphereToPositionDot) * sqrt(unitSphereToPositionDot);
-                    float flatness = smoothstep(0.75, 1, dot(pointOnUnitSphere, normalOS));
+                    float flatness = smoothstep(0.65, 1, dot(pointOnUnitSphere, normalOS));
                     float altitude = smoothstep(0.1875, 0.19, signedDistnace);
                     surfaceData.albedo = flatness * (altitude * altitudeAlbedo + (1 - altitude) * flatAlbedo) + (1 - flatness) * slopeAlbedo;
 

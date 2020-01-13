@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace SQT2.Plugins

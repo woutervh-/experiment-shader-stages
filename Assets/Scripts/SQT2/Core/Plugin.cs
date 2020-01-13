@@ -38,15 +38,22 @@ namespace SQT2.Core
             void ModifyMaterial(Context context, Material material);
         }
 
-        public class PluginChain : VerticesPlugin, MaterialPlugin
+        public interface MarkedSetPlugin
+        {
+            void ModifyMarkedSet(Context context, HashSet<Node> marked, Node leaf);
+        }
+
+        public class PluginChain : VerticesPlugin, MaterialPlugin, MarkedSetPlugin
         {
             VerticesPlugin[] verticesPlugins;
             MaterialPlugin[] materialPlugins;
+            MarkedSetPlugin[] markedSetPlugins;
 
             public PluginChain(Plugin[] plugins)
             {
                 verticesPlugins = GetPlugins<VerticesPlugin>(plugins);
                 materialPlugins = GetPlugins<MaterialPlugin>(plugins);
+                markedSetPlugins = GetPlugins<MarkedSetPlugin>(plugins);
             }
 
             static T[] GetPlugins<T>(Plugin[] plugins)
@@ -75,6 +82,14 @@ namespace SQT2.Core
                 foreach (MaterialPlugin plugin in materialPlugins)
                 {
                     plugin.ModifyMaterial(context, material);
+                }
+            }
+
+            public void ModifyMarkedSet(Context context, HashSet<Node> marked, Node leaf)
+            {
+                foreach (MarkedSetPlugin plugin in markedSetPlugins)
+                {
+                    plugin.ModifyMarkedSet(context, marked, leaf);
                 }
             }
         }
