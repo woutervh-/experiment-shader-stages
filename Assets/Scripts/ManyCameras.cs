@@ -35,7 +35,7 @@ public class ManyCameras : MonoBehaviour
         return tertiaryRenderTexture;
     }
 
-    void Start()
+    void OnEnable()
     {
         if (primaryCamera == null)
         {
@@ -106,7 +106,7 @@ public class ManyCameras : MonoBehaviour
         tertiaryCamera.farClipPlane = secondaryCamera.farClipPlane * secondaryCamera.farClipPlane / secondaryCamera.nearClipPlane;
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
         if (secondaryRenderTexture != null)
         {
@@ -119,5 +119,12 @@ public class ManyCameras : MonoBehaviour
         primaryCamera.clearFlags = originalClearFlags;
         DestroyImmediate(secondaryGameObject);
         DestroyImmediate(tertiaryGameObject);
+        primaryCamera = null;
+        secondaryGameObject = null;
+        tertiaryGameObject = null;
+        secondaryCamera = null;
+        tertiaryCamera = null;
+        secondaryRenderTexture = null;
+        tertiaryRenderTexture = null;
     }
 }
