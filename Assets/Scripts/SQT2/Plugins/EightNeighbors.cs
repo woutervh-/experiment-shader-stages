@@ -6,15 +6,10 @@ namespace SQT2.Plugins
     {
         public void ModifyMarkedSet(SQT2.Core.Context context, HashSet<SQT2.Core.Node> marked, SQT2.Core.Node leaf)
         {
-            if (leaf.parent == null)
-            {
-                return;
-            }
-
-            SQT2.Core.Node n1 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf.parent, 0);
-            SQT2.Core.Node n2 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf.parent, 1);
-            SQT2.Core.Node n3 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf.parent, 2);
-            SQT2.Core.Node n4 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf.parent, 3);
+            SQT2.Core.Node n1 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf, 0);
+            SQT2.Core.Node n2 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf, 1);
+            SQT2.Core.Node n3 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf, 2);
+            SQT2.Core.Node n4 = SQT2.Core.Reconciler.EnsureNeighbor(context, leaf, 3);
             SQT2.Core.Node n5 = SQT2.Core.Reconciler.EnsureNeighbor(context, n1, 3);
             SQT2.Core.Node n6 = SQT2.Core.Reconciler.EnsureNeighbor(context, n2, 2);
             SQT2.Core.Node n7 = SQT2.Core.Reconciler.EnsureNeighbor(context, n3, 0);
