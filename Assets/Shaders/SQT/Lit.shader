@@ -69,9 +69,9 @@ Shader "SQT/Lit" {
 
             float _MapScale;
             TEXTURE2D(_SlopeMap); SAMPLER(sampler_SlopeMap);
-            TEXTURE2D(_SlopeBumpMap); SAMPLER(sampler_SlopeBumpMap); // TODO: use me
+            TEXTURE2D(_SlopeBumpMap); SAMPLER(sampler_SlopeBumpMap);
             TEXTURE2D(_AltitudeMap); SAMPLER(sampler_AltitudeMap);
-            TEXTURE2D(_AltitudeBumpMap); SAMPLER(sampler_AltitudeBumpMap); // TODO: use me
+            TEXTURE2D(_AltitudeBumpMap); SAMPLER(sampler_AltitudeBumpMap);
 
             Varyings Vertex(Attributes input) {
                 #if defined(_VERTEX_DISPLACEMENT) || defined(_PER_FRAGMENT_NORMALS)
