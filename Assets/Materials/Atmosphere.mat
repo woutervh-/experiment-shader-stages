@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Atmosphere Lit
+  m_Name: Atmosphere
   m_Shader: {fileID: 4800000, guid: ea230cba3271ca541ac279d1952a5b60, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -49,6 +49,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
+    - _AtmosphereRadius: 0.55
     - _Blend: 0
     - _BumpScale: 1
     - _Cull: 2
@@ -58,15 +59,22 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _LightSamples: 8
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _PlanetRadius: 0.5
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _ScaleFactor: 6371000
+    - _ScaleHeight: 8500
+    - _ScatteringCoefficient: 0.0000296453
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _SunIntensity: 1
     - _Surface: 0
+    - _ViewSamples: 16
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
