@@ -72,13 +72,16 @@ public class ManyCameras : MonoBehaviour
             secondaryRenderTexture.Release();
         }
         secondaryRenderTexture = new RenderTexture(Screen.width, Screen.height, 16);
-        secondaryCamera.targetTexture = secondaryRenderTexture;
         if (tertiaryRenderTexture != null)
         {
             tertiaryRenderTexture.Release();
         }
         tertiaryRenderTexture = new RenderTexture(Screen.width, Screen.height, 16);
-        tertiaryCamera.targetTexture = tertiaryRenderTexture;
+        if (Screen.width >= 1 && Screen.height >= 1)
+        {
+            secondaryCamera.targetTexture = secondaryRenderTexture;
+            tertiaryCamera.targetTexture = tertiaryRenderTexture;
+        }
     }
 
     void Update()
