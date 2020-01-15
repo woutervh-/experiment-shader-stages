@@ -73,6 +73,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
+    - _AtmosphereRadius: 1.2
     - _Blend: 0
     - _BumpScale: 1
     - _Cull: 2
@@ -85,6 +86,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Lacunarity: 2
+    - _LightSamples: 8
     - _MapScale: 20
     - _Metallic: 0.184
     - _NormalMap: 1
@@ -93,16 +95,22 @@ Material:
     - _PerFragmentHeight: 1
     - _PerFragmentNormals: 1
     - _Persistence: 0.5
+    - _PlanetRadius: 1.1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _ScaleFactor: 63710
+    - _ScaleHeightM: 127
+    - _ScaleHeightR: 850
     - _Smoothness: 0.333
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Strength: 0.2
+    - _SunIntensity: 20
     - _Surface: 0
     - _TriplanarMapping: 1
     - _VertexDisplacement: 0
+    - _ViewSamples: 16
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

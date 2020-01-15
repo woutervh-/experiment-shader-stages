@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Atmosphere
-  m_Shader: {fileID: 4800000, guid: d08e7f9cf35d4d0468eb3debaab03926, type: 3}
+  m_Name: Earth Atmosphere
+  m_Shader: {fileID: 4800000, guid: ea230cba3271ca541ac279d1952a5b60, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -67,12 +67,14 @@ Material:
     - _ReceiveShadows: 1
     - _ScaleFactor: 6371000
     - _ScaleHeight: 8500
+    - _ScaleHeightM: 1275
+    - _ScaleHeightR: 8500
     - _ScatteringCoefficient: 0.0000296453
     - _Smoothness: 0.07
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SunIntensity: 1
+    - _SunIntensity: 20
     - _Surface: 0
     - _ViewSamples: 16
     - _WorkflowMode: 1

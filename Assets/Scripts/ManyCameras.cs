@@ -9,7 +9,10 @@ public class ManyCameras : MonoBehaviour
     Camera primaryCamera;
     [SerializeField]
     [HideInInspector]
-    CameraClearFlags originalClearFlags;
+    CameraClearFlags  originalClearFlags;
+    [SerializeField]
+    [HideInInspector]
+    Color originalBackgroundColor;
     [SerializeField]
     [HideInInspector]
     Camera secondaryCamera;
@@ -41,7 +44,9 @@ public class ManyCameras : MonoBehaviour
         {
             primaryCamera = GetComponent<Camera>();
             originalClearFlags = primaryCamera.clearFlags;
-            primaryCamera.clearFlags = CameraClearFlags.Nothing;
+            originalBackgroundColor = primaryCamera.backgroundColor;
+            primaryCamera.clearFlags = CameraClearFlags.Color;
+            primaryCamera.backgroundColor = Color.clear;
         }
         if (secondaryGameObject == null)
         {
@@ -58,7 +63,8 @@ public class ManyCameras : MonoBehaviour
             secondaryCamera = secondaryGameObject.AddComponent<Camera>();
             secondaryCamera.CopyFrom(primaryCamera);
             secondaryCamera.depth = primaryCamera.depth - 1;
-            secondaryCamera.clearFlags = CameraClearFlags.Nothing;
+            secondaryCamera.clearFlags = CameraClearFlags.Color;
+            secondaryCamera.backgroundColor = Color.clear;
         }
         if (tertiaryCamera == null)
         {
@@ -66,6 +72,7 @@ public class ManyCameras : MonoBehaviour
             tertiaryCamera.CopyFrom(primaryCamera);
             tertiaryCamera.depth = secondaryCamera.depth - 1;
             tertiaryCamera.clearFlags = originalClearFlags;
+            tertiaryCamera.backgroundColor = originalBackgroundColor;
         }
         if (secondaryRenderTexture != null)
         {
@@ -120,6 +127,7 @@ public class ManyCameras : MonoBehaviour
             tertiaryRenderTexture.Release();
         }
         primaryCamera.clearFlags = originalClearFlags;
+        primaryCamera.backgroundColor = originalBackgroundColor;
         DestroyImmediate(secondaryGameObject);
         DestroyImmediate(tertiaryGameObject);
         primaryCamera = null;
