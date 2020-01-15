@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SQT2.Core
+namespace SQT.Core
 {
     public abstract class Plugin : MonoBehaviour
     {

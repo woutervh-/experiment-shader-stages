@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SQT2.Core
+namespace SQT.Core
 {
     public class Node
     {

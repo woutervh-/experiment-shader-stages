@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace SQT2.Plugins
+namespace SQT.Plugins
 {
-    public class PerlinDisplacementGPU : SQT2.Core.Plugin, SQT2.Core.Plugin.VerticesPlugin
+    public class PerlinDisplacementGPU : SQT.Core.Plugin, SQT.Core.Plugin.VerticesPlugin
     {
         public int seed = 0;
         public float strength = 0.1f;
@@ -47,7 +47,7 @@ namespace SQT2.Plugins
             UnityEngine.Object.Destroy(permutationTexture);
         }
 
-        public async Task ModifyVertices(SQT2.Core.Context context, SQT2.Core.Node node, CancellationTokenSource cancellation)
+        public async Task ModifyVertices(SQT.Core.Context context, SQT.Core.Node node, CancellationTokenSource cancellation)
         {
             if (positionBuffer == null || positionBuffer.count != node.positions.Length)
             {

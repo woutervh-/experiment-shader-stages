@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace SQT2
+namespace SQT
 {
     public class Manager : MonoBehaviour
     {

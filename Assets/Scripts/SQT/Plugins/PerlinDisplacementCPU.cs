@@ -2,9 +2,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SQT2.Plugins
+namespace SQT.Plugins
 {
-    public class PerlinDisplacementCPU : SQT2.Core.Plugin, SQT2.Core.Plugin.VerticesPlugin
+    public class PerlinDisplacementCPU : SQT.Core.Plugin, SQT.Core.Plugin.VerticesPlugin
     {
         public int seed = 0;
         public float strength = 0.1f;
@@ -20,7 +20,7 @@ namespace SQT2.Plugins
             perlin = new Perlin(seed);
         }
 
-        public Task ModifyVertices(SQT2.Core.Context context, SQT2.Core.Node node, CancellationTokenSource cancellation)
+        public Task ModifyVertices(SQT.Core.Context context, SQT.Core.Node node, CancellationTokenSource cancellation)
         {
             return Task.Factory.StartNew(() =>
             {

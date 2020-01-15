@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SQT2.Core
+namespace SQT.Core
 {
     public class ReconciliationData
     {

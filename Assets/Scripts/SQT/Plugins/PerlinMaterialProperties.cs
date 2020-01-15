@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace SQT2.Plugins
+namespace SQT.Plugins
 {
-    public class PerlinMaterialProperties : SQT2.Core.Plugin, SQT2.Core.Plugin.MaterialPlugin
+    public class PerlinMaterialProperties : SQT.Core.Plugin, SQT.Core.Plugin.MaterialPlugin
     {
         public int seed = 0;
         public float strength = 0.1f;
@@ -28,7 +28,7 @@ namespace SQT2.Plugins
             UnityEngine.Object.Destroy(permutationTexture);
         }
 
-        public void ModifyMaterial(SQT2.Core.Context context, Material material)
+        public void ModifyMaterial(SQT.Core.Context context, Material material)
         {
             material.SetTexture("_Gradients2D", gradientsTexture);
             material.SetTexture("_Permutation2D", permutationTexture);

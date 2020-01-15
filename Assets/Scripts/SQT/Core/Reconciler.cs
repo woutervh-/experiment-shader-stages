@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-namespace SQT2.Core
+namespace SQT.Core
 {
     public static class Reconciler
     {
