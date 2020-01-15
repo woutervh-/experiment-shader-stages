@@ -7,12 +7,12 @@ Shader "SQT/Atmosphere" {
 
         _AtmosphereRadius ("Atmosphere radius", Float) = 1
         _PlanetRadius ("Planet radius", Float) = 0.5
-        // _SunIntensity ("Sun intensity", Float) = 1
-        // _ScatteringCoefficient ("Scattering coefficient", Float) = 1
-        // _ViewSamples ("View samples", Int) = 8
-        // _LightSamples ("Light samples", Int) = 8
-        // _ScaleHeight ("Scale height", float) = 8500
-        // _ScaleFactor ("Scale factor", Float) = 6371000
+        _SunIntensity ("Sun intensity", Float) = 50
+        _ViewSamples ("View samples", Int) = 8
+        _LightSamples ("Light samples", Int) = 8
+        _ScaleFactor ("Scale factor", Float) = 6371000
+        _ScaleHeightR ("Scale height Rayleigh", float) = 8500
+        _ScaleHeightM ("Scale height Mie", float) = 1275
     }
 
     SubShader {
@@ -93,22 +93,21 @@ Shader "SQT/Atmosphere" {
 
             float _AtmosphereRadius;
             float _PlanetRadius;
-            // float _SunIntensity;
-            // float _ScatteringCoefficient;
-            // int _ViewSamples;
-            // int _LightSamples;
-            // float _ScaleHeight;
-            // float _ScaleFactor;
+            float _SunIntensity;
+            int _ViewSamples;
+            int _LightSamples;
+            float _ScaleFactor;
+            float _ScaleHeightR;
+            float _ScaleHeightM;
 
             #define PI 3.1415927410125732
-            #define SCALE_FACTOR 6371000
-            #define SCALE_HEIGHT (8500 / SCALE_FACTOR)
-            #define VIEW_SAMPLES 16
-            #define LIGHT_SAMPLES 8
-            #define SUN_INTENSITY 1
+            #define g 0.75
 
             // Rayleigh scattering coefficient β(λ, h) - β(red) β(green) and β(blue) at Earth's sea level (h=0).
-            #define betaR float3(0.00000519673, 0.0000121427, 0.0000296453) * SCALE_FACTOR
+            #define betaR float3(0.00000519673, 0.0000121427, 0.0000296453) * _ScaleFactor
+
+            // Mie scattering coefficient β(λ, h) - β(red) β(green) and β(blue) at Earth's sea level (h=0).
+            #define betaM float3(0.000021, 0.000021, 0.000021) * _ScaleFactor
 
             bool raySphereIntersect(float3 rayOrigin, float3 rayDirection, float3 sphereCenter, float sphereRadius, out float t0, out float t1) {
                 float3 L = sphereCenter - rayOrigin;
@@ -128,6 +127,48 @@ Shader "SQT/Atmosphere" {
                 return true;
             }
 
+            // Rayleigh phase function γ(θ)
+            float phaseR(float cosTheta) {
+                return 3.0 / (16.0 * PI) * (1.0 + cosTheta * cosTheta);
+            }
+
+            // Henyey-Greenstein phase function γ(θ)
+            float phaseM(float cosTheta) {
+                return (1.0 - g * g) / ((4.0 * PI) * pow(1.0 + g * g - 2.0 * g * cosTheta, 1.5));
+            }
+
+            // Rayleight scattering density ratio ρ(h)
+            float densityR(float h) {
+                return exp(-h / (_ScaleHeightR / _ScaleFactor));
+            }
+
+            // Mie scattering density ration ρ(h)
+            float densityM(float h) {
+                return exp(-h / (_ScaleHeightM / _ScaleFactor));
+            }
+
+            bool sampleLight(float3 p, float3 s, float3 c, out float opticalDepthR, out float opticalDepthM) {
+                float _;
+                float tB;
+                raySphereIntersect(p, s, c, _AtmosphereRadius, _, tB);
+
+                float t = 0;
+                float dt = distance(p, p + s * tB) / _LightSamples;
+                for (int i = 0; i < _LightSamples; i++) {
+                    float3 q = p + s * (t + dt * 0.5);
+                    float height = distance(c, q) - _PlanetRadius;
+
+                    if (height < 0) {
+                        return false;
+                    }
+
+                    opticalDepthR += densityR(height) * dt;
+                    opticalDepthM += densityM(height) * dt;
+                }
+
+                return true;
+            }
+
             Varyings Vertex(Attributes input) {
                 input.positionOS.xyz += input.normalOS * (_AtmosphereRadius - _PlanetRadius);
 
@@ -142,44 +183,10 @@ Shader "SQT/Atmosphere" {
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 output.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
                 output.centerOS = float3(0, 0, 0);
-                // output.rayDirectionOS = TransformWorldToObject(-(_WorldSpaceCameraPos.xyz - vertexInput.positionWS));
-                // output.rayOriginOS = input.positionOS.xyz - output.rayDirection;
                 output.rayOriginOS = input.positionOS.xyz;
-                output.rayDirectionOS = input.positionOS.xyz - TransformWorldToObject(_WorldSpaceCameraPos.xyz);
-                output.rayDirectionOS = normalize(output.rayDirectionOS);
+                output.rayDirectionOS = normalize(input.positionOS.xyz - TransformWorldToObject(_WorldSpaceCameraPos.xyz));
 
                 return output;
-            }
-
-            // Rayleigh phase function γ(θ)
-            float phase(float cosTheta) {
-                return 3.0 / (16.0 * PI) * (1.0 + cosTheta * cosTheta);
-            }
-
-            // Density ratio ρ(h)
-            float density(float h) {
-                return exp(-h / SCALE_HEIGHT);
-            }
-
-            bool sampleLight(float3 p, float3 s, float3 c, out float opticalDepthR) {
-                float _;
-                float tB;
-                raySphereIntersect(p, s, c, _AtmosphereRadius, _, tB);
-
-                float t = 0;
-                float dt = distance(p, p + s * tB) / LIGHT_SAMPLES;
-                for (int i = 0; i < LIGHT_SAMPLES; i++) {
-                    float3 q = p + s * (t + dt * 0.5);
-                    float height = distance(c, q) - _PlanetRadius;
-
-                    if (height < 0) {
-                        return false;
-                    }
-
-                    opticalDepthR += density(height) * dt;
-                }
-
-                return true;
             }
 
             float4 Fragment(Varyings input) : SV_TARGET {
@@ -187,20 +194,12 @@ Shader "SQT/Atmosphere" {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
                 input.rayDirectionOS = normalize(input.rayDirectionOS);
-                float3 sunDirection = normalize(_MainLightPosition.xyz); // TODO: transform to object space
+                float3 sunDirection = TransformWorldToObject(normalize(_MainLightPosition.xyz));
 
-                // O - position, origin of ray: rayOriginOS
-                // L - light direction: _MainLightPosition.xyz
-                // V - view direction: -rayDirectionOS
-                // N - surface normal: unused
-                // S - sun light direction: L
-                // D - view direction through the atmosphere away from the camera: -V = rayDirectionOS
-                // C - center of planet: centerOS
-
-                float tA; // Atmosphere entry point (worldPos + V * tA)
-                float tB; // Atmosphere exit point (worldPos + V * tB)
+                float tA;
+                float tB;
                 if (!raySphereIntersect(input.rayOriginOS, input.rayDirectionOS, input.centerOS, _AtmosphereRadius, tA, tB)) {
-                    return float4(0, 0, 0, 0); // The view rays is looking into deep space.
+                    return float4(0, 0, 0, 0);
                 }
  
                 // Is the ray passing through the planet core?
@@ -210,29 +209,35 @@ Shader "SQT/Atmosphere" {
                 }
 
                 float opticalDepthR = 0;
+                float opticalDepthM = 0;
                 float3 integralR = float3(0, 0, 0);
+                float3 integralM = float3(0, 0, 0);
                 float t = tA;
-                float dt = (tB - tA) / VIEW_SAMPLES;
-                for (int i = 0; i < VIEW_SAMPLES; i++) {
+                float dt = (tB - tA) / _ViewSamples;
+                for (int i = 0; i < _ViewSamples; i++) {
                     float3 p = input.rayOriginOS + input.rayDirectionOS * (t + dt * 0.5);
-
                     float height = distance(input.centerOS, p) - _PlanetRadius;
-                    float hr = density(height) * dt;
+                    float hr = densityR(height) * dt;
+                    float hm = densityM(height) * dt;
                     opticalDepthR += hr;
+                    opticalDepthM += hm;
 
                     float opticalDepthLightR = 0;
-                    bool overground = sampleLight(p, sunDirection, input.centerOS, opticalDepthLightR);
+                    float opticalDepthLightM = 0;
+                    bool overground = sampleLight(p, sunDirection, input.centerOS, opticalDepthLightR, opticalDepthLightM);
 
                     if (overground) {
-                        float transmittance = exp(-betaR * (opticalDepthR + opticalDepthLightR));
+                        float tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * (opticalDepthM + opticalDepthLightM);
+                        float transmittance = exp(-tau);
                         integralR += hr * transmittance;
+                        integralM += hm * transmittance;
                     }
 
                     t += dt;
                 }
 
-                float cosTheta = saturate(dot(sunDirection, input.rayDirectionOS));
-                float3 I = SUN_INTENSITY * betaR * phase(cosTheta) * integralR;
+                float cosTheta = dot(sunDirection, input.rayDirectionOS);
+                float3 I = _SunIntensity * _MainLightColor * (betaR * phaseR(cosTheta) * integralR + betaM * phaseM(cosTheta) * integralM);
 
                 return float4(I, 1);
             }

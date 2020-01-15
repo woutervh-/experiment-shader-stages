@@ -60,7 +60,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _LightSamples: 8
-    - _Metallic: 0
+    - _Metallic: 0.07
     - _OcclusionStrength: 1
     - _PlanetRadius: 0.5
     - _QueueOffset: 0
@@ -68,7 +68,7 @@ Material:
     - _ScaleFactor: 6371000
     - _ScaleHeight: 8500
     - _ScatteringCoefficient: 0.0000296453
-    - _Smoothness: 0.5
+    - _Smoothness: 0.07
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
