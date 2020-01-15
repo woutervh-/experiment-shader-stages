@@ -9,7 +9,7 @@ public class ManyCameras : MonoBehaviour
     Camera primaryCamera;
     [SerializeField]
     [HideInInspector]
-    CameraClearFlags  originalClearFlags;
+    CameraClearFlags originalClearFlags;
     [SerializeField]
     [HideInInspector]
     Color originalBackgroundColor;

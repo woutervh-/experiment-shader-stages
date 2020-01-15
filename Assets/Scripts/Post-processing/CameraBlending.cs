@@ -22,8 +22,13 @@ public sealed class CameraBlendingRenderer : PostProcessEffectRenderer<CameraBle
         }
 
         PropertySheet sheet = context.propertySheets.Get(Shader.Find("Hidden/Custom/Blend Transparency"));
+
+        // context.command.SetGlobalTexture("_SecondaryCameraTexture", manyCameras.GetSecondaryRenderTexture());
+        // context.command.SetGlobalTexture("_TertiaryCameraTexture", manyCameras.GetTertiaryRenderTexture());
+
         context.command.BlitFullscreenTriangle(manyCameras.GetTertiaryRenderTexture(), context.destination, sheet, 0);
         context.command.BlitFullscreenTriangle(manyCameras.GetSecondaryRenderTexture(), context.destination, sheet, 0);
+
         context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
     }
 }

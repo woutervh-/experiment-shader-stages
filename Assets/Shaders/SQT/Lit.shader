@@ -203,7 +203,8 @@ Shader "SQT/Lit" {
                 "Queue" = "Transparent"
             }
 
-            Blend One One
+            // Blend One One
+            Blend SrcAlpha OneMinusSrcAlpha
             ZWrite On
             Cull Off
 

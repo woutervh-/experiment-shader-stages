@@ -169,7 +169,7 @@ float4 Fragment(Varyings input) : SV_TARGET {
     float cosTheta = dot(sunDirection, input.rayDirectionOS);
     float3 I = _SunIntensity * _MainLightColor * (betaR * phaseR(cosTheta) * integralR + betaM * phaseM(cosTheta) * integralM);
 
-    return float4(I, 1);
+    return float4(I, t);
 }
 
 #endif
