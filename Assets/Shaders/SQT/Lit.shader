@@ -25,21 +25,11 @@ Shader "SQT/Lit" {
         _Lacunarity ("Lacunarity", Float) = 2
         _Persistence ("Persistence", Float) = 0.5
         _Octaves ("Octaves", Int) = 8
-
-        _AtmosphereRadius ("Atmosphere radius", Float) = 1
-        _PlanetRadius ("Planet radius", Float) = 0.5
-        _SunIntensity ("Sun intensity", Float) = 50
-        _ViewSamples ("View samples", Int) = 16
-        _LightSamples ("Light samples", Int) = 8
-        _ScaleFactor ("Scale factor", Float) = 6371000
-        _ScaleHeightR ("Scale height Rayleigh", float) = 8500
-        _ScaleHeightM ("Scale height Mie", float) = 1275
     }
 
     SubShader {
         Tags {
             "RenderType" = "Opaque"
-            "Queue" = "Transparent"
             "RenderPipeline" = "LightWeightPipeline"
         }
 
@@ -192,35 +182,6 @@ Shader "SQT/Lit" {
 
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
                 return color;
-            }
-
-            ENDHLSL
-        }
-
-        Pass {
-            Tags {
-                "RenderType" = "Transparent"
-                "Queue" = "Transparent"
-            }
-
-            // Blend One One
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite On
-            Cull Off
-
-            HLSLPROGRAM
-
-            #pragma vertex VertexModifier
-            #pragma fragment Fragment
-
-            #include "./Atmosphere.hlsl"
-
-            Varyings VertexModifier(Attributes input) {
-                float3 pointOnUnitSphere = normalize(input.positionOS.xyz);
-                input.positionOS.xyz = pointOnUnitSphere;
-                input.normalOS = pointOnUnitSphere;
-
-                return Vertex(input);
             }
 
             ENDHLSL

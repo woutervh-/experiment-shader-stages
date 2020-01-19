@@ -5,7 +5,7 @@ Shader "Hidden/Custom/Blend Transparency" {
         ZTest Always
         Blend SrcAlpha OneMinusSrcAlpha
         // Blend Off
-        ColorMask RGBA
+        // ColorMask RGBA
 
         Pass {
             HLSLPROGRAM
