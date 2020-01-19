@@ -5,7 +5,7 @@
 
 #define PI 3.1415927410125732
 #define g 0.75
-#define _AtmosphereRadius _PlanetRadius + 3.0 * _ScaleHeightR / _ScaleFactor
+#define _AtmosphereRadius _PlanetRadius + 10.0 * _ScaleHeightR / _ScaleFactor
 
 // Rayleigh scattering coefficient β(λ, h) - β(red) β(green) and β(blue) at Earth's sea level (h=0).
 #define betaR float3(0.00000519673, 0.0000121427, 0.0000296453) * _ScaleFactor
@@ -178,7 +178,7 @@ float4 Fragment(Varyings input) : SV_Target {
     float cosTheta = dot(lightDirection, rayDirectionWS);
     float3 I = _SunIntensity * _MainLightColor * (betaR * phaseR(cosTheta) * integralR + betaM * phaseM(cosTheta) * integralM);
 
-    return float4(I, t);
+    return float4(I, 1);
 }
 
 #endif

@@ -21,7 +21,9 @@ Shader "Hidden/Custom/Blend Transparency" {
                 // TEXTURE2D_SAMPLER2D(_CameraDepthTexture, sampler_CameraDepthTexture);
 
                 float4 Frag(VaryingsDefault i) : SV_Target {
-                    return SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
+                    float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
+                    color.a = saturate(color.a);
+                    return color;
 
                     // #ifdef UNITY_REVERSED_Z
                     //     float depth = 1.0 - LinearEyeDepth(SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, i.texcoord));

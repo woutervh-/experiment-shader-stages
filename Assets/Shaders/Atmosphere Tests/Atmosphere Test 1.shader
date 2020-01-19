@@ -1,12 +1,7 @@
 Shader "Atmosphere Tests/Atmosphere Test 1" {
     Properties {
-        _Metallic ("Metallic", Range(0, 1)) = 0.5
-        _Smoothness ("Smoothness", Range(0, 1)) = 0.5
-        [MainColor] _BaseColor ("Color", Color) = (0.5, 0.5, 0.5, 1.0)
-        [MainTexture] _BaseMap ("Albedo", 2D) = "white" {}
-
         // _AtmosphereRadius ("Atmosphere radius", Float) = 1
-        _PlanetRadius ("Planet radius", Float) = 0.5
+        [HideInInspector] _PlanetRadius ("Planet radius", Float) = 0.5
         [HideInInspector] _PlanetPosition ("Planet position", Vector) = (0, 0, 0)
         _SunIntensity ("Sun intensity", Float) = 50
         _ViewSamples ("View samples", Int) = 16
@@ -22,6 +17,7 @@ Shader "Atmosphere Tests/Atmosphere Test 1" {
         }
 
         Pass {
+            // Blend SrcColor OneMinusSrcColor
             Blend One One
             ZWrite Off
             ZTest Always
