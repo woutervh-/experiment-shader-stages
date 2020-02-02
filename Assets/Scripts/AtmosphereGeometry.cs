@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class Atmosphere : MonoBehaviour
+public class AtmosphereGeometry : MonoBehaviour
 {
     public Material material;
     public float radius = 1f;
