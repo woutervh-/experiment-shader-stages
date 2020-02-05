@@ -70,9 +70,14 @@ float3 GetIntegral(float altitude, float mu, float nu) {
         float3 p = origin + direction * (t + dt * 0.5);
         float height = distance(_PlanetPosition, p);
         float h = exp(-height / (_AtmosphereRadius / 4.0)) * dt;
-
         opticalDepth += h;
-        float transmittance = exp(-opticalDepth);
+
+        float opticalDepthLight = 0;
+        float l0, l1;
+        raySphereIntersect(p, );
+
+        float tau = opticalDepth + opticalDepthLight;
+        float transmittance = exp(-tau);
         integral += h * transmittance;
 
         t += dt;
