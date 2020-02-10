@@ -3,6 +3,8 @@
 
 #include "Packages/com.unity.render-pipelines.lightweight/Shaders/UnlitInput.hlsl"
 
+#define PI 3.1415927410125732
+
 struct Attributes {
     float4 positionOS : POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -73,8 +75,8 @@ float3 GetIntegral(float altitude, float mu, float nu) {
         opticalDepth += h;
 
         float opticalDepthLight = 0;
-        float l0, l1;
-        raySphereIntersect(p, );
+        // float l0, l1;
+        // raySphereIntersect(p, );
 
         float tau = opticalDepth + opticalDepthLight;
         float transmittance = exp(-tau);
@@ -105,7 +107,11 @@ float4 Fragment(Varyings input) : SV_Target {
     float altitude = distance(rayOriginWS, _PlanetPosition);
     float mu = dot(normalize(_PlanetPosition - rayOriginWS), rayDirectionWS);
     float nu = dot(lightDirection, rayDirectionWS);
-    float3 integral = GetIntegral(altitude, mu, nu);
+
+    float H = _AtmosphereRadius - dot(rayOriginWS - _PlanetPosition, -lightDirection);
+    float sphericalCapVolume = PI * H * H / 3.0 * (3.0 * _AtmosphereRadius - H);
+
+    float3 integral = H;
 
     return float4(integral, 1);
 }
