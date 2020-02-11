@@ -92,26 +92,44 @@ float4 Fragment(Varyings input) : SV_Target {
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
     float3 lightDirection = normalize(_MainLightPosition.xyz);
-    float3 rayOriginWS = _WorldSpaceCameraPos.xyz;
     float3 rayDirectionWS = normalize(input.positionWS - _WorldSpaceCameraPos.xyz);
 
     float a0, a1;
-    bool atmosphereHit = raySphereIntersect(rayOriginWS, rayDirectionWS, _PlanetPosition, _AtmosphereRadius, a0, a1);
+    bool atmosphereHit = raySphereIntersect(_WorldSpaceCameraPos.xyz, rayDirectionWS, _PlanetPosition, _AtmosphereRadius, a0, a1);
 
     if (!atmosphereHit || a1 < 0) {
         return float4(0, 0, 0, 1);
     }
 
-    a0 = max(0, a0);
-    rayOriginWS = rayOriginWS + rayDirectionWS * a0;
-    float altitude = distance(rayOriginWS, _PlanetPosition);
-    float mu = dot(normalize(_PlanetPosition - rayOriginWS), rayDirectionWS);
-    float nu = dot(lightDirection, rayDirectionWS);
+    // a0 = max(0, a0);
+    // float3 rayOriginWS = _WorldSpaceCameraPos.xyz + rayDirectionWS * a0;
+    // float altitude = distance(rayOriginWS, _PlanetPosition);
+    // float mu = dot(normalize(_PlanetPosition - rayOriginWS), rayDirectionWS);
+    // float nu = dot(lightDirection, rayDirectionWS);
 
-    float H = _AtmosphereRadius - dot(rayOriginWS - _PlanetPosition, -lightDirection);
-    float sphericalCapVolume = PI * H * H / 3.0 * (3.0 * _AtmosphereRadius - H);
+    // float H = _AtmosphereRadius - dot(rayOriginWS - _PlanetPosition, -lightDirection);
+    // float sphericalCapVolume = PI * H * H / 3.0 * (3.0 * _AtmosphereRadius - H);
+    // float3 integral = sphericalCapVolume.xxx;
 
-    float3 integral = H;
+    // float h = dot(rayOriginWS - _PlanetPosition, -lightDirection);
+    // float Ha = _AtmosphereRadius - h;
+    // float Hp = _PlanetRadius - h;
+    // float Va = PI * Ha * Ha / 3.0 * (3.0 * _AtmosphereRadius - Ha);
+    // float Vp = PI * Hp * Hp / 3.0 * (3.0 * _PlanetRadius - Hp);
+    // float3 integral = (Va - Vp).xxx;
+
+    // float Ha = _AtmosphereRadius - dot(rayOriginWS - _PlanetPosition, -lightDirection);
+    // float Aa = _AtmosphereRadius * _AtmosphereRadius * acos(1.0 - Ha / _AtmosphereRadius) - (_AtmosphereRadius - Ha) * sqrt(2.0 * _AtmosphereRadius * Ha - Ha * Ha);
+    // float3 integral = Aa.xxx;
+
+    float3 p0 = _WorldSpaceCameraPos.xyz + rayDirectionWS * a0;
+    float3 p1 = _WorldSpaceCameraPos.xyz + rayDirectionWS * a1;
+    float h = distance(p0, _PlanetPosition) * distance(p1, _PlanetPosition) / distance(p0, p1);
+    float H = _AtmosphereRadius - h;
+    float A = _AtmosphereRadius * _AtmosphereRadius * acos(1.0 - H / _AtmosphereRadius) - (_AtmosphereRadius - H) * sqrt(2.0 * _AtmosphereRadius * H - H * H);
+    float3 integral = A.xxx;
+
+    integral *= saturate(dot(rayDirectionWS, -lightDirection));
 
     return float4(integral, 1);
 }
