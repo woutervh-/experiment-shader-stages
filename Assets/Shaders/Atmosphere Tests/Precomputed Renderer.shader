@@ -3,6 +3,7 @@ Shader "Atmosphere Tests/Precomputed Renderer" {
         _PlanetRadius ("Planet radius", Float) = 1.0
         _AtmosphereRadius ("Atmosphere radius", Float) = 1.5
         _PlanetPosition ("Planet position", Vector) = (0, 0, 0)
+        _SunIntensity ("Sun intensity", Float) = 15.0
         _ScaleFactor ("Scale factor", Float) = 6371000
     }
 
